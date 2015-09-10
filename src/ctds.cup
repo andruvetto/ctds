@@ -1,0 +1,148 @@
+import java_cup.runtime.*;
+
+
+parser code {:
+
+		public void syntax_error(Symbol s){
+            System.err.println("Syntax error in line " + (s.left+1) + " column " + (s.right+1) + " value : " + (s.value)); 
+        }
+
+        public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
+            System.err.println("Fatal Error");
+        }
+		
+   
+        
+:}
+
+terminal CLASS, VOID, INT, FLOAT, BOOLEAN, IF, ELSE, FOR, WHILE, RETURN, BREAK, CONTINUE, EXTERN, LEFTBRACE, RIGHTBRACE, TIMES, PLUS, MINUS, DIVIDE, MOD, AND, OR, LOGIC_NEGATION, LEFT_PAREN, RT_PAREN, LEFT_BRKT, RT_BRKT, SEMI, EQ, GTR, LESS, LESS_EQ, GTR_EQ, NOT_EQ, ASSMNT, ASSMNT_INC, ASSMNT_DEC, COMMA, POINT, ID, ERROR;
+terminal Integer INT_LITERAL;
+terminal Float FLOAT_LITERAL;
+terminal Boolean TRUE, FALSE;
+
+non terminal program, class_list, class_decl, field_list, field_decl, type_id, type_id_list,method_list, method_decl, parameter, parameters_list, body, block, type, statement, statement_list, assign_op, method_call, location, id_point_list, expr_list, expr, literal, body_class, body_block;
+
+
+precedence left GTR,LESS,EQ,NOT_EQ,GTR_EQ,LESS_EQ,AND,OR;
+precedence left PLUS, MINUS;
+precedence left TIMES, DIVIDE, MOD;
+precedence left LEFT_PAREN, RT_PAREN;
+precedence left LOGIC_NEGATION;
+precedence left ELSE;
+
+
+
+start with program;
+
+
+
+program ::= class_list;
+
+class_list ::= class_decl 
+            |  class_list class_decl;
+                    
+class_decl::= CLASS ID LEFTBRACE body_class RIGHTBRACE
+            | CLASS ID LEFTBRACE RIGHTBRACE;
+
+body_class ::= field_list method_list
+             | field_list
+             | method_list;
+
+field_list::= field_list field_decl
+            | field_decl;
+                
+field_decl::= type type_id_list SEMI;
+        
+
+type_id_list::= type_id
+              | type_id COMMA type_id_list;
+                    
+type_id::= ID LEFT_BRKT INT_LITERAL RT_BRKT
+         | ID ;
+                
+method_list::= method_list method_decl 
+             | method_decl;
+
+method_decl::= VOID ID LEFT_PAREN parameters_list RT_PAREN body
+             | type ID LEFT_PAREN parameters_list RT_PAREN body
+             | VOID ID LEFT_PAREN RT_PAREN body
+             | type ID LEFT_PAREN RT_PAREN body;
+             
+
+parameters_list::= parameter
+                 | parameter COMMA parameters_list;
+                        
+parameter::= type ID;
+
+body::= block
+      | EXTERN SEMI;
+        
+block::= LEFTBRACE body_block RIGHTBRACE
+       | LEFTBRACE RIGHTBRACE;
+       
+body_block ::= field_list statement_list
+             | field_list
+             | statement_list;
+
+type::= INT | FLOAT | BOOLEAN;
+
+statement_list::= statement_list statement
+                | statement;
+                        
+statement::= location assign_op expr SEMI
+           | method_call SEMI
+           | IF LEFT_PAREN expr RT_PAREN statement ELSE statement
+           | IF LEFT_PAREN expr RT_PAREN statement
+           | FOR ID ASSMNT expr COMMA expr statement
+           | WHILE expr statement
+           | RETURN expr SEMI
+           | RETURN SEMI
+           | BREAK SEMI
+           | CONTINUE SEMI
+           | SEMI
+           | block;
+                                              
+assign_op::= ASSMNT | ASSMNT_INC | ASSMNT_DEC;
+
+method_call::= ID id_point_list LEFT_PAREN expr_list RT_PAREN
+             | ID LEFT_PAREN expr_list RT_PAREN
+             | ID LEFT_PAREN RT_PAREN
+             | ID id_point_list LEFT_PAREN RT_PAREN;
+
+location::= ID id_point_list 
+          | ID
+          | ID LEFT_BRKT expr RT_BRKT
+          | ID id_point_list LEFT_BRKT expr RT_BRKT; 
+
+id_point_list::= id_point_list POINT ID 
+               |POINT ID;
+
+
+expr_list::= expr COMMA expr_list
+           | expr;
+                
+expr::= location
+      | method_call
+      | literal
+      | expr PLUS expr
+      | expr MINUS expr
+      | expr TIMES expr
+      | expr DIVIDE expr
+      | expr MOD expr
+      | expr GTR expr
+      | expr LESS expr
+      | expr GTR_EQ expr
+      | expr LESS_EQ expr
+      | expr EQ expr
+      | expr NOT_EQ expr
+      | expr AND expr
+      | expr OR expr
+      | MINUS expr
+      | LOGIC_NEGATION expr
+      | LEFT_PAREN expr RT_PAREN;
+        
+                    
+literal::= INT_LITERAL
+         | FLOAT_LITERAL
+         | TRUE
+         | FALSE;

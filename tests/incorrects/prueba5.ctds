@@ -1,0 +1,14 @@
+class main {
+
+    int num;
+    
+    void prueba () {
+    
+        num=3;        
+        int aux;
+        
+    }
+
+}
+
+//Prueba de la declaracion de una variable, luego de un "statement" en un bloque.

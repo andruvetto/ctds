@@ -1,0 +1,10 @@
+class main {
+
+    void prueba () {}
+    
+    int num;
+
+}
+
+
+//Prueba de la declaracion de una variable luego de la implementacion de una funcion.    
