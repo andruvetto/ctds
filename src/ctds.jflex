@@ -36,15 +36,15 @@ int_literal =       {digit}{digit}*
 float_literal =     {int_literal}\.{int_literal}
 leftbrace =         \{
 rightbrace =        \}
-LineTerminator =    \r|\n|\r\n
-InputCharacter =    [^\r\n]
-WhiteSpace     =    {LineTerminator} | [ \t\f]
+lineterminator =    \r|\n|\r\n
+inputcharacter =    [^\r\n]
+whitespace     =    {lineterminator} | [ \t\f]
 
 /* comments */
-comment =           {TraditionalComment} | {EndOfLineComment} 
-TraditionalComment = "/*" [^*] ~"*/" | "/*" "*"+ "/"
+comment =           {traditionalcomment} | {endoflinecomment} 
+traditionalcomment = "/*" [^*] ~"*/" | "/*" "*"+ "/"
 // Comment can be the last line of the file, without line terminator.
-EndOfLineComment     = "//" {InputCharacter}* {LineTerminator}?
+endoflinecomment     = "//" {inputcharacter}* {lineterminator}?
 
 
 %%
@@ -112,6 +112,6 @@ extern          {return new Symbol(sym.EXTERN,yyline,yycolumn,yytext());}
 
 
 {comment}       {/* Ignore comments*/}
-{WhiteSpace}    { /* Ignore whitespace. */ }
+{whitespace}    { /* Ignore whitespace. */ }
 .               {return new Symbol(sym.ERROR,yyline,yycolumn,yytext());}
                 
