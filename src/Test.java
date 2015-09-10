@@ -22,17 +22,16 @@ public class Test {
    				FileReader fr = new FileReader(proofs[i]);
    				CtdsLexer scanner = new CtdsLexer(fr);  
                                 parser pr = new parser( scanner );
-                                pr.parse();
-                                if ((pr.scan().toString().equals("#0"))){
+                                try {
+                                    pr.parse();
                                     if (ifCorrects){
                                         System.out.println(proofs[i].getName() + "------------------" + " Test OK!" );
                                     }
                                     else{
                                         System.out.println(proofs[i].getName() + "------------------" + " Test Fail" );
                                     }
-                                    
                                 }
-                                else{
+                                catch (Exception e) {
                                     if (ifCorrects){
                                         System.out.println(proofs[i].getName() + "------------------" + " Test Fail" );
                                     }
