@@ -1,4 +1,6 @@
-Analizador sintáctico y gramático para lenguaje ctds
+Taller de Diseño de Software - UNRC
+Etapa 1 y 2
+Analizador sintáctico y gramático para lenguaje ctds.
 Andruvetto Daniel - Palacios Lucas
 
 para compilar:
