@@ -1,18 +1,18 @@
 package ir.ast;
 
 public enum AssignOpType {
-	INCREMENT,
-	DECREMENT,
-	ASSIGN;
+	ASSMNT_INC,
+	ASSMNT_DEC,
+	ASSMNT;
 	
 	@Override
 	public String toString() {
 		switch(this) {
-			case INCREMENT:
+			case ASSMNT_INC:
 				return "+=";
-			case DECREMENT:
+			case ASSMNT_DEC:
 				return "-=";
-			case ASSIGN:
+			case ASSMNT:
 				return "=";
 		}
 		

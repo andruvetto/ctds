@@ -64,4 +64,9 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
     public Type visit(FloatLiteral lit) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+    
+    @Override
+    public Type visit(BooleanLiteral lit) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

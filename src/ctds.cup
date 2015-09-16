@@ -17,16 +17,21 @@ parser code {:
         
 :}
 
-terminal CLASS, VOID, INT, FLOAT, BOOLEAN, IF, ELSE, FOR, WHILE, RETURN, BREAK, CONTINUE, EXTERN, LEFTBRACE, RIGHTBRACE, LOGIC_NEGATION, LEFT_PAREN, RT_PAREN, LEFT_BRKT, RT_BRKT, SEMI,  ASSMNT, ASSMNT_INC, ASSMNT_DEC, COMMA, POINT, ID, ERROR;
+terminal CLASS, VOID, INT, FLOAT, BOOLEAN, IF, ELSE, FOR, WHILE, RETURN, BREAK, CONTINUE, EXTERN, LEFTBRACE, RIGHTBRACE, LOGIC_NEGATION, LEFT_PAREN, RT_PAREN, LEFT_BRKT, RT_BRKT, SEMI, COMMA, POINT, ID, ERROR;
 
 terminal BinOpType TIMES, PLUS, MINUS, DIVIDE, MOD, AND, OR, EQ, GTR, LESS, LESS_EQ, GTR_EQ, NOT_EQ;
+terminal AssignOpType ASSMNT, ASSMNT_INC, ASSMNT_DEC;
 terminal Integer INT_LITERAL;
 terminal Float FLOAT_LITERAL;
 terminal Boolean TRUE, FALSE;
 
-non terminal program, class_list, class_decl, field_list, field_decl, type_id, type_id_list,method_list, method_decl, parameter, parameters_list, body, block, type, statement, statement_list, assign_op, method_call, location, id_point_list, expr_list, literal, body_class, body_block;
+non terminal program, class_list, class_decl, field_list, field_decl, type_id, type_id_list,method_list, method_decl, parameter, parameters_list, body, block, type, statement_list, method_call, id_point_list, expr_list, body_class, body_block;
 
 non terminal Expression expr;
+non terminal Literal literal;
+non terminal AssignOpType assign_op;
+non terminal Location location;
+non terminal Statement statement; 
 
 precedence left GTR,LESS,EQ,NOT_EQ,GTR_EQ,LESS_EQ,AND,OR;
 precedence left PLUS, MINUS;
@@ -94,7 +99,7 @@ type::= INT | FLOAT | BOOLEAN;
 statement_list::= statement_list statement
                 | statement;
                         
-statement::= location assign_op expr SEMI
+statement::= location:l assign_op:o expr:e SEMI {: RESULT = new AssignStmt(l,o,e); :}
            | method_call SEMI
            | IF LEFT_PAREN expr RT_PAREN statement ELSE statement
            | IF LEFT_PAREN expr RT_PAREN statement
@@ -107,7 +112,10 @@ statement::= location assign_op expr SEMI
            | SEMI
            | block;
                                               
-assign_op::= ASSMNT | ASSMNT_INC | ASSMNT_DEC;
+assign_op::= ASSMNT:o {: RESULT = o; :}
+           | ASSMNT_INC:o {: RESULT = o; :}  
+           | ASSMNT_DEC:o {: RESULT = o; :}
+           ; 
 
 method_call::= ID id_point_list LEFT_PAREN expr_list RT_PAREN
              | ID LEFT_PAREN expr_list RT_PAREN
@@ -128,7 +136,7 @@ expr_list::= expr COMMA expr_list
                 
 expr::= location
       | method_call
-      | literal
+      | literal:l {: RESULT = l;:}
       | expr:e1 PLUS:o expr:e2 {: RESULT = new BinOpExpr(e1,o,e2);:}
       | expr:e1 MINUS:o expr:e2 {: RESULT = new BinOpExpr(e1,o,e2);:}
       | expr:e1 TIMES:o expr:e2 {: RESULT = new BinOpExpr(e1,o,e2);:}
@@ -149,6 +157,6 @@ expr::= location
                     
 literal::= INT_LITERAL:v {: RESULT = new IntLiteral(v); :}
          | FLOAT_LITERAL:v {: RESULT = new FloatLiteral(v); :}
-         | TRUE:v {: RESULT = v; :}
-         | FALSE:v {: RESULT = v; :}
+         | TRUE:v {: RESULT = new BooleanLiteral(v); :}
+         | FALSE:v {: RESULT = new BooleanLiteral(v); :}
          ;
