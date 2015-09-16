@@ -130,18 +130,18 @@ expr::= location
       | method_call
       | literal
       | expr:e1 PLUS:o expr:e2 {: RESULT = new BinOpExpr(e1,o,e2);:}
-      | expr MINUS expr
-      | expr TIMES expr
-      | expr DIVIDE expr
-      | expr MOD expr
-      | expr GTR expr
-      | expr LESS expr
-      | expr GTR_EQ expr
-      | expr LESS_EQ expr
-      | expr EQ expr
-      | expr NOT_EQ expr
-      | expr AND expr
-      | expr OR expr
+      | expr:e1 MINUS:o expr:e2 {: RESULT = new BinOpExpr(e1,o,e2);:}
+      | expr:e1 TIMES:o expr:e2 {: RESULT = new BinOpExpr(e1,o,e2);:}
+      | expr:e1 DIVIDE:o expr:e2 {: RESULT = new BinOpExpr(e1,o,e2);:}
+      | expr:e1 MOD:o expr:e2 {: RESULT = new BinOpExpr(e1,o,e2);:}
+      | expr:e1 GTR:o expr:e2 {: RESULT = new BinOpExpr(e1,o,e2);:}
+      | expr:e1 LESS:o expr:e2 {: RESULT = new BinOpExpr(e1,o,e2);:}
+      | expr:e1 GTR_EQ:o expr:e2 {: RESULT = new BinOpExpr(e1,o,e2);:}
+      | expr:e1 LESS_EQ:o expr:e2 {: RESULT = new BinOpExpr(e1,o,e2);:}
+      | expr:e1 EQ:o expr:e2 {: RESULT = new BinOpExpr(e1,o,e2);:}
+      | expr:e1 NOT_EQ:o expr:e2 {: RESULT = new BinOpExpr(e1,o,e2);:}
+      | expr:e1 AND:o expr:e2 {: RESULT = new BinOpExpr(e1,o,e2);:}
+      | expr:e1 OR:o expr:e2 {: RESULT = new BinOpExpr(e1,o,e2);:}
       | MINUS expr
       | LOGIC_NEGATION expr
       | LEFT_PAREN expr RT_PAREN;
