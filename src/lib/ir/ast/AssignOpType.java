@@ -15,7 +15,7 @@ public enum AssignOpType {
 			case ASSMNT:
 				return "=";
 		}
-		
+
 		return null;		
 	}
 }

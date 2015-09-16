@@ -15,7 +15,7 @@ public class IntLiteral extends Literal {
 		value = null;
 	}
         
-        public IntLiteral(int val){
+    public IntLiteral(int val){
 		rawValue = null; // Will convert to int value in semantic check
 		value = val;
 	}

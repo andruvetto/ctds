@@ -12,8 +12,8 @@ public class Main {
             System.out.println("Syntaxis correct!");
         } 
         catch (Exception e) {
-            //e.printStackTrace();
-            System.out.println("Syntaxis problem!");
+            e.printStackTrace();
+            //System.out.println("Syntaxis problem!");
         }
     }
 }
