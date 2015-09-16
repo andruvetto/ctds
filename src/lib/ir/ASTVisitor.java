@@ -14,7 +14,11 @@ public interface ASTVisitor<T> {
 	
 // visit literals	
 	T visit(IntLiteral lit);
+        T visit(FloatLiteral lit);
 
 // visit locations	
 	T visit(VarLocation loc);
+        
+// visit blocks	
+	T visit(Block block);        
 }

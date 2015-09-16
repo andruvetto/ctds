@@ -88,8 +88,8 @@ extern          {return new Symbol(sym.EXTERN,yyline,yycolumn,yytext());}
 ","             {return new Symbol(sym.COMMA,yyline,yycolumn,yytext());}
 
 "=="            {return new Symbol(sym.EQ,yyline,yycolumn,yytext());}
-"<"             {return new Symbol(sym.GTR,yyline,yycolumn,yytext());}
-">"             {return new Symbol(sym.LESS,yyline,yycolumn,yytext());}
+"<"             {return new Symbol(sym.LESS,yyline,yycolumn,yytext());}
+">"             {return new Symbol(sym.GTR,yyline,yycolumn,yytext());}
 "<="            {return new Symbol(sym.LESS_EQ,yyline,yycolumn,yytext());}
 ">="            {return new Symbol(sym.GTR_EQ,yyline,yycolumn,yytext());}
 "!="            {return new Symbol(sym.NOT_EQ,yyline,yycolumn,yytext());}

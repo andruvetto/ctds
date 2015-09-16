@@ -14,6 +14,11 @@ public class IntLiteral extends Literal {
 		rawValue = val; // Will convert to int value in semantic check
 		value = null;
 	}
+        
+        public IntLiteral(int val){
+		rawValue = null; // Will convert to int value in semantic check
+		value = val;
+	}
 
 	@Override
 	public Type getType() {

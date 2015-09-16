@@ -3,15 +3,15 @@ package ir.ast;
 public enum BinOpType {
 	PLUS, // Arithmetic
 	MINUS,
-	MULTIPLY,
+	TIMES,
 	DIVIDE,
 	MOD,
-	LE, // Relational
-	LEQ,
-	GE,
-	GEQ,
-	NEQ, // Equal
-	CEQ, 
+	LESS, // Relational
+	LESS_EQ,
+	GTR,
+	GTR_EQ,
+	NOT_EQ, // Equal
+	EQ, 
 	AND, // Conditional
 	OR;
 	
@@ -22,23 +22,23 @@ public enum BinOpType {
 				return "+";
 			case MINUS:
 				return "-";
-			case MULTIPLY:
+			case TIMES:
 				return "*";
 			case DIVIDE:
 				return "/";
 			case MOD:
 				return "%";
-			case LE:
+			case LESS:
 				return "<";
-			case LEQ:
+			case LESS_EQ:
 				return "<=";
-			case GE:
+			case GTR:
 				return ">";
-			case GEQ:
+			case GTR_EQ:
 				return ">=";
-			case CEQ:
+			case EQ:
 				return "==";
-			case NEQ:
+			case NOT_EQ:
 				return "!=";
 			case AND:
 				return "&&";

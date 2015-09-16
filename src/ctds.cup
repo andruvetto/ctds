@@ -1,4 +1,5 @@
 import java_cup.runtime.*;
+import ir.ast.*;
 
 
 parser code {:
@@ -16,13 +17,16 @@ parser code {:
         
 :}
 
-terminal CLASS, VOID, INT, FLOAT, BOOLEAN, IF, ELSE, FOR, WHILE, RETURN, BREAK, CONTINUE, EXTERN, LEFTBRACE, RIGHTBRACE, TIMES, PLUS, MINUS, DIVIDE, MOD, AND, OR, LOGIC_NEGATION, LEFT_PAREN, RT_PAREN, LEFT_BRKT, RT_BRKT, SEMI, EQ, GTR, LESS, LESS_EQ, GTR_EQ, NOT_EQ, ASSMNT, ASSMNT_INC, ASSMNT_DEC, COMMA, POINT, ID, ERROR;
+terminal CLASS, VOID, INT, FLOAT, BOOLEAN, IF, ELSE, FOR, WHILE, RETURN, BREAK, CONTINUE, EXTERN, LEFTBRACE, RIGHTBRACE, LOGIC_NEGATION, LEFT_PAREN, RT_PAREN, LEFT_BRKT, RT_BRKT, SEMI,  ASSMNT, ASSMNT_INC, ASSMNT_DEC, COMMA, POINT, ID, ERROR;
+
+terminal BinOpType TIMES, PLUS, MINUS, DIVIDE, MOD, AND, OR, EQ, GTR, LESS, LESS_EQ, GTR_EQ, NOT_EQ;
 terminal Integer INT_LITERAL;
 terminal Float FLOAT_LITERAL;
 terminal Boolean TRUE, FALSE;
 
-non terminal program, class_list, class_decl, field_list, field_decl, type_id, type_id_list,method_list, method_decl, parameter, parameters_list, body, block, type, statement, statement_list, assign_op, method_call, location, id_point_list, expr_list, expr, literal, body_class, body_block;
+non terminal program, class_list, class_decl, field_list, field_decl, type_id, type_id_list,method_list, method_decl, parameter, parameters_list, body, block, type, statement, statement_list, assign_op, method_call, location, id_point_list, expr_list, literal, body_class, body_block;
 
+non terminal Expression expr;
 
 precedence left GTR,LESS,EQ,NOT_EQ,GTR_EQ,LESS_EQ,AND,OR;
 precedence left PLUS, MINUS;
@@ -125,7 +129,7 @@ expr_list::= expr COMMA expr_list
 expr::= location
       | method_call
       | literal
-      | expr PLUS expr
+      | expr:e1 PLUS:o expr:e2 {: RESULT = new BinOpExpr(e1,o,e2);:}
       | expr MINUS expr
       | expr TIMES expr
       | expr DIVIDE expr
@@ -143,7 +147,8 @@ expr::= location
       | LEFT_PAREN expr RT_PAREN;
         
                     
-literal::= INT_LITERAL
-         | FLOAT_LITERAL
-         | TRUE
-         | FALSE;
+literal::= INT_LITERAL:v {: RESULT = new IntLiteral(v); :}
+         | FLOAT_LITERAL:v {: RESULT = new FloatLiteral(v); :}
+         | TRUE:v {: RESULT = v; :}
+         | FALSE:v {: RESULT = v; :}
+         ;
