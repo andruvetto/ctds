@@ -10,7 +10,8 @@ public interface ASTVisitor<T> {
 	T visit(IfStmt stmt);
 	
 // visit expressions
-	T visit(BinOpExpr expr);;
+	T visit(BinOpExpr expr);
+        T visit(UnOpExpr expr);
 	
 // visit literals	
 	T visit(IntLiteral lit);

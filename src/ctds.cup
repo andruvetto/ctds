@@ -146,9 +146,10 @@ expr::= location
       | expr:e1 NOT_EQ expr:e2 {: RESULT = new BinOpExpr(e1,BinOpType.NOT_EQ,e2);:}
       | expr:e1 AND expr:e2 {: RESULT = new BinOpExpr(e1,BinOpType.AND,e2);:}
       | expr:e1 OR expr:e2 {: RESULT = new BinOpExpr(e1,BinOpType.OR,e2);:}
-      | MINUS expr
-      | LOGIC_NEGATION expr
-      | LEFT_PAREN expr RT_PAREN;
+      | MINUS expr:e {: RESULT = new UnOpExpr(UnOpType.MINUS, e); :}
+      | LOGIC_NEGATION expr:e {: RESULT = new UnOpExpr(UnOpType.LOGIC_NEGATION, e); :}
+      | LEFT_PAREN expr:e RT_PAREN {: RESULT = e ; :}
+      ;
         
                     
 literal::= INT_LITERAL:v {: RESULT = v; :}
