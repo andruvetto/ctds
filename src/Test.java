@@ -18,28 +18,25 @@ public class Test {
 		File f = new File(directory);
    		if(f.exists()){
    			File[] proofs = f.listFiles();
-   			for(int i=0; i<proofs.length; i++){
-   				FileReader fr = new FileReader(proofs[i]);
-   				CtdsLexer scanner = new CtdsLexer(fr);  
-                                parser pr = new parser( scanner );
-                                try {
-                                    pr.parse();
-                                    if (ifCorrects){
-                                        System.out.println(proofs[i].getName() + "------------------" + " Test OK!" );
-                                    }
-                                    else{
-                                        System.out.println(proofs[i].getName() + "------------------" + " Test Fail" );
-                                    }
-                                }
-                                catch (Exception e) {
-                                    if (ifCorrects){
-                                        System.out.println(proofs[i].getName() + "------------------" + " Test Fail" );
-                                    }
-                                    else{
-                                        System.out.println(proofs[i].getName() + "------------------" + " Test OK!" );
-                                    }
-                                }
-                        }
+            for (File proof : proofs) {
+                FileReader fr = new FileReader(proof);
+                CtdsLexer scanner = new CtdsLexer(fr);
+                parser pr = new parser( scanner );
+                try {
+                    pr.parse();
+                    if (ifCorrects) {
+                        System.out.println(proof.getName() + "------------------" + " Test OK!");
+                    } else {
+                        System.out.println(proof.getName() + "------------------" + " Test Fail");
+                    }
+                } catch (Exception e) {
+                    if (ifCorrects) {
+                        System.out.println(proof.getName() + "------------------" + " Test Fail");
+                    } else {
+                        System.out.println(proof.getName() + "------------------" + " Test OK!");
+                    }
+                }
+            }
                 }
    		else{
    			System.out.println("Directory " + directory + " does not exist");

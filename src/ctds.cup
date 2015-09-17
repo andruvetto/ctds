@@ -17,15 +17,15 @@ parser code {:
         
 :}
 
-terminal CLASS, VOID, INT, FLOAT, BOOLEAN, IF, ELSE, FOR, WHILE, RETURN, BREAK, CONTINUE, EXTERN, LEFTBRACE, RIGHTBRACE, LOGIC_NEGATION, LEFT_PAREN, RT_PAREN, LEFT_BRKT, RT_BRKT, SEMI, COMMA, POINT, ID, ERROR, TIMES, PLUS, MINUS, DIVIDE, MOD, AND, OR, EQ, GTR, LESS, LESS_EQ, GTR_EQ, NOT_EQ, ASSMNT, ASSMNT_INC, ASSMNT_DEC;
+terminal CLASS, VOID, INT, FLOAT, BOOLEAN, IF, ELSE, FOR, WHILE, RETURN, BREAK, CONTINUE, EXTERN, LEFTBRACE, RIGHTBRACE, LOGIC_NEGATION, LEFT_PAREN, RT_PAREN, LEFT_BRKT, RT_BRKT, SEMI, COMMA, POINT, ID, ERROR, TIMES, MINUS, PLUS, DIVIDE, MOD, AND, OR, EQ, GTR, LESS, LESS_EQ, GTR_EQ, NOT_EQ, ASSMNT, ASSMNT_INC, ASSMNT_DEC, INT_LITERAL, FLOAT_LITERAL, TRUE, FALSE;
 
 
-terminal IntLiteral INT_LITERAL;
-terminal FloatLiteral FLOAT_LITERAL;
-terminal BooleanLiteral TRUE, FALSE;
 
-non terminal program, class_list, class_decl, field_list, field_decl, type_id, type_id_list,method_list, method_decl, parameter, parameters_list, body, block, type, statement_list, method_call, id_point_list, expr_list, body_class, body_block;
+non terminal program, class_list, class_decl, field_list, field_decl, type_id_list,method_list, method_decl, parameter, parameters_list, body, block, type, statement_list, method_call, id_point_list, expr_list, body_class, body_block;
 
+
+
+non terminal Type type_id; 
 non terminal Expression expr;
 non terminal Literal literal;
 non terminal Location location;
@@ -66,7 +66,9 @@ type_id_list::= type_id
               | type_id COMMA type_id_list;
                     
 type_id::= ID LEFT_BRKT INT_LITERAL RT_BRKT
-         | ID ;
+         | ID:id 
+                  
+         ;
                 
 method_list::= method_list method_decl 
              | method_decl;
@@ -154,8 +156,8 @@ expr::= location
       ;
         
                     
-literal::= INT_LITERAL:v {: RESULT = v; :}
-         | FLOAT_LITERAL:v {: RESULT = v; :}
-         | TRUE:v {: RESULT = v; :}
-         | FALSE:v {: RESULT = v; :}
+literal::= INT_LITERAL:v {: RESULT = new IntLiteral((String)v); :}
+         | FLOAT_LITERAL:v {: RESULT = new FloatLiteral((String)v); :}
+         | TRUE:v {: RESULT = new BooleanLiteral((String)v); :}
+         | FALSE:v {: RESULT = new BooleanLiteral((String)v); :}
          ;

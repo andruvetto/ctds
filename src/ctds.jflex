@@ -57,8 +57,8 @@ else            {return new Symbol(sym.ELSE,yyline,yycolumn,yytext());}
 if              {return new Symbol(sym.IF,yyline,yycolumn,yytext());}
 
 
-true            {return new Symbol(sym.TRUE,yyline,yycolumn,new BooleanLiteral(yytext()));}
-false           {return new Symbol(sym.FALSE,yyline,yycolumn,new BooleanLiteral(yytext()));}
+true            {return new Symbol(sym.TRUE,yyline,yycolumn,yytext());}
+false           {return new Symbol(sym.FALSE,yyline,yycolumn,yytext());}
 
 
 boolean         {return new Symbol(sym.BOOLEAN,yyline,yycolumn,yytext());}
@@ -108,8 +108,8 @@ extern          {return new Symbol(sym.EXTERN,yyline,yycolumn,yytext());}
 //{int_literal}   {System.out.println("INT_LITERAL"); return new Symbol(sym.INT_LITERAL, new Integer(yytext()));}
 //{float_literal} {System.out.println("FLOAT_LITERAL");return new Symbol(sym.FLOAT_LITERAL, new Float(yytext())); }
 
-{int_literal}   {return new Symbol(sym.INT_LITERAL,yyline,yycolumn,new IntLiteral(yytext()));}
-{float_literal} {return new Symbol(sym.FLOAT_LITERAL,yyline,yycolumn,new FloatLiteral(yytext())); }
+{int_literal}   {return new Symbol(sym.INT_LITERAL,yyline,yycolumn,yytext());}
+{float_literal} {return new Symbol(sym.FLOAT_LITERAL,yyline,yycolumn,yytext()); }
 
 
 {leftbrace}     {return new Symbol(sym.LEFTBRACE,yyline,yycolumn,yytext());}
