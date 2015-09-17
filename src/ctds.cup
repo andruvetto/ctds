@@ -101,12 +101,14 @@ statement::= location:l ASSMNT expr:e SEMI {: RESULT = new AssignStmt(l,AssignOp
            | location:l ASSMNT_INC expr:e SEMI {: RESULT = new AssignStmt(l,AssignOpType.ASSMNT_INC,e); :}
            | location:l ASSMNT_DEC expr:e SEMI {: RESULT = new AssignStmt(l,AssignOpType.ASSMNT_DEC,e); :}
            | method_call SEMI
-           | IF LEFT_PAREN expr RT_PAREN statement ELSE statement
-           | IF LEFT_PAREN expr RT_PAREN statement
+           | IF LEFT_PAREN expr:e RT_PAREN statement:s1 ELSE statement:s2 {: RESULT = new IfStmt(e,s1,s2); :}
+           | IF LEFT_PAREN expr:e RT_PAREN statement:s {: RESULT = new IfStmt(e,s); :}
+           //| IF LEFT_PAREN expr RT_PAREN ifBlock ELSE elseBlock 
+           //| IF LEFT_PAREN expr RT_PAREN ifBlock
            | FOR ID ASSMNT expr COMMA expr statement
            | WHILE expr statement
-           | RETURN expr SEMI
-           | RETURN SEMI
+           | RETURN expr:e SEMI {: RESULT = new ReturnStmt(e); :}
+           | RETURN SEMI {: RESULT = new ReturnStmt(); :}
            | BREAK SEMI
            | CONTINUE SEMI
            | SEMI
