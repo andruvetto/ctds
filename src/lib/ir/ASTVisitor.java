@@ -15,7 +15,7 @@ public interface ASTVisitor<T> {
 	
 // visit literals	
 	T visit(IntLiteral lit);
-        T visit(FloatLitera lit);
+        T visit(FloatLiteral lit);
         T visit(BooleanLiteral lit);
 
 // visit methodCall
