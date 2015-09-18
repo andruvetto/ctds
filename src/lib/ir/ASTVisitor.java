@@ -23,6 +23,7 @@ public interface ASTVisitor<T> {
         
 // visit locations	
 	T visit(VarLocation loc);
+        T visit(ArrayLocation loc);
         
 // visit blocks	
 	T visit(Block block);        

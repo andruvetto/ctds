@@ -67,8 +67,7 @@ type_id_list::= type_id
               | type_id COMMA type_id_list;
                     
 type_id::= ID LEFT_BRKT INT_LITERAL RT_BRKT
-         | ID:id 
-                  
+         | ID:id                 
          ;
                 
 method_list::= method_list method_decl 
@@ -115,7 +114,8 @@ statement::= location:l ASSMNT expr:e SEMI {: RESULT = new AssignStmt(l,AssignOp
            | BREAK SEMI
            | CONTINUE SEMI
            | SEMI
-           | block;
+           | block
+           ;
                                               
 
 method_call::= ID id_point_list LEFT_PAREN expr_list RT_PAREN
@@ -123,10 +123,11 @@ method_call::= ID id_point_list LEFT_PAREN expr_list RT_PAREN
              | ID LEFT_PAREN RT_PAREN
              | ID id_point_list LEFT_PAREN RT_PAREN;
 
-location::= ID:id id_point_list:id_list {: System.out.println(((String)id)+id_list ) ; RESULT = new VarLocation(((String)id)+id_list); :}
+location::= ID:id id_point_list:id_list {: RESULT = new VarLocation(((String)id)+id_list); :}
           | ID:id {: RESULT = new VarLocation((String)id) ; :}
-          | ID LEFT_BRKT expr RT_BRKT
-          | ID id_point_list LEFT_BRKT expr RT_BRKT; 
+          | ID:id LEFT_BRKT expr:e RT_BRKT {: RESULT = new ArrayLocation(((String)id),e) ; :}
+          | ID:id id_point_list:id_list LEFT_BRKT expr:e RT_BRKT {: RESULT = new ArrayLocation((((String)id)+id_list),e); :}
+          ;
 
 id_point_list::= id_point_list:id_list POINT:p ID:id {: RESULT = id_list+((String)p)+((String)id); :}
                |POINT:p ID:id {: RESULT = ((String)p)+((String)id); :}
@@ -134,7 +135,8 @@ id_point_list::= id_point_list:id_list POINT:p ID:id {: RESULT = id_list+((Strin
 
 
 expr_list::= expr COMMA expr_list
-           | expr;
+           | expr
+           ;
                 
 expr::= location:l {: RESULT = l ; :}
       | method_call:m {: RESULT = m ; :}

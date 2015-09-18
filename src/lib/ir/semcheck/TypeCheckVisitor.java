@@ -79,4 +79,9 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
     public Type visit(MethodCall m) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public Type visit(ArrayLocation loc) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }
