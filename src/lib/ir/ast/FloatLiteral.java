@@ -22,7 +22,7 @@ public class FloatLiteral extends Literal {
 
 	@Override
 	public Type getType() {
-		return Type.INT;
+		return Type.FLOAT;
 	}
 
 	public String getStringValue() {

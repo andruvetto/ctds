@@ -1,5 +1,7 @@
 import java_cup.runtime.*;
 import ir.ast.*;
+import java.util.LinkedList;
+import java.util.List;
 
 
 parser code {:
@@ -21,14 +23,19 @@ terminal CLASS, VOID, INT, FLOAT, BOOLEAN, IF, ELSE, FOR, WHILE, RETURN, BREAK, 
 
 
 
-non terminal program, class_list, class_decl, field_list, field_decl, type_id_list,method_list, method_decl, parameter, parameters_list, body, block, type, statement_list, expr_list, body_class, body_block;
+non terminal program, class_list, class_decl, field_list, field_decl, type_id_list,method_list, method_decl, parameter, parameters_list, body, block, statement_list, body_class, body_block, type_id;
 
 non terminal String id_point_list;
 
-non terminal Type type_id; 
+non terminal Type type, type_array; 
 non terminal Expression expr;
+non terminal List<Expression> expr_list;
+
+
 non terminal Literal literal;
 non terminal Location location;
+non terminal VarLocation var_location;
+non terminal ArrayLocation array_location;
 non terminal Statement statement;
 non terminal MethodCall method_call; 
 
@@ -73,9 +80,7 @@ type_id::= ID LEFT_BRKT INT_LITERAL RT_BRKT
 method_list::= method_list method_decl 
              | method_decl;
 
-method_decl::= VOID ID LEFT_PAREN parameters_list RT_PAREN body
-             | type ID LEFT_PAREN parameters_list RT_PAREN body
-             | VOID ID LEFT_PAREN RT_PAREN body
+method_decl::= type ID LEFT_PAREN parameters_list RT_PAREN body
              | type ID LEFT_PAREN RT_PAREN body;
              
 
@@ -94,7 +99,12 @@ body_block ::= field_list statement_list
              | field_list
              | statement_list;
 
-type::= INT | FLOAT | BOOLEAN;
+type::= INT {: RESULT = Type.INT ;:}
+	  | FLOAT {: RESULT = Type.FLOAT ;:}
+	  | BOOLEAN {: RESULT = Type.BOOLEAN ;:}
+	  | VOID {: RESULT = Type.VOID ;:}
+	  ;
+type_array ::= LEFT_BRKT INT_LITERAL RT_BRKT {: RESULT = Type.INTARRAY ;:};
 
 statement_list::= statement_list statement
                 | statement;
@@ -118,24 +128,32 @@ statement::= location:l ASSMNT expr:e SEMI {: RESULT = new AssignStmt(l,AssignOp
            ;
                                               
 
-method_call::= ID id_point_list LEFT_PAREN expr_list RT_PAREN
-             | ID LEFT_PAREN expr_list RT_PAREN
-             | ID LEFT_PAREN RT_PAREN
-             | ID id_point_list LEFT_PAREN RT_PAREN;
+method_call::= var_location:l LEFT_PAREN expr_list:e RT_PAREN {:RESULT = new MethodCall(l,e);:}
+             | var_location:l LEFT_PAREN RT_PAREN {:RESULT = new MethodCall(l);:}
+             ;
 
-location::= ID:id id_point_list:id_list {: RESULT = new VarLocation(((String)id)+id_list); :}
-          | ID:id {: RESULT = new VarLocation((String)id) ; :}
-          | ID:id LEFT_BRKT expr:e RT_BRKT {: RESULT = new ArrayLocation(((String)id),e) ; :}
-          | ID:id id_point_list:id_list LEFT_BRKT expr:e RT_BRKT {: RESULT = new ArrayLocation((((String)id)+id_list),e); :}
-          ;
+location::= var_location:l {: RESULT = l;:}
+		  | array_location:l {: RESULT = l;:} 
+		  ;
+          
+
+
+var_location::= ID:id id_point_list:id_list {: RESULT = new VarLocation(((String)id)+id_list); :}
+			  | ID:id {: RESULT = new VarLocation((String)id) ; :}
+			  ;
+
+array_location::= ID:id LEFT_BRKT expr:e RT_BRKT {: RESULT = new ArrayLocation(((String)id),e) ; :}
+                | ID:id id_point_list:id_list LEFT_BRKT expr:e RT_BRKT {: RESULT = new ArrayLocation((((String)id)+id_list),e); :}
+          		;
+
 
 id_point_list::= id_point_list:id_list POINT:p ID:id {: RESULT = id_list+((String)p)+((String)id); :}
                |POINT:p ID:id {: RESULT = ((String)p)+((String)id); :}
                ;
 
 
-expr_list::= expr COMMA expr_list
-           | expr
+expr_list::= expr:e COMMA expr_list:list {: list.add(e); RESULT = list; :}
+           | expr:e {: LinkedList res = new LinkedList(); res.add(e); RESULT = res; :}
            ;
                 
 expr::= location:l {: RESULT = l ; :}

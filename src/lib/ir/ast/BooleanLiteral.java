@@ -22,7 +22,7 @@ public class BooleanLiteral extends Literal {
 
 	@Override
 	public Type getType() {
-		return Type.INT;
+		return Type.BOOLEAN;
 	}
 
 	public String getStringValue() {
