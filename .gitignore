@@ -1,1 +1,9 @@
 /JavaApplication8/nbproject/private/
+classes/
+lib/error/
+lib/ir/
+src/CtdsLexer.java~
+tests/corrects/prueba
+src/CtdsLexer.java
+src/parser.java
+src/sym.java
