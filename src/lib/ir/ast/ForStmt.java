@@ -3,31 +3,31 @@ package ir.ast;
 import ir.ASTVisitor;
 
 public class ForStmt extends Statement {
-	private Expression condition1;
-	private Expression condition2;
+	private AssignStmt assign;
+	private Expression condition;
 	private Statement forStatement;
 	
-	public ForStmt(Expression cond1, Expression cond2, Statement forSt) {
-		this.condition1 = cond1;
-		this.condition2 = cond2;
+	public ForStmt(AssignStmt stmt, Expression cond, Statement forSt) {
+		this.assign = stmt;
+		this.condition = cond;
 		this.forStatement = forSt;
 	}
 	
 
-	public Expression getCondition1() {
-		return condition1;
+	public AssignStmt getAssign() {
+		return assign;
 	}
 
-	public Expression getCondition2() {
-		return condition2;
+	public Expression getCondition() {
+		return condition;
 	}
 
-	public void setCondition1(Expression condition1) {
-		this.condition1 = condition1;
+	public void setCondition(Expression cond) {
+		this.condition = cond;
 	}
 
-	public void setCondition2(Expression condition2) {
-		this.condition2 = condition2;
+	public void setAssign(AssignStmt a) {
+		this.assign = a;
 	}
 
 	public Statement getForStatement() {
@@ -40,7 +40,7 @@ public class ForStmt extends Statement {
 	
 	@Override
 	public String toString() {
-		return "for " + condition1 + "," + condition2 + '\n' + forStatement.toString();
+		return "for " + assign + "," + condition + '\n' + forStatement.toString();
 	}
 
 	@Override
