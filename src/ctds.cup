@@ -107,8 +107,8 @@ statement::= location:l ASSMNT expr:e SEMI {: RESULT = new AssignStmt(l,AssignOp
            | IF LEFT_PAREN expr:e RT_PAREN statement:s {: RESULT = new IfStmt(e,s); :}
            //| IF LEFT_PAREN expr RT_PAREN ifBlock ELSE elseBlock 
            //| IF LEFT_PAREN expr RT_PAREN ifBlock
-           | FOR ID ASSMNT expr COMMA expr statement
-           | WHILE expr statement
+           | FOR ID ASSMNT expr:e1 COMMA expr:e2 statement:s {: RESULT = new ForStmt(e1,e2,s); :}
+           | WHILE expr:e statement:s {: RESULT = new WhileStmt(e,s); :}
            | RETURN expr:e SEMI {: RESULT = new ReturnStmt(e); :}
            | RETURN SEMI {: RESULT = new ReturnStmt(); :}
            | BREAK SEMI
