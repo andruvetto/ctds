@@ -80,7 +80,9 @@ type_id::= ID LEFT_BRKT INT_LITERAL RT_BRKT
 method_list::= method_list method_decl 
              | method_decl;
 
-method_decl::= type ID LEFT_PAREN parameters_list RT_PAREN body
+method_decl::= VOID ID LEFT_PAREN parameters_list RT_PAREN body
+             | type ID LEFT_PAREN parameters_list RT_PAREN body
+             | VOID ID LEFT_PAREN RT_PAREN body
              | type ID LEFT_PAREN RT_PAREN body;
              
 
@@ -102,9 +104,9 @@ body_block ::= field_list statement_list
 type::= INT {: RESULT = Type.INT ;:}
 	  | FLOAT {: RESULT = Type.FLOAT ;:}
 	  | BOOLEAN {: RESULT = Type.BOOLEAN ;:}
-	  | VOID {: RESULT = Type.VOID ;:}
 	  ;
-type_array ::= LEFT_BRKT INT_LITERAL RT_BRKT {: RESULT = Type.INTARRAY ;:};
+
+//type_array ::= LEFT_BRKT INT_LITERAL RT_BRKT {: RESULT = Type.INTARRAY ;:};
 
 statement_list::= statement_list statement
                 | statement;
@@ -117,8 +119,8 @@ statement::= location:l ASSMNT expr:e SEMI {: RESULT = new AssignStmt(l,AssignOp
            | IF LEFT_PAREN expr:e RT_PAREN statement:s {: RESULT = new IfStmt(e,s); :}
            //| IF LEFT_PAREN expr RT_PAREN ifBlock ELSE elseBlock 
            //| IF LEFT_PAREN expr RT_PAREN ifBlock
-           | FOR ID ASSMNT expr:e1 COMMA expr:e2 statement:s {: RESULT = new ForStmt(e1,e2,s); :}
-           | WHILE expr:e statement:s {: RESULT = new WhileStmt(e,s); :}
+           | FOR ID ASSMNT expr COMMA expr statement
+           | WHILE expr statement
            | RETURN expr:e SEMI {: RESULT = new ReturnStmt(e); :}
            | RETURN SEMI {: RESULT = new ReturnStmt(); :}
            | BREAK SEMI
