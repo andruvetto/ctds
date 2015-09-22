@@ -21,15 +21,16 @@ terminal CLASS, VOID, INT, FLOAT, BOOLEAN, IF, ELSE, FOR, WHILE, RETURN, BREAK, 
 
 
 
-non terminal program, class_list, class_decl, field_list, field_decl, type_id_list,method_list, method_decl, parameter, parameters_list, body, block, type, statement_list, method_call, id_point_list, expr_list, body_class, body_block;
+non terminal program, class_list, class_decl, field_list, field_decl, type_id_list,method_list, method_decl, parameter, parameters_list, body, block, type, statement_list, expr_list, body_class, body_block;
 
-
+non terminal String id_point_list;
 
 non terminal Type type_id; 
 non terminal Expression expr;
 non terminal Literal literal;
 non terminal Location location;
-non terminal Statement statement; 
+non terminal Statement statement;
+non terminal MethodCall method_call; 
 
 precedence left GTR,LESS,EQ,NOT_EQ,GTR_EQ,LESS_EQ,AND,OR;
 precedence left PLUS, MINUS;
@@ -66,8 +67,7 @@ type_id_list::= type_id
               | type_id COMMA type_id_list;
                     
 type_id::= ID LEFT_BRKT INT_LITERAL RT_BRKT
-         | ID:id 
-                  
+         | ID:id                 
          ;
                 
 method_list::= method_list method_decl 
@@ -114,7 +114,8 @@ statement::= location:l ASSMNT expr:e SEMI {: RESULT = new AssignStmt(l,AssignOp
            | BREAK SEMI
            | CONTINUE SEMI
            | SEMI
-           | block;
+           | block
+           ;
                                               
 
 method_call::= ID id_point_list LEFT_PAREN expr_list RT_PAREN
@@ -122,20 +123,23 @@ method_call::= ID id_point_list LEFT_PAREN expr_list RT_PAREN
              | ID LEFT_PAREN RT_PAREN
              | ID id_point_list LEFT_PAREN RT_PAREN;
 
-location::= ID id_point_list 
-          | ID
-          | ID LEFT_BRKT expr RT_BRKT
-          | ID id_point_list LEFT_BRKT expr RT_BRKT; 
+location::= ID:id id_point_list:id_list {: RESULT = new VarLocation(((String)id)+id_list); :}
+          | ID:id {: RESULT = new VarLocation((String)id) ; :}
+          | ID:id LEFT_BRKT expr:e RT_BRKT {: RESULT = new ArrayLocation(((String)id),e) ; :}
+          | ID:id id_point_list:id_list LEFT_BRKT expr:e RT_BRKT {: RESULT = new ArrayLocation((((String)id)+id_list),e); :}
+          ;
 
-id_point_list::= id_point_list POINT ID 
-               |POINT ID;
+id_point_list::= id_point_list:id_list POINT:p ID:id {: RESULT = id_list+((String)p)+((String)id); :}
+               |POINT:p ID:id {: RESULT = ((String)p)+((String)id); :}
+               ;
 
 
 expr_list::= expr COMMA expr_list
-           | expr;
+           | expr
+           ;
                 
-expr::= location
-      | method_call
+expr::= location:l {: RESULT = l ; :}
+      | method_call:m {: RESULT = m ; :}
       | literal:l {: RESULT = l;:}
       | expr:e1 PLUS:o expr:e2 {: RESULT = new BinOpExpr(e1,BinOpType.PLUS,e2);:}
       | expr:e1 MINUS expr:e2 {: RESULT = new BinOpExpr(e1,BinOpType.MINUS,e2);:}

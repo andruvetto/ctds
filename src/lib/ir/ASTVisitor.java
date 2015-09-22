@@ -20,8 +20,12 @@ public interface ASTVisitor<T> {
         T visit(FloatLiteral lit);
         T visit(BooleanLiteral lit);
 
+// visit methodCall
+        T visit(MethodCall m);
+        
 // visit locations	
 	T visit(VarLocation loc);
+        T visit(ArrayLocation loc);
         
 // visit blocks	
 	T visit(Block block);        
