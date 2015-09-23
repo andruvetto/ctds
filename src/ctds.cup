@@ -23,20 +23,30 @@ terminal CLASS, VOID, INT, FLOAT, BOOLEAN, IF, ELSE, FOR, WHILE, RETURN, BREAK, 
 
 
 
-non terminal program, class_list, class_decl, field_list, field_decl, type_id_list,method_list, method_decl, parameter, parameters_list, body, block, statement_list, body_class, body_block, type_id;
+non terminal program, class_list, class_decl, method_list, method_decl, body_class;
 
 non terminal String id_point_list;
 
-non terminal Type type, type_array; 
+non terminal Type type; 
 non terminal Expression expr;
 non terminal List<Expression> expr_list;
 
+non terminal Block block;
+non terminal List<Statement> body_block, statement_list, field_list;
+
+non terminal FieldDecl field_decl;
+
 
 non terminal Literal literal;
-non terminal Location location;
+non terminal Location location, type_id;
 non terminal VarLocation var_location;
+non terminal List<Location> type_id_list;
+
+non terminal Parameter parameter;
+non terminal List<Parameter> parameters_list;
+
 non terminal ArrayLocation array_location;
-non terminal Statement statement;
+non terminal Statement statement, body;
 non terminal MethodCall method_call; 
 
 precedence left GTR,LESS,EQ,NOT_EQ,GTR_EQ,LESS_EQ,AND,OR;
@@ -64,57 +74,64 @@ body_class ::= field_list method_list
              | field_list
              | method_list;
 
-field_list::= field_list field_decl
-            | field_decl;
+field_list::= field_list:fl field_decl:fd {: fl.add(fd); RESULT = fl; :}
+            | field_decl:fd {:LinkedList res = new LinkedList(); res.add(fd); RESULT = res;:}
+            ;
                 
-field_decl::= type type_id_list SEMI;
+field_decl::= type:t type_id_list:tl SEMI {: RESULT = new FieldDecl(t,tl);:}
+			;
         
 
-type_id_list::= type_id
-              | type_id COMMA type_id_list;
+type_id_list::= type_id:id {:LinkedList res = new LinkedList(); res.add(id); RESULT = res;:}
+              | type_id:id COMMA type_id_list:id_list {: id_list.add(id); RESULT = id_list; :}
+              ;
                     
-type_id::= ID LEFT_BRKT INT_LITERAL RT_BRKT
-         | ID:id                 
+type_id::= ID:id LEFT_BRKT INT_LITERAL:e RT_BRKT {:RESULT = new ArrayLocation((String)id, new IntLiteral((String)e)); :}
+         | ID:id  {:RESULT = new VarLocation((String)id); :}               
          ;
                 
 method_list::= method_list method_decl 
              | method_decl;
 
-method_decl::= VOID ID LEFT_PAREN parameters_list RT_PAREN body
-             | type ID LEFT_PAREN parameters_list RT_PAREN body
-             | VOID ID LEFT_PAREN RT_PAREN body
-             | type ID LEFT_PAREN RT_PAREN body;
-             
+method_decl::= VOID ID:id LEFT_PAREN parameters_list:plist RT_PAREN body:b {: RESULT = new MethodDecl(Type.VOID, (String) id, plist, b);:}
+             | type:t ID:id LEFT_PAREN parameters_list:plist RT_PAREN body:b {: RESULT = new MethodDecl(t, (String) id, plist, b);:}
+             | VOID ID:id LEFT_PAREN RT_PAREN body:b {: RESULT = new MethodDecl(Type.VOID, (String) id, new LinkedList(), b);:}
+             | type:t ID:id LEFT_PAREN RT_PAREN body:b {: RESULT = new MethodDecl(t, (String) id, new LinkedList(), b);:}
+             ;
 
-parameters_list::= parameter
-                 | parameter COMMA parameters_list;
+parameters_list::= parameter:p {: LinkedList res = new LinkedList(); res.add(p); RESULT = res; :}
+                 | parameter:p COMMA parameters_list:plist {: plist.add(p); RESULT = plist; :}
+                 ;
                         
-parameter::= type ID;
+parameter::= type:t ID:id {: RESULT = new Parameter(t,(String)id); :} 
+		   ;
 
-body::= block
-      | EXTERN SEMI;
+body::= block:b {:RESULT = b;:}
+      | EXTERN SEMI {:RESULT = new ExternStmt();:}
+      ;
         
-block::= LEFTBRACE body_block RIGHTBRACE
-       | LEFTBRACE RIGHTBRACE;
+block::= LEFTBRACE body_block:b RIGHTBRACE {: RESULT = new Block(0,b); :}
+       | LEFTBRACE RIGHTBRACE {: RESULT = new Block(0,new LinkedList()); :}
+       ;
        
-body_block ::= field_list statement_list
-             | field_list
-             | statement_list;
+body_block ::= field_list:fl statement_list:sl {: fl.addAll(sl); RESULT = fl; :}
+             | field_list:fl {:RESULT=fl;:}
+             | statement_list:sl {:RESULT=sl;:}
+             ;
 
 type::= INT {: RESULT = Type.INT ;:}
 	  | FLOAT {: RESULT = Type.FLOAT ;:}
 	  | BOOLEAN {: RESULT = Type.BOOLEAN ;:}
 	  ;
 
-//type_array ::= LEFT_BRKT INT_LITERAL RT_BRKT {: RESULT = Type.INTARRAY ;:};
-
-statement_list::= statement_list statement
-                | statement;
+statement_list::= statement_list:sl statement:s {: sl.add(s); RESULT = sl; :}
+                | statement:s {: LinkedList res = new LinkedList(); res.add(s); RESULT = res; :}
+                ;
                         
 statement::= location:l ASSMNT expr:e SEMI {: RESULT = new AssignStmt(l,AssignOpType.ASSMNT,e); :}
            | location:l ASSMNT_INC expr:e SEMI {: RESULT = new AssignStmt(l,AssignOpType.ASSMNT_INC,e); :}
            | location:l ASSMNT_DEC expr:e SEMI {: RESULT = new AssignStmt(l,AssignOpType.ASSMNT_DEC,e); :}
-           | method_call:m SEMI
+           | method_call:m SEMI {: RESULT = new MethodCallStmt(m.getLocation(),m.getExpressions()); :}
            | IF LEFT_PAREN expr:e RT_PAREN statement:s1 ELSE statement:s2 {: RESULT = new IfStmt(e,s1,s2); :}
            | IF LEFT_PAREN expr:e RT_PAREN statement:s {: RESULT = new IfStmt(e,s); :}
            //| IF LEFT_PAREN expr RT_PAREN ifBlock ELSE elseBlock 
@@ -123,10 +140,10 @@ statement::= location:l ASSMNT expr:e SEMI {: RESULT = new AssignStmt(l,AssignOp
            | WHILE expr:e statement:s {: RESULT = new WhileStmt(e,s); :}
            | RETURN expr:e SEMI {: RESULT = new ReturnStmt(e); :}
            | RETURN SEMI {: RESULT = new ReturnStmt(); :}
-           | BREAK SEMI
-           | CONTINUE SEMI
+           | BREAK SEMI {: RESULT = new BreakStmt(); :}
+           | CONTINUE SEMI {: RESULT = new ContinueStmt(); :}
            | SEMI
-           | block
+           | block:b {: RESULT = b; :}
            ;
                                               
 

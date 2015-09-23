@@ -10,6 +10,9 @@ public interface ASTVisitor<T> {
 	T visit(IfStmt stmt);
 	T visit(ForStmt stmt);
 	T visit(WhileStmt stmt);
+        T visit(BreakStmt stmt);
+        T visit(ContinueStmt stmt);
+        T visit(ExternStmt stmt);
 	
 // visit expressions
 	T visit(BinOpExpr expr);
@@ -22,11 +25,19 @@ public interface ASTVisitor<T> {
 
 // visit methodCall
         T visit(MethodCall m);
+        T visit(MethodCallStmt m);
         
 // visit locations	
 	T visit(VarLocation loc);
         T visit(ArrayLocation loc);
         
 // visit blocks	
-	T visit(Block block);        
+	T visit(Block block); 
+        
+// visit field decl
+        T visit(FieldDecl fd); 
+// visit parameters
+        T visit(Parameter p);
+// visit method decls
+        T visit(MethodDecl m);
 }

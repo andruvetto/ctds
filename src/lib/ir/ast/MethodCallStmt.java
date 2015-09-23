@@ -3,21 +3,21 @@ package ir.ast;
 import ir.ASTVisitor;
 import java.util.List;
 
-public class MethodCall extends Expression {
+public class MethodCallStmt extends Statement {
     private List<Expression> expressions;
     private VarLocation location;
     
-    public MethodCall(VarLocation l, List<Expression> e){
+    public MethodCallStmt(VarLocation l, List<Expression> e){
         expressions = e;
         location = l;
     }
     
-    public MethodCall(VarLocation l){
+    public MethodCallStmt(VarLocation l){
         expressions = null;
         location = l;
     }
     
-    public List<Expression> getExpressions(){
+        public List<Expression> getExpressions(){
         return expressions;
     }
     
@@ -32,7 +32,6 @@ public class MethodCall extends Expression {
     public void setLocation(VarLocation l){
         this.location = l;
     }
-    
     
     @Override
     public <T> T accept(ASTVisitor<T> v) {
