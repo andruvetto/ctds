@@ -1,29 +1,40 @@
 package ir.ast;
 
-import java.util.ArrayList;
 import java.util.List;
 import ir.ASTVisitor;
+import java.util.LinkedList;
 
 public class Block extends Statement {
-	private List<Statement> statements;
+	private List<FieldDecl> fields;
+        private List<Statement> statements;
 	private int blockId;
 	
 	public Block(int bId) {
-		statements = new ArrayList<Statement>();
+		statements = new LinkedList<Statement>();
+                fields = new LinkedList<FieldDecl>();
 		blockId = bId;
 	}
 	
-	public Block(int bId, List<Statement> s) {
+	public Block(int bId, List<Statement> s, List<FieldDecl> fd) {
 		blockId = bId;
 		statements = s;
+                fields = fd;
 	}
-	
+        
 	public void addStatement(Statement s) {
 		this.statements.add(s);
+	}
+        
+        public void addField(FieldDecl s) {
+		this.fields.add(s);
 	}
 		
 	public List<Statement> getStatements() {
 		return this.statements;
+	} 
+        
+        public List<FieldDecl> getFields() {
+		return this.fields;
 	} 
 		
 	public int getBlockId() {
@@ -40,6 +51,9 @@ public class Block extends Statement {
 		
 	    for (Statement s: statements) {
 			rtn += s.toString() + '\n';
+		}
+            for (FieldDecl f: fields) {
+			rtn += f.toString() + '\n';
 		}
 		
 		if (rtn.length() > 0) return rtn.substring(0, rtn.length() - 1); // remove last new line char

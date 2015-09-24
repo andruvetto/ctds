@@ -40,4 +40,7 @@ public interface ASTVisitor<T> {
         T visit(Parameter p);
 // visit method decls
         T visit(MethodDecl m);
+        
+// visit class decl
+        T visit(ClassDecl c);
 }

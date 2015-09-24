@@ -13,17 +13,12 @@ parser code {:
         public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
             //System.err.println("Fatal Error");
             throw new java.lang.Exception("Fatal Error");
-        }
-		
-   
-        
+        }     
 :}
 
 terminal CLASS, VOID, INT, FLOAT, BOOLEAN, IF, ELSE, FOR, WHILE, RETURN, BREAK, CONTINUE, EXTERN, LEFTBRACE, RIGHTBRACE, LOGIC_NEGATION, LEFT_PAREN, RT_PAREN, LEFT_BRKT, RT_BRKT, SEMI, COMMA, POINT, ID, ERROR, TIMES, MINUS, PLUS, DIVIDE, MOD, AND, OR, EQ, GTR, LESS, LESS_EQ, GTR_EQ, NOT_EQ, ASSMNT, ASSMNT_INC, ASSMNT_DEC, INT_LITERAL, FLOAT_LITERAL, TRUE, FALSE;
 
 
-
-non terminal program, class_list, class_decl, method_list, method_decl, body_class;
 
 non terminal String id_point_list;
 
@@ -31,10 +26,17 @@ non terminal Type type;
 non terminal Expression expr;
 non terminal List<Expression> expr_list;
 
-non terminal Block block;
-non terminal List<Statement> body_block, statement_list, field_list;
+non terminal Block block, body_block;
+non terminal List<Statement> statement_list;
 
+non terminal ClassDecl class_decl, body_class;
+non terminal List<ClassDecl> class_list, program;
+
+non terminal List<FieldDecl> field_list;
 non terminal FieldDecl field_decl;
+
+non terminal MethodDecl method_decl;
+non terminal List<MethodDecl> method_list;
 
 
 non terminal Literal literal;
@@ -62,17 +64,21 @@ start with program;
 
 
 
-program ::= class_list;
+program ::= class_list:clist {: RESULT = clist ;:}
+		  ;
 
-class_list ::= class_decl 
-            |  class_list class_decl;
+class_list ::= class_decl:c {: LinkedList res = new LinkedList(); res.add(c); RESULT = res; :}
+            |  class_list:clist class_decl:c {: clist.add(c); RESULT = clist; :}
+            ;
                     
-class_decl::= CLASS ID LEFTBRACE body_class RIGHTBRACE
-            | CLASS ID LEFTBRACE RIGHTBRACE;
+class_decl::= CLASS ID LEFTBRACE body_class:c RIGHTBRACE {: RESULT = c; :}
+            | CLASS ID LEFTBRACE RIGHTBRACE {: RESULT = new ClassDecl(); :}
+            ;
 
-body_class ::= field_list method_list
-             | field_list
-             | method_list;
+body_class ::= field_list:flist method_list:mlist {: RESULT = new ClassDecl(flist, mlist); :}
+             | field_list:flist {: RESULT = new ClassDecl(flist, new LinkedList()); :}
+             | method_list:mlist {: RESULT = new ClassDecl(new LinkedList(), mlist); :}
+             ;
 
 field_list::= field_list:fl field_decl:fd {: fl.add(fd); RESULT = fl; :}
             | field_decl:fd {:LinkedList res = new LinkedList(); res.add(fd); RESULT = res;:}
@@ -90,8 +96,9 @@ type_id::= ID:id LEFT_BRKT INT_LITERAL:e RT_BRKT {:RESULT = new ArrayLocation((S
          | ID:id  {:RESULT = new VarLocation((String)id); :}               
          ;
                 
-method_list::= method_list method_decl 
-             | method_decl;
+method_list::= method_list:mlist method_decl:m {: mlist.add(m); RESULT = mlist; :} 
+             | method_decl:m {: LinkedList res = new LinkedList(); res.add(m); RESULT = res ;:}
+             ;
 
 method_decl::= VOID ID:id LEFT_PAREN parameters_list:plist RT_PAREN body:b {: RESULT = new MethodDecl(Type.VOID, (String) id, plist, b);:}
              | type:t ID:id LEFT_PAREN parameters_list:plist RT_PAREN body:b {: RESULT = new MethodDecl(t, (String) id, plist, b);:}
@@ -110,13 +117,13 @@ body::= block:b {:RESULT = b;:}
       | EXTERN SEMI {:RESULT = new ExternStmt();:}
       ;
         
-block::= LEFTBRACE body_block:b RIGHTBRACE {: RESULT = new Block(0,b); :}
-       | LEFTBRACE RIGHTBRACE {: RESULT = new Block(0,new LinkedList()); :}
+block::= LEFTBRACE body_block:b RIGHTBRACE {: RESULT = b; :}
+       | LEFTBRACE RIGHTBRACE {: RESULT = new Block(0); :}
        ;
        
-body_block ::= field_list:fl statement_list:sl {: fl.addAll(sl); RESULT = fl; :}
-             | field_list:fl {:RESULT=fl;:}
-             | statement_list:sl {:RESULT=sl;:}
+body_block ::= field_list:fl statement_list:sl {: RESULT = new Block(0,sl,fl); :}
+             | field_list:fl {:RESULT = new Block(0,new LinkedList(),fl);:}
+             | statement_list:sl {:RESULT = new Block(0,sl,new LinkedList());:}
              ;
 
 type::= INT {: RESULT = Type.INT ;:}
@@ -146,7 +153,6 @@ statement::= location:l ASSMNT expr:e SEMI {: RESULT = new AssignStmt(l,AssignOp
            | block:b {: RESULT = b; :}
            ;
                                               
-
 method_call::= var_location:l LEFT_PAREN expr_list:e RT_PAREN {:RESULT = new MethodCall(l,e);:}
              | var_location:l LEFT_PAREN RT_PAREN {:RESULT = new MethodCall(l);:}
              ;
@@ -155,8 +161,6 @@ location::= var_location:l {: RESULT = l;:}
 		  | array_location:l {: RESULT = l;:} 
 		  ;
           
-
-
 var_location::= ID:id id_point_list:id_list {: RESULT = new VarLocation(((String)id)+id_list); :}
 			  | ID:id {: RESULT = new VarLocation((String)id) ; :}
 			  ;
@@ -165,11 +169,9 @@ array_location::= ID:id LEFT_BRKT expr:e RT_BRKT {: RESULT = new ArrayLocation((
                 | ID:id id_point_list:id_list LEFT_BRKT expr:e RT_BRKT {: RESULT = new ArrayLocation((((String)id)+id_list),e); :}
           		;
 
-
 id_point_list::= id_point_list:id_list POINT:p ID:id {: RESULT = id_list+((String)p)+((String)id); :}
                |POINT:p ID:id {: RESULT = ((String)p)+((String)id); :}
                ;
-
 
 expr_list::= expr:e COMMA expr_list:list {: list.add(e); RESULT = list; :}
            | expr:e {: LinkedList res = new LinkedList(); res.add(e); RESULT = res; :}
@@ -195,8 +197,7 @@ expr::= location:l {: RESULT = l ; :}
       | LOGIC_NEGATION expr:e {: RESULT = new UnOpExpr(UnOpType.LOGIC_NEGATION, e); :}
       | LEFT_PAREN expr:e RT_PAREN {: RESULT = e ; :}
       ;
-        
-                    
+                            
 literal::= INT_LITERAL:v {: RESULT = new IntLiteral((String)v); :}
          | FLOAT_LITERAL:v {: RESULT = new FloatLiteral((String)v); :}
          | TRUE:v {: RESULT = new BooleanLiteral((String)v); :}
