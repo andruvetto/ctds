@@ -19,6 +19,20 @@ public class ClassDecl extends AST {
     }
     
     @Override
+    public String toString() {
+       String res = ""; 
+       for (FieldDecl f: fields){
+           res = res + f.toString() + "\n";           
+       }
+       for (MethodDecl m: methods){
+           res = res + m.toString() + "\n";
+       }
+       return res;
+    }
+    
+ 
+    
+    @Override
     public <T> T accept(ASTVisitor<T> v) {
         return v.visit(this);
     }

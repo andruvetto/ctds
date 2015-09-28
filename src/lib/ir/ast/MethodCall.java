@@ -33,6 +33,14 @@ public class MethodCall extends Expression {
         this.location = l;
     }
     
+    @Override
+    public String toString() {
+       String exprs = "";
+       for (Expression e: expressions){
+        exprs = exprs + e.toString() + ",";
+       }
+       return location.toString() + "(" + exprs + ")" ;
+    }
     
     @Override
     public <T> T accept(ASTVisitor<T> v) {

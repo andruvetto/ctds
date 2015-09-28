@@ -20,7 +20,7 @@ public class MethodDecl extends AST {
 
     @Override
     public String toString() {
-       String params = ""
+       String params = "";
        for (Parameter p: parameters){
         params = params + p.toString() + ",";
        }

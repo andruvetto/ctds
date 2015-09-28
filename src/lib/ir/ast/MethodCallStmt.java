@@ -34,6 +34,15 @@ public class MethodCallStmt extends Statement {
     }
     
     @Override
+    public String toString() {
+       String exprs = "";
+       for (Expression e: expressions){
+        exprs = exprs + e.toString() + ",";
+       }
+       return location.toString() + "(" + exprs + ")" ;
+    }
+    
+    @Override
     public <T> T accept(ASTVisitor<T> v) {
         return v.visit(this);
     }
