@@ -17,6 +17,15 @@ public class MethodDecl extends AST {
         this.body = b;
         
     }
+
+    @Override
+    public String toString() {
+       String params = ""
+       for (Parameter p: parameters){
+        params = params + p.toString() + ",";
+       }
+       return type.toString() + " " + id + "(" + params + ")" ;
+    }
     
     @Override
     public <T> T accept(ASTVisitor<T> v) {
