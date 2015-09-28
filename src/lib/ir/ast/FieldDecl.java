@@ -14,6 +14,15 @@ public class FieldDecl extends Statement{
         this.idList = l;
     }
     
+     @Override
+    public String toString() {
+       String ids = "";
+       for (Location l: idList){
+        ids = ids + l.toString() + ",";
+       }
+       return type.toString() + " " +  ids ;
+    }
+    
     @Override
     public <T> T accept(ASTVisitor<T> v) {
         return v.visit(this);
