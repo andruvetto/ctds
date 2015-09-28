@@ -12,6 +12,11 @@ import ir.ASTVisitor;
  * @author daniel
  */
 public class ContinueStmt extends Statement{
+    
+    @Override
+    public String toString() {
+       return "continue";
+    }
 
     @Override
     public <T> T accept(ASTVisitor<T> v) {

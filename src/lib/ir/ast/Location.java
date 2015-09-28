@@ -10,4 +10,9 @@ public abstract class Location extends Expression {
 	public String getId() {
 		return id;
 	}
+        
+         @Override
+    public String toString() {
+       return id;
+    }
 }
