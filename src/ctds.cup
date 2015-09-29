@@ -6,6 +6,7 @@ import java.util.List;
 
 parser code {:
 
+
         public void syntax_error(Symbol s){
             System.err.println("Syntax error in line " + (s.left+1) + " column " + (s.right+1) + " value : " + (s.value)); 
         }
@@ -30,7 +31,9 @@ non terminal Block block, body_block;
 non terminal List<Statement> statement_list;
 
 non terminal ClassDecl class_decl, body_class;
-non terminal List<ClassDecl> class_list, program;
+non terminal List<ClassDecl> class_list;
+
+non terminal Program program;
 
 non terminal List<FieldDecl> field_list;
 non terminal FieldDecl field_decl;
@@ -48,10 +51,12 @@ non terminal Parameter parameter;
 non terminal List<Parameter> parameters_list;
 
 non terminal ArrayLocation array_location;
-non terminal Statement statement, body;
+non terminal Statement statement;
 non terminal MethodCall method_call; 
 
-precedence left GTR,LESS,EQ,NOT_EQ,GTR_EQ,LESS_EQ,AND,OR;
+precedence left AND;
+precedence left OR;
+precedence left GTR,LESS,EQ,NOT_EQ,GTR_EQ,LESS_EQ;
 precedence left PLUS, MINUS;
 precedence left TIMES, DIVIDE, MOD;
 precedence left LEFT_PAREN, RT_PAREN;
@@ -64,15 +69,15 @@ start with program;
 
 
 
-program ::= class_list:clist {: RESULT = clist ;:}
+program ::= class_list:clist {: RESULT = new Program(clist) ;:}
 		  ;
 
 class_list ::= class_decl:c {: LinkedList res = new LinkedList(); res.add(c); RESULT = res; :}
             |  class_list:clist class_decl:c {: clist.add(c); RESULT = clist; :}
             ;
                     
-class_decl::= CLASS ID LEFTBRACE body_class:c RIGHTBRACE {: RESULT = c; :}
-            | CLASS ID LEFTBRACE RIGHTBRACE {: RESULT = new ClassDecl(); :}
+class_decl::= CLASS ID:id LEFTBRACE body_class:c RIGHTBRACE {: c.SetId((String)id); RESULT = c; :}
+            | CLASS ID:id LEFTBRACE RIGHTBRACE {: RESULT = new ClassDecl((String)id); :}
             ;
 
 body_class ::= field_list:flist method_list:mlist {: RESULT = new ClassDecl(flist, mlist); :}
@@ -100,10 +105,14 @@ method_list::= method_list:mlist method_decl:m {: mlist.add(m); RESULT = mlist; 
              | method_decl:m {: LinkedList res = new LinkedList(); res.add(m); RESULT = res ;:}
              ;
 
-method_decl::= VOID ID:id LEFT_PAREN parameters_list:plist RT_PAREN body:b {: RESULT = new MethodDecl(Type.VOID, (String) id, plist, b);:}
-             | type:t ID:id LEFT_PAREN parameters_list:plist RT_PAREN body:b {: RESULT = new MethodDecl(t, (String) id, plist, b);:}
-             | VOID ID:id LEFT_PAREN RT_PAREN body:b {: RESULT = new MethodDecl(Type.VOID, (String) id, new LinkedList(), b);:}
-             | type:t ID:id LEFT_PAREN RT_PAREN body:b {: RESULT = new MethodDecl(t, (String) id, new LinkedList(), b);:}
+method_decl::= VOID ID:id LEFT_PAREN parameters_list:plist RT_PAREN block:b {: RESULT = new MethodDecl(Type.VOID, (String) id, plist, b);:}
+             | type:t ID:id LEFT_PAREN parameters_list:plist RT_PAREN block:b {: RESULT = new MethodDecl(t, (String) id, plist, b);:}
+             | VOID ID:id LEFT_PAREN RT_PAREN block:b {: RESULT = new MethodDecl(Type.VOID, (String) id, new LinkedList(), b);:}
+             | type:t ID:id LEFT_PAREN RT_PAREN block:b {: RESULT = new MethodDecl(t, (String) id, new LinkedList(), b);:}
+             | VOID ID:id LEFT_PAREN parameters_list:plist RT_PAREN EXTERN SEMI {: RESULT = new MethodDecl(Type.VOID, (String) id, plist);:}
+             | type:t ID:id LEFT_PAREN parameters_list:plist RT_PAREN EXTERN SEMI {: RESULT = new MethodDecl(t, (String) id, plist);:}
+             | VOID ID:id LEFT_PAREN RT_PAREN EXTERN SEMI {: RESULT = new MethodDecl(Type.VOID, (String) id, new LinkedList());:}
+             | type:t ID:id LEFT_PAREN RT_PAREN EXTERN SEMI {: RESULT = new MethodDecl(t, (String) id, new LinkedList());:}
              ;
 
 parameters_list::= parameter:p {: LinkedList res = new LinkedList(); res.add(p); RESULT = res; :}
@@ -113,10 +122,6 @@ parameters_list::= parameter:p {: LinkedList res = new LinkedList(); res.add(p);
 parameter::= type:t ID:id {: RESULT = new Parameter(t,(String)id); :} 
 		   ;
 
-body::= block:b {:RESULT = b;:}
-      | EXTERN SEMI {:RESULT = new ExternStmt();:}
-      ;
-        
 block::= LEFTBRACE body_block:b RIGHTBRACE {: RESULT = b; :}
        | LEFTBRACE RIGHTBRACE {: RESULT = new Block(0); :}
        ;

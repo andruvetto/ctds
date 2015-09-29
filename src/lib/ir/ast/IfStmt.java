@@ -45,10 +45,10 @@ public class IfStmt extends Statement {
 	
 	@Override
 	public String toString() {
-		String rtn = "if " + condition + '\n' + ifStatement.toString();
+		String rtn = "if " + condition + '\n' + ifStatement.toString() ;
 		
 		if (elseStatement != null) {
-			rtn += "else \n" + elseStatement.toString();
+			rtn += "\nelse \n" + elseStatement.toString();
 		}
 		
 		return rtn;

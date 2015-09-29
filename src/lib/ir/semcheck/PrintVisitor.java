@@ -147,5 +147,11 @@ public class PrintVisitor implements ASTVisitor<String>{
         return (null);
     }
 
+    @Override
+    public String visit(Program p) {     
+        System.out.println(p);
+        return (null);
+    }
+
 
 }

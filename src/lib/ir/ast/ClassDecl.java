@@ -7,26 +7,34 @@ import java.util.List;
 public class ClassDecl extends AST {
     private List<FieldDecl> fields;
     private List<MethodDecl> methods;
+    private String id;
     
-    public ClassDecl(){
+    public ClassDecl(String id){
         fields = new LinkedList<FieldDecl>();
-        methods = new LinkedList<MethodDecl>();        
+        methods = new LinkedList<MethodDecl>();
+        this.id = id;
     }
     
     public ClassDecl(List<FieldDecl> flist, List<MethodDecl> mlist){
         this.fields = flist;
         this.methods = mlist;
+        id = null;
+    }
+    
+    public void SetId(String id){
+        this.id = id;
     }
     
     @Override
     public String toString() {
-       String res = ""; 
+       String res = "Class "+ id + "\n"; 
        for (FieldDecl f: fields){
            res = res + f.toString() + "\n";           
        }
        for (MethodDecl m: methods){
            res = res + m.toString() + "\n";
        }
+       if (res.length() > 0) res = res.substring(0, res.length() - 1); // remove last new line
        return res;
     }
     

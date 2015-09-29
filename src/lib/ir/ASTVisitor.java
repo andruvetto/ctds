@@ -43,4 +43,7 @@ public interface ASTVisitor<T> {
         
 // visit class decl
         T visit(ClassDecl c);
+        
+// visit program
+        T visit(Program p);
 }

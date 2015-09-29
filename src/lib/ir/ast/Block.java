@@ -47,18 +47,16 @@ public class Block extends Statement {
 
 	@Override
 	public String toString() {
-		String rtn = "";
-		
+            String rtn = "";
+	    for (FieldDecl f: fields) {
+			rtn += f.toString() + '\n';
+		}
+            if (rtn.isEmpty()) rtn += '\n';
 	    for (Statement s: statements) {
 			rtn += s.toString() + '\n';
 		}
-            for (FieldDecl f: fields) {
-			rtn += f.toString() + '\n';
-		}
-		
-		if (rtn.length() > 0) return rtn.substring(0, rtn.length() - 1); // remove last new line char
-		
-		return rtn; 
+            if (rtn.length() > 0) return rtn.substring(0, rtn.length() - 1); // remove last new line char
+            return rtn; 
 	}
 
 	@Override

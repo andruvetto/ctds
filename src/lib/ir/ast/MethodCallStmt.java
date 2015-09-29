@@ -1,6 +1,7 @@
 package ir.ast;
 
 import ir.ASTVisitor;
+import java.util.LinkedList;
 import java.util.List;
 
 public class MethodCallStmt extends Statement {
@@ -13,7 +14,7 @@ public class MethodCallStmt extends Statement {
     }
     
     public MethodCallStmt(VarLocation l){
-        expressions = null;
+        expressions = new LinkedList();
         location = l;
     }
     
@@ -37,8 +38,9 @@ public class MethodCallStmt extends Statement {
     public String toString() {
        String exprs = "";
        for (Expression e: expressions){
-        exprs = exprs + e.toString() + ",";
+        exprs += e.toString() + ",";
        }
+       if (exprs.length() > 0) exprs = exprs.substring(0, exprs.length() - 1); // remove last ,
        return location.toString() + "(" + exprs + ")" ;
     }
     
