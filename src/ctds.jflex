@@ -119,4 +119,4 @@ extern          {return new Symbol(sym.EXTERN,yyline,yycolumn,yytext());}
 {comment}       {/* Ignore comments*/}
 {whitespace}    { /* Ignore whitespace. */ }
 .               {return new Symbol(sym.ERROR,yyline,yycolumn,yytext());}
-                
+              
