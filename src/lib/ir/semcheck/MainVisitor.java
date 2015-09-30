@@ -134,6 +134,11 @@ public class MainVisitor implements ASTVisitor<Integer> {
         return res;
     }
 
+    @Override
+    public Integer visit(Statement stmt) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     
     
 }

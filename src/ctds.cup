@@ -140,22 +140,22 @@ statement_list::= statement_list:sl statement:s {: sl.add(s); RESULT = sl; :}
                 | statement:s {: LinkedList res = new LinkedList(); res.add(s); RESULT = res; :}
                 ;
                         
-statement::= location:l ASSMNT expr:e SEMI {: RESULT = new AssignStmt(l,AssignOpType.ASSMNT,e); :}
-           | location:l ASSMNT_INC expr:e SEMI {: RESULT = new AssignStmt(l,AssignOpType.ASSMNT_INC,e); :}
-           | location:l ASSMNT_DEC expr:e SEMI {: RESULT = new AssignStmt(l,AssignOpType.ASSMNT_DEC,e); :}
-           | method_call:m SEMI {: RESULT = new MethodCallStmt(m.getLocation(),m.getExpressions()); :}
-           | IF LEFT_PAREN expr:e RT_PAREN statement:s1 ELSE statement:s2 {: RESULT = new IfStmt(e,s1,s2); :}
-           | IF LEFT_PAREN expr:e RT_PAREN statement:s {: RESULT = new IfStmt(e,s); :}
+statement::= location:l ASSMNT expr:e SEMI {: Statement res = new AssignStmt(l,AssignOpType.ASSMNT,e); res.setType(TypeStmt.ASSIGN); RESULT = res;  :}
+           | location:l ASSMNT_INC expr:e SEMI {: Statement res = new AssignStmt(l,AssignOpType.ASSMNT_INC,e); res.setType(TypeStmt.ASSIGN); RESULT = res;  :}
+           | location:l ASSMNT_DEC expr:e SEMI {: Statement res = new AssignStmt(l,AssignOpType.ASSMNT_DEC,e); res.setType(TypeStmt.ASSIGN); RESULT = res;  :}
+           | method_call:m SEMI {: Statement res = new MethodCallStmt(m.getLocation(),m.getExpressions()); res.setType(TypeStmt.METHODCALL); RESULT = res;  :} 
+           | IF LEFT_PAREN expr:e RT_PAREN statement:s1 ELSE statement:s2 {: Statement res = new IfStmt(e,s1,s2); res.setType(TypeStmt.IF); RESULT = res; :}
+           | IF LEFT_PAREN expr:e RT_PAREN statement:s {: Statement res = new IfStmt(e,s); res.setType(TypeStmt.IF); RESULT = res; :}
            //| IF LEFT_PAREN expr RT_PAREN ifBlock ELSE elseBlock 
            //| IF LEFT_PAREN expr RT_PAREN ifBlock
-           | FOR ID:id ASSMNT expr:e1 COMMA expr:e2 statement:s {: AssignStmt assign = new AssignStmt(new VarLocation((String)id),AssignOpType.ASSMNT,e1); RESULT = new ForStmt(assign,e2,s); :}
-           | WHILE expr:e statement:s {: RESULT = new WhileStmt(e,s); :}
-           | RETURN expr:e SEMI {: RESULT = new ReturnStmt(e); :}
-           | RETURN SEMI {: RESULT = new ReturnStmt(); :}
-           | BREAK SEMI {: RESULT = new BreakStmt(); :}
-           | CONTINUE SEMI {: RESULT = new ContinueStmt(); :}
+           | FOR ID:id ASSMNT expr:e1 COMMA expr:e2 statement:s {: AssignStmt assign = new AssignStmt(new VarLocation((String)id),AssignOpType.ASSMNT,e1); assign.setType(TypeStmt.ASSIGN); Statement res = new ForStmt (assign,e2,s); res.setType(TypeStmt.FOR); RESULT = res; :}
+           | WHILE expr:e statement:s {: Statement res = new WhileStmt(e,s); res.setType(TypeStmt.WHILE);  RESULT = res; :}
+           | RETURN expr:e SEMI {: Statement res = new ReturnStmt(e); res.setType(TypeStmt.RETURN);  RESULT = res; :}
+           | RETURN SEMI {: Statement res = new ReturnStmt(); res.setType(TypeStmt.RETURN);  RESULT = res; :} 
+           | BREAK SEMI {: Statement res = new BreakStmt(); res.setType(TypeStmt.BREAK);  RESULT = res; :} 
+           | CONTINUE SEMI {: Statement res = new ContinueStmt(); res.setType(TypeStmt.CONTINUE);  RESULT = res; :}
            | SEMI
-           | block:b {: RESULT = b; :}
+           | block:b {: b.setType(TypeStmt.BLOCK); RESULT = b; :}
            ;
                                               
 method_call::= var_location:l LEFT_PAREN expr_list:e RT_PAREN {:RESULT = new MethodCall(l,e);:}

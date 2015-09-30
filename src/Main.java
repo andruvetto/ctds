@@ -73,7 +73,7 @@ public class Main {
 
     private static Program Parse(parser pr) throws Exception{
         
-        ASTVisitor visitor = new MainVisitor();
+        ASTVisitor visitor = new CheckCycleSentencesVisitor();
         /* Start the parser */
         Program result = (Program) pr.parse().value;
         System.out.println(visitor.visit(result));

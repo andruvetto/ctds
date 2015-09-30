@@ -25,6 +25,14 @@ public class MethodDecl extends AST {
         this.parameters = plist;
         extern = true;        
     }
+    
+    public boolean ifExtern(){
+        return this.extern;
+    }
+    
+    public Block getBlock(){
+        return this.block;
+    }
 
     public String getId(){
         return this.id;

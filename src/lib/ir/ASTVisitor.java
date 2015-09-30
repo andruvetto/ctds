@@ -5,6 +5,7 @@ import ir.ast.*;
 // Abstract visitor
 public interface ASTVisitor<T> {
 // visit statements
+        T visit(Statement stmt);
 	T visit(AssignStmt stmt);
 	T visit(ReturnStmt stmt);
 	T visit(IfStmt stmt);
