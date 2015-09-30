@@ -48,6 +48,7 @@ public class Main {
         CtdsLexer scanner = new CtdsLexer(new FileReader(inputName));         
            /* Instantiate the parser */
         parser pr = new parser( scanner );
+        
         switch (target){
             case "scan": 
                 Scan(scanner);
@@ -71,8 +72,11 @@ public class Main {
     }
 
     private static Program Parse(parser pr) throws Exception{
+        
+        ASTVisitor visitor = new MainVisitor();
         /* Start the parser */
-        Program result = (Program) pr.parse().value; 
+        Program result = (Program) pr.parse().value;
+        System.out.println(visitor.visit(result));
         System.out.println("No errors.");
         return result;
     }

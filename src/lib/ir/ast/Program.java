@@ -19,6 +19,10 @@ public class Program extends AST{
         this.classes = clist;        
     }
     
+    public List<ClassDecl> getClasses(){
+        return classes;
+    }
+    
     @Override
     public String toString() {
         String res = "";

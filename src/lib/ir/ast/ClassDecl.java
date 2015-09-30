@@ -21,8 +21,16 @@ public class ClassDecl extends AST {
         id = null;
     }
     
+    public List<MethodDecl> getMethods(){
+        return this.methods;
+    }
+    
     public void SetId(String id){
         this.id = id;
+    }
+    
+    public String getId(){
+        return this.id;
     }
     
     @Override

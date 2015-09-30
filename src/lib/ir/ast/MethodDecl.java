@@ -26,6 +26,14 @@ public class MethodDecl extends AST {
         extern = true;        
     }
 
+    public String getId(){
+        return this.id;
+    }
+    
+    public List<Parameter> getParameters(){
+        return this.parameters;
+    }
+    
     @Override
     public String toString() {
        
