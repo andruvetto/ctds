@@ -1,7 +1,7 @@
 package ir.ast;
 
 public enum UnOpType {
-	MINUS,
+    MINUS,
     LOGIC_NEGATION;
 	
 	@Override

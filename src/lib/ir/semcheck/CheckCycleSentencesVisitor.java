@@ -1,18 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package ir.semcheck;
 import ir.ASTVisitor;
 import ir.ast.*;
 import java.util.List;
 
-/**
- *
- * @author daniel
- */
-public class CheckCycleSentencesVisitor implements ASTVisitor<Boolean> {
+
+public class CheckCycleSentencesVisitor extends Visitor <Boolean> {
 
     @Override
     public Boolean visit(AssignStmt stmt) {
@@ -26,7 +18,14 @@ public class CheckCycleSentencesVisitor implements ASTVisitor<Boolean> {
 
     @Override
     public Boolean visit(IfStmt stmt) {
-        return (this.visit(stmt.getIfStatement()) && this.visit(stmt.getElseStatement()));
+        boolean ifstatement, elsestatement;
+        ifstatement = this.visit(stmt.getIfStatement());
+        if (stmt.getElseStatement()!=null){
+            elsestatement = this.visit(stmt.getElseStatement());
+            return ifstatement && elsestatement;
+        }
+        return ifstatement;
+        
     }
 
     @Override
@@ -47,11 +46,6 @@ public class CheckCycleSentencesVisitor implements ASTVisitor<Boolean> {
     @Override
     public Boolean visit(ContinueStmt stmt) {
         return false;
-    }
-
-    @Override
-    public Boolean visit(ExternStmt stmt) {
-        return true;
     }
 
     @Override
@@ -144,47 +138,4 @@ public class CheckCycleSentencesVisitor implements ASTVisitor<Boolean> {
         }
         return res;
     }
-
-    @Override
-    public Boolean visit(Statement stmt) {
-        boolean res = true;
-        TypeStmt type = stmt.getType();
-        switch (type){
-            case ASSIGN:
-                res = this.visit((AssignStmt) stmt);
-                break;
-            case METHODCALL:
-                res = this.visit((MethodCallStmt) stmt);
-                break;
-            case IF:
-                res = this.visit((IfStmt) stmt);
-                break;
-            case FOR:
-                res = this.visit((ForStmt) stmt);
-                break;
-            case WHILE:
-                res = this.visit((WhileStmt) stmt);
-                break;
-            case RETURN:
-                res = this.visit((ReturnStmt) stmt);
-                break;
-            case BREAK:
-                res = this.visit((BreakStmt) stmt);
-                break;
-            case CONTINUE:
-                res = this.visit((ContinueStmt) stmt);
-                break;
-            case BLOCK:
-                res = this.visit((Block) stmt);
-                break;
-            default :
-                System.err.println("Error in visit Statement");
-                break;
-        }
-        return res;
-        
-    }
-
-
-    
 }

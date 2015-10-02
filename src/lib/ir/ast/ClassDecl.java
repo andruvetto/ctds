@@ -7,7 +7,7 @@ import java.util.List;
 public class ClassDecl extends AST {
     private List<FieldDecl> fields;
     private List<MethodDecl> methods;
-    private String id;
+
     
     public ClassDecl(String id){
         fields = new LinkedList<FieldDecl>();
@@ -25,13 +25,10 @@ public class ClassDecl extends AST {
         return this.methods;
     }
     
-    public void SetId(String id){
-        this.id = id;
+    public List<FieldDecl> getFields(){
+        return this.fields;
     }
-    
-    public String getId(){
-        return this.id;
-    }
+
     
     @Override
     public String toString() {

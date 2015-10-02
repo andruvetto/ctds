@@ -5,8 +5,7 @@ import java.util.List;
 
 
 public class MethodDecl extends AST {
-    private Type type;
-    private String id;
+
     private List<Parameter> parameters;
     private Block block;
     private boolean extern;
@@ -30,13 +29,13 @@ public class MethodDecl extends AST {
         return this.extern;
     }
     
+
+    
     public Block getBlock(){
         return this.block;
     }
 
-    public String getId(){
-        return this.id;
-    }
+
     
     public List<Parameter> getParameters(){
         return this.parameters;

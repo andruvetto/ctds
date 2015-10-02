@@ -73,11 +73,12 @@ public class Main {
 
     private static Program Parse(parser pr) throws Exception{
         
-        ASTVisitor visitor = new CheckCycleSentencesVisitor();
+        ASTVisitor visitor = new CheckSemVisitor();
         /* Start the parser */
         Program result = (Program) pr.parse().value;
         System.out.println(visitor.visit(result));
         System.out.println("No errors.");
+
         return result;
     }
 }

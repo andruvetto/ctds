@@ -1,47 +1,21 @@
 package ir.ast;
 
 import ir.ASTVisitor;
-import java.util.LinkedList;
-import java.util.List;
 
 public class MethodCallStmt extends Statement {
-    private List<Expression> expressions;
-    private VarLocation location;
+    private MethodCall method;
     
-    public MethodCallStmt(VarLocation l, List<Expression> e){
-        expressions = e;
-        location = l;
+    public MethodCallStmt(MethodCall m){
+        this.method = m;
     }
     
-    public MethodCallStmt(VarLocation l){
-        expressions = new LinkedList();
-        location = l;
-    }
-    
-        public List<Expression> getExpressions(){
-        return expressions;
-    }
-    
-    public void setExpressions(List<Expression> e){
-        this.expressions = e;
-    }
-    
-    public VarLocation getLocation(){
-        return location;
-    }
-    
-    public void setLocation(VarLocation l){
-        this.location = l;
+    public MethodCall getMethod(){
+        return this.method;
     }
     
     @Override
     public String toString() {
-       String exprs = "";
-       for (Expression e: expressions){
-        exprs += e.toString() + ",";
-       }
-       if (exprs.length() > 0) exprs = exprs.substring(0, exprs.length() - 1); // remove last ,
-       return location.toString() + "(" + exprs + ")" ;
+       return method.toString();
     }
     
     @Override

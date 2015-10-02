@@ -3,7 +3,7 @@ import ir.ASTVisitor;
 import ir.ast.*;
 import java.util.List;
 
-public class MainVisitor implements ASTVisitor<Integer> {
+public class MainVisitor extends Visitor<Integer> {
 
     @Override
     public Integer visit(AssignStmt stmt) {
@@ -37,11 +37,6 @@ public class MainVisitor implements ASTVisitor<Integer> {
 
     @Override
     public Integer visit(ContinueStmt stmt) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Integer visit(ExternStmt stmt) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -133,12 +128,5 @@ public class MainVisitor implements ASTVisitor<Integer> {
         }
         return res;
     }
-
-    @Override
-    public Integer visit(Statement stmt) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    
     
 }
