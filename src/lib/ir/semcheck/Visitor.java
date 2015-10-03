@@ -49,7 +49,18 @@ abstract class Visitor<T> implements ASTVisitor {
                 return (T) this.visit((Location) exp);
             case "Literal" :
                 return (T) this.visit((Literal) exp);
+            case "IntLiteral" :
+                return (T) this.visit((IntLiteral) exp);
+            case "FloatLiteral" :
+                return (T) this.visit((FloatLiteral) exp);
+            case "BooleanLiteral" :
+                return (T) this.visit((BooleanLiteral) exp);
+            case "VarLocation" :
+                return (T) this.visit((VarLocation) exp);
+            case "ArrayLocation" :
+                return (T) this.visit((ArrayLocation) exp);
             default:
+                System.out.println("ENTRO A EXPRESSION con : " + c);
                 return null;
         }
     }
@@ -63,6 +74,7 @@ abstract class Visitor<T> implements ASTVisitor {
             case "ArrayLocation" :
                 return (T) this.visit((ArrayLocation) loc);
             default:
+                System.out.println("ENTRO A LOCATION");
                 return null;
         }
     }

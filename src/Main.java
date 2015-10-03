@@ -76,7 +76,7 @@ public class Main {
         ASTVisitor visitor = new CheckSemVisitor();
         /* Start the parser */
         Program result = (Program) pr.parse().value;
-        System.out.println(visitor.visit(result));
+        visitor.visit(result);
         System.out.println("No errors.");
 
         return result;

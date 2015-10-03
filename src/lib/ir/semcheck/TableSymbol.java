@@ -28,7 +28,7 @@ public class TableSymbol {
     public void insert(AST ast) throws Exception{
         for (AST s : stack.element()){
             if (s.getId().equals(ast.getId())) {
-                throw new Exception("Error to insert ast duplicated");
+                throw new Exception("Error to insert ast duplicated " + ast.getId());
             }
         }    
         stack.element().push(ast);
@@ -50,6 +50,17 @@ public class TableSymbol {
                 for (AST a : block){
                     if (a.getId().equals(ast.getId())) {
                         return a;
+                    }
+                }
+            }
+            return null;
+    }
+    
+    public Type typeDeclarated(AST ast){
+            for(LinkedList<AST> block : stack){
+                for (AST a : block){
+                    if (a.getId().equals(ast.getId())) {
+                        return a.getType();
                     }
                 }
             }
