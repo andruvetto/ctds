@@ -60,7 +60,6 @@ abstract class Visitor<T> implements ASTVisitor {
             case "ArrayLocation" :
                 return (T) this.visit((ArrayLocation) exp);
             default:
-                System.out.println("ENTRO A EXPRESSION con : " + c);
                 return null;
         }
     }
@@ -74,7 +73,6 @@ abstract class Visitor<T> implements ASTVisitor {
             case "ArrayLocation" :
                 return (T) this.visit((ArrayLocation) loc);
             default:
-                System.out.println("ENTRO A LOCATION");
                 return null;
         }
     }

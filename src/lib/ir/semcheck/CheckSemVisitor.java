@@ -1,11 +1,32 @@
 package ir.semcheck;
 import ir.ast.*;
+import error.Error;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
 public class CheckSemVisitor extends Visitor<Type> {
     private TableSymbol table;
+    private List<Error> errors;
+    
+    public CheckSemVisitor(){
+        errors = new LinkedList();
+    }
+    
+    private void addError(AST a, String desc) {
+	errors.add(new Error(a.getLineNumber(), a.getColumnNumber(), desc));
+    }
+
+    public List<Error> getErrors() {
+    	return errors;
+    }
+
+    public void setErrors(List<Error> errors) {
+    	this.errors = errors;
+    }
 
     @Override
     public Type visit(AssignStmt stmt) {
@@ -13,9 +34,17 @@ public class CheckSemVisitor extends Visitor<Type> {
         Expression e = stmt.getExpression();
         AssignOpType o = stmt.getOperator();
         
+       // if (l.getClass().getSimpleName().equals("ArrayLocation")){
+       //     System.out.println("ES ARRAY");
+        //}
+        
+        this.visit(e);
+        
+        
+        
         l.setType(table.typeDeclarated(l));
         if (l.getType() == null){
-            System.out.println("ERROR VARIABLE NOT DECLARATED");
+            addError(l, "Error variable '" + l + "' not declarated");
             stmt.setType(Type.UNDEFINED);
             return Type.UNDEFINED;
         }
@@ -24,7 +53,7 @@ public class CheckSemVisitor extends Visitor<Type> {
         e.setType(table.typeDeclarated(e));
         if (e.getType() == null) e.setType(this.visit(e));
         if (e.getType() == null){
-            System.out.println("ERROR EXPRESSION");
+            addError(e, "Error in expression '" + e +"'");
             stmt.setType(Type.UNDEFINED);
             return Type.UNDEFINED;
         }
@@ -34,7 +63,7 @@ public class CheckSemVisitor extends Visitor<Type> {
             return stmt.getType();
         }
         else{
-            System.out.println("ERROR TYPES IN ASSIGNATION");
+            addError(stmt , "Error type " + l.getType() + " != " + e.getType());
             stmt.setType(Type.UNDEFINED);
             return Type.UNDEFINED; 
         } 
@@ -100,6 +129,10 @@ public class CheckSemVisitor extends Visitor<Type> {
         BinOpType operator = expr.getOperator();
         
         
+        this.visit(left);
+        this.visit(right);
+        
+        
         left.setType(table.typeDeclarated(left));
         if (left.getType() == null) left.setType(this.visit(left));
         if (left.getType() == null) System.out.println("ERROR EXPRESSION left");
@@ -142,6 +175,8 @@ public class CheckSemVisitor extends Visitor<Type> {
     public Type visit(UnOpExpr expr) {
         
         Expression e = expr.getExpression();
+        
+        this.visit(e);
 
         e.setType(table.typeDeclarated(e));
         if (e.getType() == null) e.setType(this.visit(e));
@@ -200,7 +235,55 @@ public class CheckSemVisitor extends Visitor<Type> {
         //TODO COMPROBATE EXPRESSIONS
         
         if (table.declarated(m.getLocation())){
-            AST methoddec = table.getDeclarated(m.getLocation());
+            MethodDecl methoddec = (MethodDecl) table.getDeclarated(m.getLocation());
+            
+            
+            
+             //Comprobation parameters
+            List<Parameter> parameters = methoddec.getParameters();
+            List<Expression> expressions = m.getExpressions();
+            
+            if (parameters.size() == expressions.size()){
+                for (int i = 0; i<parameters.size(); i++){
+                    //this.visit(parameters.get(i));
+                    
+                    
+                    expressions.get(i).setType(table.typeDeclarated(expressions.get(i)));
+                 if (expressions.get(i).getType() == null) expressions.get(i).setType(this.visit(expressions.get(i)));
+                if (expressions.get(i).getType() == null) System.out.println("ERROR EXPRESSION");
+                    
+                    
+                    
+                    if (!parameters.get(i).getType().equals(expressions.get(i).getType())){
+                        addError(m, "parameter type incorrect" );
+                    }
+                }
+            }
+            else{
+                addError(m, "number of parameters is incorrect" );
+            }
+            /*
+            boolean res = true;
+            Iterator<Parameter> parameters = methoddec.getParameters().iterator();
+            
+            
+            for (Expression e : m.getExpressions()){
+                
+                if (parameters.hasNext()){
+                   
+                            
+                   this.visit(e);
+                   e.getType();
+                   res = res && e.getType().equals(parameters.next().getType());
+                  
+                }
+                else{
+                    addError(m, "Type of parameters is incorrect" );
+                    break;
+                }
+            }
+            */
+            
             m.setType(methoddec.getType());
             return m.getType();
         }
@@ -220,20 +303,17 @@ public class CheckSemVisitor extends Visitor<Type> {
 
     @Override
     public Type visit(VarLocation loc) {
-        try {
-            table.insert(loc);
-        } catch (Exception ex) {
-            Logger.getLogger(CheckSemVisitor.class.getName()).log(Level.SEVERE, null, ex);
-        }
         return loc.getType();
     }
 
     @Override
     public Type visit(ArrayLocation loc) {
-        try {
-            table.insert(loc);
-        } catch (Exception ex) {
-            Logger.getLogger(CheckSemVisitor.class.getName()).log(Level.SEVERE, null, ex);
+        System.out.println(loc.getExpression());
+        if (!loc.getExpression().getType().equals(Type.INT)){
+            addError(loc, "Type of array expression " + loc.getExpression().getType()  + " != int " + loc);
+        }
+        else{
+            //Comprobar si es mayor que 0
         }
         return loc.getType();
     }
@@ -253,24 +333,33 @@ public class CheckSemVisitor extends Visitor<Type> {
     public Type visit(FieldDecl fd) {
         for(Location l : fd.getLocations()){
             l.setType(this.visit(l));
+            try {
+                table.insert(l);
+            } catch (Exception ex) {
+                Logger.getLogger(CheckSemVisitor.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         return fd.getType();
     }
 
     @Override
     public Type visit(Parameter p) {
-        try {
-            table.insert(p);
-        } catch (Exception ex) {
-            Logger.getLogger(CheckSemVisitor.class.getName()).log(Level.SEVERE, null, ex);
-        }
         return p.getType();
     }
 
     @Override
     public Type visit(MethodDecl m) {
         table.newBlock();
+        if ( m.getId().equals("main") && !m.getParameters().isEmpty()){
+            addError(m, "Error: main method contains parameters");
+            
+        }        
         for(Parameter p : m.getParameters()){
+            try {
+                table.insert(p);
+            } catch (Exception ex) {
+                Logger.getLogger(CheckSemVisitor.class.getName()).log(Level.SEVERE, null, ex);
+            }
             this.visit(p);
         }
         if (!m.ifExtern()) this.visit(m.getBlock());

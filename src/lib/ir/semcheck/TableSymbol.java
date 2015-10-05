@@ -1,7 +1,6 @@
 package ir.semcheck;
 import error.Error;
 import ir.ast.*;
-import ir.ASTVisitor;
 import java.util.LinkedList;
 
 

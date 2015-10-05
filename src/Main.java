@@ -73,11 +73,12 @@ public class Main {
 
     private static Program Parse(parser pr) throws Exception{
         
-        ASTVisitor visitor = new CheckSemVisitor();
+        CheckSemVisitor visitor = new CheckSemVisitor();
         /* Start the parser */
         Program result = (Program) pr.parse().value;
         visitor.visit(result);
-        System.out.println("No errors.");
+        System.out.println(visitor.getErrors());
+        //System.out.println("No errors.");
 
         return result;
     }

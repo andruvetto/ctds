@@ -15,6 +15,10 @@ public class ArrayLocation extends Location {
 	public int getBlockId() {
 		return blockId;
 	}
+        
+        public Expression getExpression(){
+            return this.expression;
+        }
 
 	public void setBlockId(int blockId) {
 		this.blockId = blockId;
@@ -22,8 +26,9 @@ public class ArrayLocation extends Location {
 	
 	@Override
 	public String toString() {
-		return id;
+		return id+"["+expression+"]";
 	}
+        
 
 	@Override
 	public <T> T accept(ASTVisitor<T> v) {

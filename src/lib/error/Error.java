@@ -31,5 +31,10 @@ public class Error {
      public int getColumn(){
         return column;
     }
+     
+     @Override
+    public String toString(){
+        return desc + " in line: " + line + " column: " + column;
+    }
     
 }
