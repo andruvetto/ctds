@@ -38,7 +38,7 @@ public class CheckSemVisitor extends Visitor<Type> {
        //     System.out.println("ES ARRAY");
         //}
         
-        this.visit(e);
+        //this.visit(e);
         
         
         
@@ -60,6 +60,10 @@ public class CheckSemVisitor extends Visitor<Type> {
 
         if (l.getType().equals(e.getType())){
             stmt.setType(l.getType());
+            if ((o.equals(AssignOpType.ASSMNT_INC) || o.equals(AssignOpType.ASSMNT_DEC)) && !(l.getType().equals(Type.FLOAT) || l.getType().equals(Type.INT))){
+                addError(stmt , "Error assignement type");
+            }
+            
             return stmt.getType();
         }
         else{
@@ -91,7 +95,11 @@ public class CheckSemVisitor extends Visitor<Type> {
     @Override
     public Type visit(IfStmt stmt) {
         this.visit(stmt.getIfStatement());
+        this.visit(stmt.getCondition());
         if (stmt.getElseStatement() != null) this.visit(stmt.getElseStatement());
+        if (!stmt.getCondition().getType().equals(Type.BOOLEAN)){
+            addError(stmt.getCondition(), "Error type if condition: " + stmt.getCondition().getType());
+        } 
         stmt.setType(Type.UNDEFINED);
         return stmt.getType();
     }
@@ -107,9 +115,13 @@ public class CheckSemVisitor extends Visitor<Type> {
     @Override
     public Type visit(WhileStmt stmt) {
         this.visit(stmt.getWhileStatement());
+        this.visit(stmt.getCondition());
+        if (!stmt.getCondition().getType().equals(Type.BOOLEAN)){
+            addError(stmt.getCondition(), "Error type while condition: " + stmt.getCondition().getType());
+        }
         stmt.setType(Type.UNDEFINED);
         return stmt.getType();
-        //TODO COMPROBATE CONDITION
+      
     }
 
     @Override
@@ -129,8 +141,8 @@ public class CheckSemVisitor extends Visitor<Type> {
         BinOpType operator = expr.getOperator();
         
         
-        this.visit(left);
-        this.visit(right);
+        //this.visit(left);
+        //this.visit(right);
         
         
         left.setType(table.typeDeclarated(left));
@@ -151,6 +163,10 @@ public class CheckSemVisitor extends Visitor<Type> {
                 System.out.println("ERROR Type operator of binOpexpr");
                 return Type.UNDEFINED;
             }
+            if (operator.equals(BinOpType.EQ) || operator.equals(BinOpType.GTR) || operator.equals(BinOpType.GTR_EQ) || operator.equals(BinOpType.LESS) || operator.equals(BinOpType.LESS_EQ)){
+                expr.setType(Type.BOOLEAN);
+                return expr.getType();
+            }
         }
       
         if (left.getType().equals(Type.BOOLEAN)) {
@@ -160,7 +176,7 @@ public class CheckSemVisitor extends Visitor<Type> {
             }
         }
         
-        if (left.getType().equals(Type.INTARRAY) || left.getType().equals(Type.VOID) || left.getType().equals(Type.UNDEFINED)){
+        if (left.getType().equals(Type.VOID) || left.getType().equals(Type.UNDEFINED)){
             System.out.println("ERROR Types expressions of binOpexpr");
             return Type.UNDEFINED;
         }
@@ -176,7 +192,7 @@ public class CheckSemVisitor extends Visitor<Type> {
         
         Expression e = expr.getExpression();
         
-        this.visit(e);
+        //this.visit(e);
 
         e.setType(table.typeDeclarated(e));
         if (e.getType() == null) e.setType(this.visit(e));
@@ -236,9 +252,7 @@ public class CheckSemVisitor extends Visitor<Type> {
         
         if (table.declarated(m.getLocation())){
             MethodDecl methoddec = (MethodDecl) table.getDeclarated(m.getLocation());
-            
-            
-            
+
              //Comprobation parameters
             List<Parameter> parameters = methoddec.getParameters();
             List<Expression> expressions = m.getExpressions();
@@ -246,14 +260,9 @@ public class CheckSemVisitor extends Visitor<Type> {
             if (parameters.size() == expressions.size()){
                 for (int i = 0; i<parameters.size(); i++){
                     //this.visit(parameters.get(i));
-                    
-                    
                     expressions.get(i).setType(table.typeDeclarated(expressions.get(i)));
-                 if (expressions.get(i).getType() == null) expressions.get(i).setType(this.visit(expressions.get(i)));
-                if (expressions.get(i).getType() == null) System.out.println("ERROR EXPRESSION");
-                    
-                    
-                    
+                    if (expressions.get(i).getType() == null) expressions.get(i).setType(this.visit(expressions.get(i)));
+                    if (expressions.get(i).getType() == null) System.out.println("ERROR EXPRESSION");
                     if (!parameters.get(i).getType().equals(expressions.get(i).getType())){
                         addError(m, "parameter type incorrect" );
                     }
@@ -262,27 +271,6 @@ public class CheckSemVisitor extends Visitor<Type> {
             else{
                 addError(m, "number of parameters is incorrect" );
             }
-            /*
-            boolean res = true;
-            Iterator<Parameter> parameters = methoddec.getParameters().iterator();
-            
-            
-            for (Expression e : m.getExpressions()){
-                
-                if (parameters.hasNext()){
-                   
-                            
-                   this.visit(e);
-                   e.getType();
-                   res = res && e.getType().equals(parameters.next().getType());
-                  
-                }
-                else{
-                    addError(m, "Type of parameters is incorrect" );
-                    break;
-                }
-            }
-            */
             
             m.setType(methoddec.getType());
             return m.getType();
@@ -308,12 +296,16 @@ public class CheckSemVisitor extends Visitor<Type> {
 
     @Override
     public Type visit(ArrayLocation loc) {
-        System.out.println(loc.getExpression());
         if (!loc.getExpression().getType().equals(Type.INT)){
             addError(loc, "Type of array expression " + loc.getExpression().getType()  + " != int " + loc);
         }
         else{
-            //Comprobar si es mayor que 0
+            IntLiteral literal = (IntLiteral) loc.getExpression();
+            this.visit(literal);
+            
+            if (literal.getValue() <= 0){
+                addError(loc, "Error array expression " + loc);
+            }
         }
         return loc.getType();
     }
