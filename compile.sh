@@ -5,7 +5,10 @@ java -jar lib/jflex-1.6.1.jar src/ctds.jflex
 
 
 echo "---------------------------- Creating java file from cup file -------------------------------"
-java -jar lib/java-cup-11b.jar -destdir src/ src/ctds.cup 
+#java -jar lib/java-cup-11b.jar -destdir src/ src/ctds.cup 
+
+java -jar lib/java-cup-11b.jar -parser CtdsParser  -destdir src/ src/ctds.cup 
+
 
 #echo "---------------------------------- Compiling lib ---------------------------------------"
 #javac src/lib/error/*.java -d lib/

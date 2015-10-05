@@ -7,4 +7,6 @@ tests/corrects/prueba
 src/CtdsLexer.java
 src/parser.java
 src/sym.java
+src/CtdsParser.java
+src/CtdsSymbol.java
 .directory

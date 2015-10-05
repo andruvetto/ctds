@@ -68,7 +68,7 @@ public class Main {
             /* Instantiate the scanner and open input file argv[0] */
             CtdsLexer scanner = new CtdsLexer(new FileReader(inputName));
             /* Instantiate the parser */
-            parser pr = new parser( scanner );
+            CtdsParser pr = new CtdsParser( scanner );
             
             switch (target){
                 case "scan":
@@ -109,7 +109,7 @@ public class Main {
         System.out.println(res);
     }
 
-    private static void Parse(parser pr) throws Exception{
+    private static void Parse(CtdsParser pr) throws Exception{
         
         CheckSemVisitor visitor = new CheckSemVisitor();
         /* Start the parser */
