@@ -1,2 +1,6 @@
 #!/bin/bash
-java -cp "classes/:lib/" Main $@
+cd classes
+export CLASSPATH=""
+for file in `ls ../lib/`; do export CLASSPATH=$CLASSPATH:../lib/$file; done
+
+java -cp $CLASSPATH:. Main $@

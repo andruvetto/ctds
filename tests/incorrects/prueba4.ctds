@@ -1,8 +1,0 @@
-class main {
-
-    void prueba () {
-        extern;
-    }
-}
-
-//Prueba de un "extern" dentro de un bloque

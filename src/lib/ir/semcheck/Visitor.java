@@ -1,27 +1,28 @@
-package ir.semcheck;
+package lib.ir.semcheck;
 
-import ir.ASTVisitor;
-import ir.ast.*;
+import lib.ir.ASTVisitor;
+import lib.ir.ast.*;
 import java.util.LinkedList;
 import java.util.List;
+import lib.error.Error;
 
 abstract class Visitor<T> implements ASTVisitor {
     
-    private List<error.Error> errors;
+    private List<Error> errors;
     
     public Visitor(){
         errors = new LinkedList();
     }
     
     protected void addError(AST a, String desc) {
-	errors.add(new error.Error(a.getLineNumber(), a.getColumnNumber(), desc));
+	errors.add(new Error(a.getLineNumber(), a.getColumnNumber(), desc));
     }
 
-    public List<error.Error> getErrors() {
+    public List<Error> getErrors() {
     	return errors;
     }
 
-    public void setErrors(List<error.Error> errors) {
+    public void setErrors(List<Error> errors) {
     	this.errors = errors;
     }
     

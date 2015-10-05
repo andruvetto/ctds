@@ -1,7 +1,7 @@
-package ir.ast;
+package lib.ir.ast;
 
 import java.util.List;
-import ir.ASTVisitor;
+import lib.ir.ASTVisitor;
 import java.util.LinkedList;
 
 public class Block extends Statement {

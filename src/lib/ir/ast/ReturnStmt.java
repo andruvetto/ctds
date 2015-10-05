@@ -1,6 +1,6 @@
-package ir.ast;
+package lib.ir.ast;
 
-import ir.ASTVisitor;
+import lib.ir.ASTVisitor;
 
 public class ReturnStmt extends Statement {
 	private Expression expression; // the return expression

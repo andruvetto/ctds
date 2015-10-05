@@ -11,7 +11,7 @@
 
 
 import java_cup.runtime.*;
-import ir.ast.*;
+import lib.ir.ast.*;
 
 %%
 /*-*
@@ -31,8 +31,8 @@ import ir.ast.*;
  */
 alpha =             [A-Za-z]
 digit =             [0-9]
-alpha_num =         {alpha}|{digit}|[_]
-id =                {alpha}({alpha_num})*
+alpha_num =         {alpha} | {digit} | _
+id =                {alpha}{alpha_num}*
 int_literal =       {digit}{digit}*
 float_literal =     {int_literal}\.{int_literal}
 leftbrace =         \{
@@ -118,5 +118,5 @@ extern          {return new Symbol(sym.EXTERN,yyline,yycolumn,yytext());}
 
 {comment}       {/* Ignore comments*/}
 {whitespace}    { /* Ignore whitespace. */ }
-.               {return new Symbol(sym.ERROR,yyline,yycolumn,yytext());}
+.               {return new Symbol(sym.error,yyline,yycolumn,yytext());}
               

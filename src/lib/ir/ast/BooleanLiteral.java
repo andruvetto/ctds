@@ -1,6 +1,6 @@
-package ir.ast;
+package lib.ir.ast;
 
-import ir.ASTVisitor;
+import lib.ir.ASTVisitor;
 
 public class BooleanLiteral extends Literal {
 	private String rawValue;

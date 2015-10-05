@@ -1,4 +1,4 @@
-package ir.ast;
+package lib.ir.ast;
 
 public enum AssignOpType {
 	ASSMNT_INC,

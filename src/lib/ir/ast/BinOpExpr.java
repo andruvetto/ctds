@@ -1,6 +1,6 @@
-package ir.ast;
+package lib.ir.ast;
 
-import ir.ASTVisitor;
+import lib.ir.ASTVisitor;
 
 public class BinOpExpr extends Expression {
 	private BinOpType operator; //operator in the expr = expr operator expr

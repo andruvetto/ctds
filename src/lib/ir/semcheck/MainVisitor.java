@@ -1,6 +1,6 @@
-package ir.semcheck;
-import ir.ASTVisitor;
-import ir.ast.*;
+package lib.ir.semcheck;
+import lib.ir.ASTVisitor;
+import lib.ir.ast.*;
 import java.util.List;
 
 public class MainVisitor extends Visitor<Integer> {

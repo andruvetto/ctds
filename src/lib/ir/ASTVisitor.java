@@ -1,6 +1,6 @@
-package ir;
+package lib.ir;
 
-import ir.ast.*;
+import lib.ir.ast.*;
 
 // Abstract visitor
 public interface ASTVisitor<T> {

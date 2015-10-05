@@ -1,6 +1,7 @@
-package ir.semcheck;
-import error.Error;
-import ir.ast.*;
+package lib.ir.semcheck;
+import lib.error.Error;
+import lib.*;
+import lib.ir.ast.*;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,14 +11,14 @@ public class TableSymbol {
     private LinkedList<LinkedList<AST>> stack;
     
     protected void addError(AST a, String desc) {
-	errors.add(new error.Error(a.getLineNumber(), a.getColumnNumber(), desc));
+	errors.add(new Error(a.getLineNumber(), a.getColumnNumber(), desc));
     }
 
-    public List<error.Error> getErrors() {
+    public List<Error> getErrors() {
     	return errors;
     }
 
-    public void setErrors(List<error.Error> errors) {
+    public void setErrors(List<Error> errors) {
     	this.errors = errors;
     }
     

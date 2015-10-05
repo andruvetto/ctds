@@ -1,6 +1,6 @@
-package ir.semcheck;
-import ir.ast.*;
-import error.Error;
+package lib.ir.semcheck;
+import lib.ir.ast.*;
+import lib.error.Error;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
