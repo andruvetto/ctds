@@ -190,8 +190,8 @@ var_location::= ID:id id_point_list:id_list {: VarLocation res = new VarLocation
 			  | ID:id {: VarLocation res  = new VarLocation((String)id) ; setColumnAndLine(res, idleft, idright); RESULT = res; :}
 			  ;
 
-array_location::= ID:id LEFT_BRKT expr:e RT_BRKT {: RESULT = new ArrayLocation(((String)id),e) ; :}
-                | ID:id id_point_list:id_list LEFT_BRKT expr:e RT_BRKT {: RESULT = new ArrayLocation((((String)id)+id_list),e); :}
+array_location::= ID:id LEFT_BRKT expr:e RT_BRKT {: ArrayLocation res = new ArrayLocation(((String)id),e) ; setColumnAndLine(res, idleft, idright); RESULT = res; :}
+                | ID:id id_point_list:id_list LEFT_BRKT expr:e RT_BRKT {: ArrayLocation res = new ArrayLocation((((String)id)+id_list),e); setColumnAndLine(res, idleft, idright); RESULT = res ;:}
           		;
 
 id_point_list::= id_point_list:id_list POINT:p ID:id {: RESULT = id_list+((String)p)+((String)id); :}
@@ -205,26 +205,26 @@ expr_list::= expr:e COMMA expr_list:list {: list.add(e); RESULT = list; :}
 expr::= location:l {: RESULT = l ; :}
       | method_call:m {: RESULT = m ; :}
       | literal:l {: RESULT = l;:}
-      | expr:e1 PLUS:o expr:e2 {: RESULT = new BinOpExpr(e1,BinOpType.PLUS,e2);:}
-      | expr:e1 MINUS expr:e2 {: RESULT = new BinOpExpr(e1,BinOpType.MINUS,e2);:}
-      | expr:e1 TIMES expr:e2 {: RESULT = new BinOpExpr(e1,BinOpType.TIMES,e2);:}
-      | expr:e1 DIVIDE expr:e2 {: RESULT = new BinOpExpr(e1,BinOpType.DIVIDE,e2);:}
-      | expr:e1 MOD expr:e2 {: RESULT = new BinOpExpr(e1,BinOpType.MOD,e2);:}
-      | expr:e1 GTR expr:e2 {: RESULT = new BinOpExpr(e1,BinOpType.GTR,e2);:}
-      | expr:e1 LESS expr:e2 {: RESULT = new BinOpExpr(e1,BinOpType.LESS,e2);:}
-      | expr:e1 GTR_EQ expr:e2 {: RESULT = new BinOpExpr(e1,BinOpType.GTR_EQ,e2);:}
-      | expr:e1 LESS_EQ expr:e2 {: RESULT = new BinOpExpr(e1,BinOpType.LESS_EQ,e2);:}
-      | expr:e1 EQ expr:e2 {: RESULT = new BinOpExpr(e1,BinOpType.EQ,e2);:}
-      | expr:e1 NOT_EQ expr:e2 {: RESULT = new BinOpExpr(e1,BinOpType.NOT_EQ,e2);:}
-      | expr:e1 AND expr:e2 {: RESULT = new BinOpExpr(e1,BinOpType.AND,e2);:}
-      | expr:e1 OR expr:e2 {: RESULT = new BinOpExpr(e1,BinOpType.OR,e2);:}
-      | MINUS expr:e {: RESULT = new UnOpExpr(UnOpType.MINUS, e); :}
-      | LOGIC_NEGATION expr:e {: RESULT = new UnOpExpr(UnOpType.LOGIC_NEGATION, e); :}
-      | LEFT_PAREN expr:e RT_PAREN {: RESULT = e ; :}
+      | expr:e1 PLUS:o expr:e2 {: BinOpExpr res = new BinOpExpr(e1,BinOpType.PLUS,e2); setColumnAndLine(res, oleft, oright); RESULT = res;:}
+      | expr:e1 MINUS:o expr:e2 {: BinOpExpr res = new BinOpExpr(e1,BinOpType.MINUS,e2); setColumnAndLine(res, oleft, oright); RESULT = res;:}
+      | expr:e1 TIMES:o expr:e2 {: BinOpExpr res = new BinOpExpr(e1,BinOpType.TIMES,e2); setColumnAndLine(res, oleft, oright); RESULT = res;:}
+      | expr:e1 DIVIDE:o expr:e2 {: BinOpExpr res = new BinOpExpr(e1,BinOpType.DIVIDE,e2); setColumnAndLine(res, oleft, oright); RESULT = res;:}
+      | expr:e1 MOD:o expr:e2 {: BinOpExpr res = new BinOpExpr(e1,BinOpType.MOD,e2); setColumnAndLine(res, oleft, oright); RESULT = res;:}
+      | expr:e1 GTR:o expr:e2 {: BinOpExpr res = new BinOpExpr(e1,BinOpType.GTR,e2); setColumnAndLine(res, oleft, oright); RESULT = res;:}
+      | expr:e1 LESS:o expr:e2 {: BinOpExpr res = new BinOpExpr(e1,BinOpType.LESS,e2); setColumnAndLine(res, oleft, oright); RESULT = res;:}
+      | expr:e1 GTR_EQ:o expr:e2 {: BinOpExpr res = new BinOpExpr(e1,BinOpType.GTR_EQ,e2); setColumnAndLine(res, oleft, oright); RESULT = res;:}
+      | expr:e1 LESS_EQ:o expr:e2 {: BinOpExpr res = new BinOpExpr(e1,BinOpType.LESS_EQ,e2); setColumnAndLine(res, oleft, oright); RESULT = res;:}
+      | expr:e1 EQ:o expr:e2 {: BinOpExpr res = new BinOpExpr(e1,BinOpType.EQ,e2); setColumnAndLine(res, oleft, oright); RESULT = res;:}
+      | expr:e1 NOT_EQ:o expr:e2 {: BinOpExpr res = new BinOpExpr(e1,BinOpType.NOT_EQ,e2); setColumnAndLine(res, oleft, oright); RESULT = res;:}
+      | expr:e1 AND:o expr:e2 {: BinOpExpr res = new BinOpExpr(e1,BinOpType.AND,e2); setColumnAndLine(res, oleft, oright); RESULT = res;:}
+      | expr:e1 OR:o expr:e2 {: BinOpExpr res = new BinOpExpr(e1,BinOpType.OR,e2);setColumnAndLine(res, oleft, oright); RESULT = res;:}
+      | MINUS:o expr:e {: UnOpExpr res = new UnOpExpr(UnOpType.MINUS, e); setColumnAndLine(res, oleft, oright); RESULT = res;:}
+      | LOGIC_NEGATION:o expr:e {: UnOpExpr res = new UnOpExpr(UnOpType.LOGIC_NEGATION, e); setColumnAndLine(res, oleft, oright); RESULT = res;:}
+      | LEFT_PAREN:l expr:e RT_PAREN {: RESULT = e ; :}
       ;
                             
-literal::= INT_LITERAL:v {: RESULT = new IntLiteral((String)v); :}
-         | FLOAT_LITERAL:v {: RESULT = new FloatLiteral((String)v); :}
-         | TRUE:v {: RESULT = new BooleanLiteral((String)v); :}
-         | FALSE:v {: RESULT = new BooleanLiteral((String)v); :}
+literal::= INT_LITERAL:v {: IntLiteral res = new IntLiteral((String)v); setColumnAndLine(res, vleft, vright); RESULT = res;:}
+         | FLOAT_LITERAL:v {: FloatLiteral res = new FloatLiteral((String)v); setColumnAndLine(res, vleft, vright); RESULT = res;:}
+         | TRUE:v {: BooleanLiteral res = new BooleanLiteral((String)v); setColumnAndLine(res, vleft, vright); RESULT = res;:}
+         | FALSE:v {: BooleanLiteral res = new BooleanLiteral((String)v); setColumnAndLine(res, vleft, vright); RESULT = res; :}
          ;
