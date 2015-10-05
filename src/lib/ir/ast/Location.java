@@ -3,7 +3,8 @@ package ir.ast;
 import ir.ASTVisitor;
 
 public abstract class Location extends Expression {
-
+    protected boolean isArray;
+    
     @Override
     public String toString() {
        return id;

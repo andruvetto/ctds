@@ -2,8 +2,29 @@ package ir.semcheck;
 
 import ir.ASTVisitor;
 import ir.ast.*;
+import java.util.LinkedList;
+import java.util.List;
 
 abstract class Visitor<T> implements ASTVisitor {
+    
+    private List<error.Error> errors;
+    
+    public Visitor(){
+        errors = new LinkedList();
+    }
+    
+    protected void addError(AST a, String desc) {
+	errors.add(new error.Error(a.getLineNumber(), a.getColumnNumber(), desc));
+    }
+
+    public List<error.Error> getErrors() {
+    	return errors;
+    }
+
+    public void setErrors(List<error.Error> errors) {
+    	this.errors = errors;
+    }
+    
     @Override
     public T visit(Statement stmt) {
         String c = stmt.getClass().getSimpleName();

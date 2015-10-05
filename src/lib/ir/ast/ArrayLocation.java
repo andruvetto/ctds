@@ -10,6 +10,7 @@ public class ArrayLocation extends Location {
 		this.id = id;
                 expression = e;
 		this.blockId = -1;
+                this.isArray = true;
 	}
 	
 	public int getBlockId() {

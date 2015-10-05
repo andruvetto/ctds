@@ -8,6 +8,7 @@ public class VarLocation extends Location {
 	public VarLocation(String id) {
 		this.id = id;
 		this.blockId = -1;
+                this.isArray = false;
 	}
 	
 	public int getBlockId() {

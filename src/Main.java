@@ -2,7 +2,9 @@ import java.io.*;
 import ir.ast.*;
 import ir.ASTVisitor;
 import ir.semcheck.*;
+import java.util.List;
 import java_cup.runtime.Symbol;
+import error.Error;
 
 
 
@@ -71,16 +73,19 @@ public class Main {
         System.out.println(res);
     }
 
-    private static Program Parse(parser pr) throws Exception{
+    private static void Parse(parser pr) throws Exception{
         
         CheckSemVisitor visitor = new CheckSemVisitor();
         /* Start the parser */
+        
         Program result = (Program) pr.parse().value;
         visitor.visit(result);
-        System.out.println(visitor.getErrors());
-        //System.out.println("No errors.");
+        List<Error> errors = visitor.getErrors();
+        
+        if (errors.isEmpty()) System.out.println("No errors.");
+        else System.out.println(errors);
 
-        return result;
+        //return result;
     }
 }
 

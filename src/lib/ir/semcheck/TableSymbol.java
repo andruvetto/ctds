@@ -2,14 +2,28 @@ package ir.semcheck;
 import error.Error;
 import ir.ast.*;
 import java.util.LinkedList;
+import java.util.List;
 
 
 public class TableSymbol {
-    private LinkedList<Error> errors;
+    private List<Error> errors;
     private LinkedList<LinkedList<AST>> stack;
+    
+    protected void addError(AST a, String desc) {
+	errors.add(new error.Error(a.getLineNumber(), a.getColumnNumber(), desc));
+    }
+
+    public List<error.Error> getErrors() {
+    	return errors;
+    }
+
+    public void setErrors(List<error.Error> errors) {
+    	this.errors = errors;
+    }
     
     public TableSymbol(){
         stack = new LinkedList();
+        errors = new LinkedList();
     }
     
     public LinkedList<AST> pop(){
@@ -55,11 +69,24 @@ public class TableSymbol {
             return null;
     }
     
-    public Type typeDeclarated(AST ast){
+    public Type typeDeclarated(AST ast) throws Exception {
             for(LinkedList<AST> block : stack){
                 for (AST a : block){
-                    if (a.getId().equals(ast.getId())) {
+                    if (a.getId().equals(ast.getId()) && a.getClass().equals(ast.getClass())  ) {
                         return a.getType();
+                    }
+                }
+            }
+          
+            throw new Exception("Error variable not declarated " + ast.getId());
+           
+    }
+    
+    public MethodDecl getLastMethodDecl(){
+        for(LinkedList<AST> block : stack){
+                for (AST a : block){
+                    if (a.getClass().getSimpleName().equals("MethodDecl")) {
+                        return (MethodDecl)a;
                     }
                 }
             }

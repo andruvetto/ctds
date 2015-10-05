@@ -2,23 +2,37 @@ import java_cup.runtime.*;
 import ir.ast.*;
 import java.util.LinkedList;
 import java.util.List;
-
+import error.Error;
 
 parser code {:
 
-        private void setColumnAndLine (AST ast, Symbol s){
+        private static List<Error> errors = new LinkedList();
+        protected void addError(Symbol s, String desc) {
+          errors.add(new error.Error(s.left+1, s.right+1, desc));
+        }
+
+    public List<error.Error> getErrors() {
+      return errors;
+    }
+
+    public void setErrors(List<error.Error> errors) {
+      this.errors = errors;
+    }
+
+
+        private void setColumnAndLine (AST ast, int line, int column){
             
-            ast.setLineNumber(s.left+1);
-            ast.setColumnNumber(s.right+1);
+            ast.setLineNumber(line+1);
+            ast.setColumnNumber(column+1);
             
         }
 
         public void syntax_error(Symbol s){
             System.err.println("Syntax error in line " + (s.left+1) + " column " + (s.right+1) + " value : " + (s.value)); 
+            //addError(s, "Syntax error value: " + s.value);
         }
 
         public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
-            //System.err.println("Fatal Error");
             throw new java.lang.Exception("Fatal Error");
         }     
 :}
@@ -82,8 +96,8 @@ class_list ::= class_decl:c {: LinkedList res = new LinkedList(); res.add(c); RE
             |  class_list:clist class_decl:c {: clist.add(c); RESULT = clist; :}
             ;
                     
-class_decl::= CLASS ID:id LEFTBRACE body_class:c RIGHTBRACE {: setColumnAndLine(c,(Symbol) id);  c.setId((String)id); RESULT = c; :}
-            | CLASS ID:id LEFTBRACE RIGHTBRACE {: ClassDecl res = new ClassDecl((String)id); setColumnAndLine(res, (Symbol) id); RESULT = res; :}
+class_decl::= CLASS ID:id LEFTBRACE body_class:c RIGHTBRACE {: setColumnAndLine(c,idleft, idright);  c.setId((String)id); RESULT = c; :}
+            | CLASS ID:id LEFTBRACE RIGHTBRACE {: ClassDecl res = new ClassDecl((String)id); setColumnAndLine(res, idleft, idright); RESULT = res; :}
             ;
 
 body_class ::= field_list:flist method_list:mlist {: RESULT = new ClassDecl(flist, mlist); :}
@@ -95,7 +109,7 @@ field_list::= field_list:fl field_decl:fd {: fl.add(fd); RESULT = fl; :}
             | field_decl:fd {:LinkedList res = new LinkedList(); res.add(fd); RESULT = res;:}
             ;
                 
-field_decl::= type:t type_id_list:tl SEMI:semi {: FieldDecl res = new FieldDecl(t,tl); setColumnAndLine(res,(Symbol) semi); RESULT = res; :}
+field_decl::= type:t type_id_list:tl SEMI:semi {: FieldDecl res = new FieldDecl(t,tl); setColumnAndLine(res,semileft,semiright); RESULT = res; :}
 			;
         
 
@@ -103,32 +117,32 @@ type_id_list::= type_id:id {:LinkedList res = new LinkedList(); res.add(id); RES
               | type_id:id COMMA type_id_list:id_list {: id_list.add(id); RESULT = id_list; :}
               ;
                     
-type_id::= ID:id LEFT_BRKT INT_LITERAL:e RT_BRKT {: ArrayLocation res = new ArrayLocation((String)id, new IntLiteral((String)e)); setColumnAndLine(res, (Symbol)id); RESULT = res; :}
-         | ID:id  {:VarLocation res = new VarLocation((String)id); setColumnAndLine(res, (Symbol)id); RESULT = res; :}               
+type_id::= ID:id LEFT_BRKT INT_LITERAL:e RT_BRKT {: ArrayLocation res = new ArrayLocation((String)id, new IntLiteral((String)e)); setColumnAndLine(res, idleft, idright); RESULT = res; :}
+         | ID:id  {:VarLocation res = new VarLocation((String)id); setColumnAndLine(res, idleft, idright); RESULT = res; :}               
          ;
                 
 method_list::= method_list:mlist method_decl:m {: mlist.add(m); RESULT = mlist; :} 
              | method_decl:m {: LinkedList res = new LinkedList(); res.add(m); RESULT = res ;:}
              ;
 
-method_decl::= VOID ID:id LEFT_PAREN parameters_list:plist RT_PAREN block:b {: MethodDecl res = new MethodDecl(Type.VOID, (String) id, plist, b); setColumnAndLine(res, (Symbol)id); RESULT = res; :}
-             | type:t ID:id LEFT_PAREN parameters_list:plist RT_PAREN block:b {: MethodDecl res = new MethodDecl(t, (String) id, plist, b); setColumnAndLine(res, (Symbol)id); RESULT = res; :}
-             | VOID ID:id LEFT_PAREN RT_PAREN block:b {: MethodDecl res = new MethodDecl(Type.VOID, (String) id, new LinkedList(), b); setColumnAndLine(res, (Symbol)id); RESULT = res; :}
-             | type:t ID:id LEFT_PAREN RT_PAREN block:b {: MethodDecl res = new MethodDecl(t, (String) id, new LinkedList(), b); setColumnAndLine(res, (Symbol)id); RESULT = res; :}
-             | VOID ID:id LEFT_PAREN parameters_list:plist RT_PAREN EXTERN SEMI {: MethodDecl res = new MethodDecl(Type.VOID, (String) id, plist); setColumnAndLine(res, (Symbol)id); RESULT = res;:}
-             | type:t ID:id LEFT_PAREN parameters_list:plist RT_PAREN EXTERN SEMI {: MethodDecl res = new MethodDecl(t, (String) id, plist); setColumnAndLine(res, (Symbol)id); RESULT = res;:}
-             | VOID ID:id LEFT_PAREN RT_PAREN EXTERN SEMI {: MethodDecl res = new MethodDecl(Type.VOID, (String) id, new LinkedList()); setColumnAndLine(res, (Symbol)id); RESULT = res;:}
-             | type:t ID:id LEFT_PAREN RT_PAREN EXTERN SEMI {: MethodDecl res = new MethodDecl(t, (String) id, new LinkedList()); setColumnAndLine(res, (Symbol)id); RESULT = res;:}
+method_decl::= VOID ID:id LEFT_PAREN parameters_list:plist RT_PAREN block:b {: MethodDecl res = new MethodDecl(Type.VOID, (String) id, plist, b); setColumnAndLine(res, idleft, idright); RESULT = res; :}
+             | type:t ID:id LEFT_PAREN parameters_list:plist RT_PAREN block:b {: MethodDecl res = new MethodDecl(t, (String) id, plist, b); setColumnAndLine(res, idleft, idright); RESULT = res; :}
+             | VOID ID:id LEFT_PAREN RT_PAREN block:b {: MethodDecl res = new MethodDecl(Type.VOID, (String) id, new LinkedList(), b); setColumnAndLine(res, idleft, idright); RESULT = res; :}
+             | type:t ID:id LEFT_PAREN RT_PAREN block:b {: MethodDecl res = new MethodDecl(t, (String) id, new LinkedList(), b); setColumnAndLine(res, idleft, idright); RESULT = res; :}
+             | VOID ID:id LEFT_PAREN parameters_list:plist RT_PAREN EXTERN SEMI {: MethodDecl res = new MethodDecl(Type.VOID, (String) id, plist); setColumnAndLine(res, idleft, idright); RESULT = res;:}
+             | type:t ID:id LEFT_PAREN parameters_list:plist RT_PAREN EXTERN SEMI {: MethodDecl res = new MethodDecl(t, (String) id, plist); setColumnAndLine(res, idleft, idright); RESULT = res;:}
+             | VOID ID:id LEFT_PAREN RT_PAREN EXTERN SEMI {: MethodDecl res = new MethodDecl(Type.VOID, (String) id, new LinkedList()); setColumnAndLine(res, idleft, idright); RESULT = res;:}
+             | type:t ID:id LEFT_PAREN RT_PAREN EXTERN SEMI {: MethodDecl res = new MethodDecl(t, (String) id, new LinkedList()); setColumnAndLine(res, idleft, idright); RESULT = res;:}
              ;
 
 parameters_list::= parameter:p {: LinkedList res = new LinkedList(); res.add(p); RESULT = res; :}
                  | parameter:p COMMA parameters_list:plist {: plist.add(p); RESULT = plist; :}
                  ;
                         
-parameter::= type:t ID:id {: Parameter res = new Parameter(t,(String)id); setColumnAndLine(res, (Symbol)id); RESULT = res; :} 
+parameter::= type:t ID:id {: Parameter res = new Parameter(t,(String)id); setColumnAndLine(res, idleft, idright); RESULT = res; :} 
 		   ;
 
-block::= LEFTBRACE:left body_block:b RIGHTBRACE {: setColumnAndLine(res, (Symbol)left); RESULT = b; :}
+block::= LEFTBRACE:left body_block:b RIGHTBRACE {: setColumnAndLine(b, leftleft, leftright); RESULT = b; :}
        | LEFTBRACE RIGHTBRACE {: RESULT = new Block(0); :}
        ;
        
@@ -146,34 +160,34 @@ statement_list::= statement_list:sl statement:s {: sl.add(s); RESULT = sl; :}
                 | statement:s {: LinkedList res = new LinkedList(); res.add(s); RESULT = res; :}
                 ;
                         
-statement::= location:l ASSMNT:op expr:e SEMI {: Statement res = new AssignStmt(l,AssignOpType.ASSMNT,e); setColumnAndLine(res, (Symbol)op); RESULT = res;  :}
-           | location:l ASSMNT_INC:op expr:e SEMI {: Statement res = new AssignStmt(l,AssignOpType.ASSMNT_INC,e); setColumnAndLine(res, (Symbol)op); RESULT = res;  :}
-           | location:l ASSMNT_DEC:op expr:e SEMI {: Statement res = new AssignStmt(l,AssignOpType.ASSMNT_DEC,e); setColumnAndLine(res, (Symbol)op); RESULT = res;  :}
-           | method_call:m SEMI:semi {: Statement res = new MethodCallStmt(m); setColumnAndLine(res, (Symbol)semi);  RESULT = res;  :} 
-           | IF:if LEFT_PAREN expr:e RT_PAREN statement:s1 ELSE statement:s2 {: Statement res = new IfStmt(e,s1,s2); setColumnAndLine(res, (Symbol)if); RESULT = res; :}
-           | IF:if LEFT_PAREN expr:e RT_PAREN statement:s {: Statement res = new IfStmt(e,s); setColumnAndLine(res, (Symbol)if); RESULT = res; :}
+statement::= location:l ASSMNT:op expr:e SEMI {: Statement res = new AssignStmt(l,AssignOpType.ASSMNT,e); setColumnAndLine(res, opleft, opright); RESULT = res;  :}
+           | location:l ASSMNT_INC:op expr:e SEMI {: Statement res = new AssignStmt(l,AssignOpType.ASSMNT_INC,e); setColumnAndLine(res, opleft, opright); RESULT = res;  :}
+           | location:l ASSMNT_DEC:op expr:e SEMI {: Statement res = new AssignStmt(l,AssignOpType.ASSMNT_DEC,e); setColumnAndLine(res, opleft, opright); RESULT = res;  :}
+           | method_call:m SEMI:semi {: Statement res = new MethodCallStmt(m); setColumnAndLine(res, semileft, semiright);  RESULT = res;  :} 
+           | IF:i LEFT_PAREN expr:e RT_PAREN statement:s1 ELSE statement:s2 {: Statement res = new IfStmt(e,s1,s2); setColumnAndLine(res, ileft, iright); RESULT = res; :}
+           | IF:i LEFT_PAREN expr:e RT_PAREN statement:s {: Statement res = new IfStmt(e,s); setColumnAndLine(res, ileft, iright); RESULT = res; :}
            //| IF LEFT_PAREN expr RT_PAREN ifBlock ELSE elseBlock 
            //| IF LEFT_PAREN expr RT_PAREN ifBlock
-           | FOR:for ID:id ASSMNT expr:e1 COMMA expr:e2 statement:s {: AssignStmt assign = new AssignStmt(new VarLocation((String)id),AssignOpType.ASSMNT,e1); Statement res = new ForStmt (assign,e2,s); setColumnAndLine(res, (Symbol)for); RESULT = res; :}
-           | WHILE:while expr:e statement:s {: Statement res = new WhileStmt(e,s); setColumnAndLine(res, (Symbol)while);  RESULT = res; :}
-           | RETURN:return expr:e SEMI {: Statement res = new ReturnStmt(e); setColumnAndLine(res, (Symbol)return);  RESULT = res; :}
-           | RETURN:resturn SEMI {: Statement res = new ReturnStmt(); setColumnAndLine(res, (Symbol)return);  RESULT = res; :} 
-           | BREAK:break  SEMI {: Statement res = new BreakStmt(); setColumnAndLine(res, (Symbol)break);  RESULT = res; :} 
-           | CONTINUE:continue SEMI {: Statement res = new ContinueStmt(); setColumnAndLine(res, (Symbol)continue);  RESULT = res; :}
+           | FOR:f ID:id ASSMNT expr:e1 COMMA expr:e2 statement:s {: VarLocation var = new VarLocation((String)id); var.setType(Type.INT); AssignStmt assign = new AssignStmt(var,AssignOpType.ASSMNT,e1); Statement res = new ForStmt (assign,e2,s); setColumnAndLine(res, fleft, fright); RESULT = res; :}
+           | WHILE:w expr:e statement:s {: Statement res = new WhileStmt(e,s); setColumnAndLine(res, wleft, wright);  RESULT = res; :}
+           | RETURN:r expr:e SEMI {: Statement res = new ReturnStmt(e); setColumnAndLine(res, rleft, rright);  RESULT = res; :}
+           | RETURN:r SEMI {: Statement res = new ReturnStmt(); setColumnAndLine(res, rleft, rright);  RESULT = res; :} 
+           | BREAK:b  SEMI {: Statement res = new BreakStmt(); setColumnAndLine(res, bleft, bright);  RESULT = res; :} 
+           | CONTINUE:c SEMI {: Statement res = new ContinueStmt(); setColumnAndLine(res, cleft, cright);  RESULT = res; :}
            | SEMI
            | block:b {:  RESULT = b; :}
            ;
                                               
-method_call::= var_location:l LEFT_PAREN:left expr_list:e RT_PAREN {:MethodCall res = new MethodCall(l,e); setColumnAndLine(res, (Symbol)left); RESULT = res;:}
-             | var_location:l LEFT_PAREN:left RT_PAREN {:MethodCall res = new MethodCall(l); setColumnAndLine(res, (Symbol)left); RESULT = res;:}
+method_call::= var_location:l LEFT_PAREN:left expr_list:e RT_PAREN {:MethodCall res = new MethodCall(l,e); setColumnAndLine(res, leftleft, leftright); RESULT = res;:}
+             | var_location:l LEFT_PAREN:left RT_PAREN {:MethodCall res = new MethodCall(l); setColumnAndLine(res, leftleft, leftright); RESULT = res;:}
              ;
 
 location::= var_location:l {: RESULT = l;:}
 		  | array_location:l {: RESULT = l;:} 
 		  ;
           
-var_location::= ID:id id_point_list:id_list {: VarLocation res = new VarLocation(((String)id)+id_list); setColumnAndLine(res, (Symbol)id); RESULT = res; :}
-			  | ID:id {: VarLocation res  = new VarLocation((String)id) ; setColumnAndLine(res, (Symbol)id); RESULT = res; :}
+var_location::= ID:id id_point_list:id_list {: VarLocation res = new VarLocation(((String)id)+id_list); setColumnAndLine(res, idleft, idright); RESULT = res; :}
+			  | ID:id {: VarLocation res  = new VarLocation((String)id) ; setColumnAndLine(res, idleft, idright); RESULT = res; :}
 			  ;
 
 array_location::= ID:id LEFT_BRKT expr:e RT_BRKT {: RESULT = new ArrayLocation(((String)id),e) ; :}
