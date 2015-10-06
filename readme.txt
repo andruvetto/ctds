@@ -8,11 +8,12 @@ for compile source:
     ./compile.sh
     
 running:
-    ./parse.sh [options] inputfile
+    ./runCompiler.sh [options] inputfile
         options:
             -target scan    (Lexical Analyzer)
                     parse   (syntax analyzer)
                     semantic  (Sematic analizer)
+                    (Default is parse)
                     
     
 runing tests:
