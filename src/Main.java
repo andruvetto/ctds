@@ -20,6 +20,7 @@ public class Main {
     static public void main(String argv[]) {
         try {
             int i = 0;
+            
             while (i<argv.length){
                 switch (argv[i]){
                     case "-o" :
@@ -31,11 +32,13 @@ public class Main {
                         else{
                             //throw new Exception("Ilegal arguments");
                             System.err.println("Ilegal arguments");
+                            i=argv.length;
                             break;
                             
                         }
+                        
                     case "-target" :
-                        if ((i+1 < argv.length) && (argv[i+1].charAt(0) != '-') && (argv[i+1].equals("scan") || argv[i+1].equals("parse"))){
+                        if ((i+1 < argv.length) && (argv[i+1].charAt(0) != '-') && (argv[i+1].equals("scan") || argv[i+1].equals("parse") || argv[i+1].equals("semantic"))){
                             target = argv[i+1];
                             i+=2;
                             break;
@@ -43,6 +46,7 @@ public class Main {
                         else{
                             //throw new Exception("Ilegal arguments");
                             System.err.println("Ilegal arguments");
+                            i=argv.length;
                             break;
                             
                         }
@@ -53,6 +57,7 @@ public class Main {
                             
                             //throw new Exception("Ilegal arguments");
                             System.err.println("Ilegal arguments");
+                            i=argv.length;
                             break;
                         }
                         else{
@@ -62,6 +67,7 @@ public class Main {
                         }    
                     
                 }
+                
             }
             
             
@@ -72,22 +78,31 @@ public class Main {
             
             switch (target){
                 case "scan":
-            {
-                try {
-                    Scan(scanner);
-                } catch (Exception ex) {
-                    Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
+                    try {
+                        Scan(scanner);
+                    } catch (Exception ex) {
+                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                     break;
+                
+                
                 case "parse":
-            {
-                try {
-                    Parse(pr);
-                } catch (Exception ex) {
-                    Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
+                    try {
+                        Parse(pr);
+                    } catch (Exception ex) {
+                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    break;
+                
+                case "semantic":
+                    try {
+                        semCheck(pr);
+                    } catch (Exception ex) {
+                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    break;
+                default :
+                    System.err.println("Ilegal arguments");
                     break;
             }
         } catch (FileNotFoundException ex) {
@@ -111,35 +126,38 @@ public class Main {
 
     private static void Parse(CtdsParser pr) throws Exception{
         
-        CheckSemVisitor visitor = new CheckSemVisitor();
+        //CheckSemVisitor visitor = new CheckSemVisitor();
         /* Start the parser */
         
-        Program result = (Program) pr.parse().value;
-        visitor.visit(result);
-        List<Error> errors = visitor.getErrors();
+        pr.parse();
+        System.out.println("Not errors");
+        //visitor.visit(result);
+        //List<Error> errors = visitor.getErrors();
         
-        if (errors.isEmpty()) System.out.println("No errors.");
-        else System.out.println(errors);
+        //if (errors.isEmpty()) System.out.println("No errors.");
+        //else System.out.println(errors);
 
-        //return result;
+
+    }
+    
+    private static void semCheck(CtdsParser pr) throws Exception{
+        CheckMainVisitor mainVisitor = new CheckMainVisitor();
+        CheckSemVisitor semVisitor = new CheckSemVisitor();
+        CheckCycleSentencesVisitor cycleVisitor = new CheckCycleSentencesVisitor();
+        /* Start the parser */
+        
+        Program program = (Program) pr.parse().value;
+        
+        System.out.println(mainVisitor.visit(program));
+        System.out.println(cycleVisitor.visit(program));
+        semVisitor.visit(program);
+        System.out.println(semVisitor.getErrors());
+        //visitor.visit(result);
+        //List<Error> errors = visitor.getErrors();
+        
+        //if (errors.isEmpty()) System.out.println("No errors.");
+        //else System.out.println(errors);
+
+
     }
 }
-
-
-
-
-
-//            ASTVisitor visitor = new PrintVisitor();
-            /* Instantiate the scanner and open input file argv[0] */
-//            CtdsLexer scanner = new CtdsLexer( new FileReader(argv[0]) ); 
-            /* Instantiate the parser */
-//            parser pr = new parser( scanner );
-//       try {
-            //Scan(scanner);
-//            Program p = Parse(pr);
-            //visitor.visit(p);
- //       } 
- //       catch (Exception e) {
-            //e.printStackTrace();
-            //System.out.println("Syntaxis problem!");
- //       }

@@ -3,7 +3,7 @@ import lib.ir.ASTVisitor;
 import lib.ir.ast.*;
 import java.util.List;
 
-public class MainVisitor extends Visitor<Integer> {
+public class CheckMainVisitor extends Visitor<Integer> {
 
     @Override
     public Integer visit(AssignStmt stmt) {
@@ -103,7 +103,7 @@ public class MainVisitor extends Visitor<Integer> {
     @Override
     public Integer visit(MethodDecl m) {
         int res = 0;
-        if (m.getId().equals("main") && m.getParameters().isEmpty()) res = 1;
+        if (m.getId().equals("main")) res = 1;
         return res;
     }
 
