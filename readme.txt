@@ -1,16 +1,20 @@
 Taller de Diseño de Software - UNRC
-Etapa 1 y 2
-Analizador sintáctico y léxico para lenguaje ctds.
+
+Compiler for a simple programming language.
+
 Andruvetto Daniel - Palacios Lucas
 
-para compilar:
+for compile source:
     ./compile.sh
     
-analizar ctds:
-    ./parse.sh "archivo.ctds"
+running:
+    ./parse.sh [options] inputfile
+        options:
+            -target scan    (Lexical Analyzer)
+                    parse   (syntax analyzer)
+                    semantic  (Sematic analizer)
+                    
     
-correr tests:
+runing tests:
     ./tests.sh
-    --Analiza los archivos que estan en la carpeta tests
-    --tests/corrects se espera que sean correctos sintactica y gramaticalmente
-    --tests/incorrects se espera que sean incorrectos sintactica o gramaticalmente 
+    
