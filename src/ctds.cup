@@ -8,19 +8,16 @@ parser code {:
 
         
         private void setColumnAndLine (AST ast, int line, int column){
-            
             ast.setLineNumber(line+1);
             ast.setColumnNumber(column+1);
-            
         }
 
         public void syntax_error(Symbol s){
             System.err.println("Syntax error in line " + (s.left+1) + " column " + (s.right+1) + " value : " + (s.value)); 
-            //addError(s, "Syntax error value: " + s.value);
         }
 
         public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
-            throw new java.lang.Exception("Fatal Error");
+            throw new java.lang.Exception("Syntax error");
         }     
 :}
 

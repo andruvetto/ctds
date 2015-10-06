@@ -14,7 +14,7 @@ public class Main {
 
     private static String outputName = "nombreArchivo";
     private static String target = "parse";
-    private static String inputName = "nombreArchivo";
+    private static String inputName = "";
 
 
     static public void main(String argv[]) {
@@ -30,7 +30,6 @@ public class Main {
                             break;
                         }
                         else{
-                            //throw new Exception("Ilegal arguments");
                             System.err.println("Ilegal arguments");
                             i=argv.length;
                             break;
@@ -44,7 +43,6 @@ public class Main {
                             break;
                         }
                         else{
-                            //throw new Exception("Ilegal arguments");
                             System.err.println("Ilegal arguments");
                             i=argv.length;
                             break;
@@ -53,9 +51,6 @@ public class Main {
                     
                     default:
                         if ((i+1 < argv.length) || (argv[i].charAt(0) == '-')){
-                            System.out.println(argv);
-                            
-                            //throw new Exception("Ilegal arguments");
                             System.err.println("Ilegal arguments");
                             i=argv.length;
                             break;
@@ -106,7 +101,7 @@ public class Main {
                     break;
             }
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println("Input file not found");
         }
     }
 
@@ -125,38 +120,36 @@ public class Main {
     }
 
     private static void Parse(CtdsParser pr) throws Exception{
+        try {
+            pr.parse();
+            System.out.println("Not errors");
+        }
+        catch(Exception e){
+        }
         
-        //CheckSemVisitor visitor = new CheckSemVisitor();
-        /* Start the parser */
-        
-        pr.parse();
-        System.out.println("Not errors");
-        //visitor.visit(result);
-        //List<Error> errors = visitor.getErrors();
-        
-        //if (errors.isEmpty()) System.out.println("No errors.");
-        //else System.out.println(errors);
-
-
     }
     
     private static void semCheck(CtdsParser pr) throws Exception{
+        try{
+        /* Start the parser */
+        Program program = (Program) pr.parse().value;
+        
+        /* Initialize the visitors */
         CheckMainVisitor mainVisitor = new CheckMainVisitor();
         CheckSemVisitor semVisitor = new CheckSemVisitor();
         CheckCycleSentencesVisitor cycleVisitor = new CheckCycleSentencesVisitor();
-        /* Start the parser */
         
-        Program program = (Program) pr.parse().value;
         
         System.out.println(mainVisitor.visit(program));
         System.out.println(cycleVisitor.visit(program));
         semVisitor.visit(program);
         System.out.println(semVisitor.getErrors());
-        //visitor.visit(result);
-        //List<Error> errors = visitor.getErrors();
+        }
         
-        //if (errors.isEmpty()) System.out.println("No errors.");
-        //else System.out.println(errors);
+        catch(Exception e){
+            
+        }
+        
 
 
     }
