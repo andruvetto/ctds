@@ -2,140 +2,141 @@ package lib.ir.semcheck;
 import lib.ir.ASTVisitor;
 import lib.ir.ast.*;
 import java.util.List;
+import lib.error.Error;
 
+public class CheckCycleSentencesVisitor extends Visitor <List<Error>> {
 
-public class CheckCycleSentencesVisitor extends Visitor <Boolean> {
-
+    public CheckCycleSentencesVisitor(){
+        super();
+    }
+    
     @Override
-    public Boolean visit(AssignStmt stmt) {
-        return true;
+    public List<Error> visit(AssignStmt stmt) {
+        return this.getErrors();
     }
 
     @Override
-    public Boolean visit(ReturnStmt stmt) {
-       return true;
+    public List<Error> visit(ReturnStmt stmt) {
+       return this.getErrors();
     }
 
     @Override
-    public Boolean visit(IfStmt stmt) {
-        boolean ifstatement, elsestatement;
-        ifstatement = this.visit(stmt.getIfStatement());
+    public List<Error> visit(IfStmt stmt) {
+       
+        this.visit(stmt.getIfStatement());
         if (stmt.getElseStatement()!=null){
-            elsestatement = this.visit(stmt.getElseStatement());
-            return ifstatement && elsestatement;
+            this.visit(stmt.getElseStatement());
         }
-        return ifstatement;
+        return this.getErrors();
         
     }
 
     @Override
-    public Boolean visit(ForStmt stmt) {
-        return true;
+    public List<Error> visit(ForStmt stmt) {
+        return this.getErrors();
     }
 
     @Override
-    public Boolean visit(WhileStmt stmt) {
-        return true;
+    public List<Error> visit(WhileStmt stmt) {
+        return this.getErrors();
     }
 
     @Override
-    public Boolean visit(BreakStmt stmt) {
-        return false;
+    public List<Error> visit(BreakStmt stmt) {
+        addError(stmt, "Error statement ''break'' is not in the body of a cycle");
+        return this.getErrors();
     }
 
     @Override
-    public Boolean visit(ContinueStmt stmt) {
-        return false;
+    public List<Error> visit(ContinueStmt stmt) {
+        addError(stmt, "Error statement ''continue'' is not in the body of a cycle");
+        return this.getErrors();
     }
 
     @Override
-    public Boolean visit(BinOpExpr expr) {
-        return true;
+    public List<Error> visit(BinOpExpr expr) {
+        return this.getErrors();
     }
 
     @Override
-    public Boolean visit(UnOpExpr expr) {
-        return true;
+    public List<Error> visit(UnOpExpr expr) {
+        return this.getErrors();
     }
 
     @Override
-    public Boolean visit(IntLiteral lit) {
-        return true;
+    public List<Error> visit(IntLiteral lit) {
+        return this.getErrors();
     }
 
     @Override
-    public Boolean visit(FloatLiteral lit) {
-        return true;
+    public List<Error> visit(FloatLiteral lit) {
+        return this.getErrors();
     }
 
     @Override
-    public Boolean visit(BooleanLiteral lit) {
-        return true;
+    public List<Error> visit(BooleanLiteral lit) {
+        return this.getErrors();
     }
 
     @Override
-    public Boolean visit(MethodCall m) {
-        return true;
+    public List<Error> visit(MethodCall m) {
+        return this.getErrors();
     }
 
     @Override
-    public Boolean visit(MethodCallStmt m) {
-        return true;
+    public List<Error> visit(MethodCallStmt m) {
+        return this.getErrors();
     }
 
     @Override
-    public Boolean visit(VarLocation loc) {
-        return true;
+    public List<Error> visit(VarLocation loc) {
+        return this.getErrors();
     }
 
     @Override
-    public Boolean visit(ArrayLocation loc) {
-        return true;
+    public List<Error> visit(ArrayLocation loc) {
+        return this.getErrors();
     }
 
     @Override
-    public Boolean visit(Block block) {
-        boolean res = true;
+    public List<Error> visit(Block block) {
         for(Statement s : block.getStatements()){
-            res = res && this.visit(s);
+            this.visit(s);
         }
-        return res;
+        return this.getErrors();
     }
 
     @Override
-    public Boolean visit(FieldDecl fd) {
-        return true;
+    public List<Error> visit(FieldDecl fd) {
+        return this.getErrors();
     }
 
     @Override
-    public Boolean visit(Parameter p) {
-        return true;
+    public List<Error> visit(Parameter p) {
+        return this.getErrors();
     }
 
     @Override
-    public Boolean visit(MethodDecl m) {
-        boolean res = true;
+    public List<Error> visit(MethodDecl m) {
         if (!m.ifExtern()) {
-            res = this.visit(m.getBlock());
+            this.visit(m.getBlock());
         }
-        return res;
+        return this.getErrors();
     }
 
     @Override
-    public Boolean visit(ClassDecl c) {
-        boolean res = true;
+    public List<Error> visit(ClassDecl c) {
         for (MethodDecl m : c.getMethods()){
-            res = res && this.visit(m);
+            this.visit(m);
         }
-        return res;
+        return this.getErrors();
     }
 
     @Override
-    public Boolean visit(Program p) {
-        boolean res = true;
+    public List<Error> visit(Program p) {
         for (ClassDecl c: p.getClasses()){
-            res = res && this.visit(c);
+            this.visit(c);
         }
-        return res;
+       return this.getErrors();
     }
 }

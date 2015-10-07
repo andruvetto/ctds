@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.LinkedList;
 import lib.ir.ast.*;
 import lib.ir.ASTVisitor;
 import lib.ir.semcheck.*;
@@ -20,7 +21,6 @@ public class Main {
     static public void main(String argv[]) {
         try {
             int i = 0;
-            
             while (i<argv.length){
                 switch (argv[i]){
                     case "-o" :
@@ -33,9 +33,7 @@ public class Main {
                             System.err.println("Ilegal arguments");
                             i=argv.length;
                             break;
-                            
                         }
-                        
                     case "-target" :
                         if ((i+1 < argv.length) && (argv[i+1].charAt(0) != '-') && (argv[i+1].equals("scan") || argv[i+1].equals("parse") || argv[i+1].equals("semantic"))){
                             target = argv[i+1];
@@ -46,9 +44,7 @@ public class Main {
                             System.err.println("Ilegal arguments");
                             i=argv.length;
                             break;
-                            
                         }
-                    
                     default:
                         if ((i+1 < argv.length) || (argv[i].charAt(0) == '-')){
                             System.err.println("Ilegal arguments");
@@ -59,12 +55,9 @@ public class Main {
                             inputName = argv[i];
                             i++;
                             break;
-                        }    
-                    
-                }
-                
-            }
-            
+                        }
+                    }
+                }   
             
             /* Instantiate the scanner and open input file argv[0] */
             CtdsLexer scanner = new CtdsLexer(new FileReader(inputName));
@@ -73,28 +66,13 @@ public class Main {
             
             switch (target){
                 case "scan":
-                    try {
-                        Scan(scanner);
-                    } catch (Exception ex) {
-                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                    Scan(scanner);
                     break;
-                
-                
                 case "parse":
-                    try {
-                        Parse(pr);
-                    } catch (Exception ex) {
-                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                    Parse(pr);
                     break;
-                
                 case "semantic":
-                    try {
-                        semCheck(pr);
-                    } catch (Exception ex) {
-                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                    semCheck(pr);
                     break;
                 default :
                     System.err.println("Ilegal arguments");
@@ -105,52 +83,65 @@ public class Main {
         }
     }
 
-    private static void Scan(CtdsLexer scanner) throws Exception{
+    private static void Scan(CtdsLexer scanner){
         Symbol s;
         String res = "";
-        do {
-          s = scanner.next_token();
-          if (s.sym != sym.EOF)
-            res += s.toString() + " " + s.value + "\n";
-        } while ((s.sym != sym.EOF)); //&& (s.sym != sym.ERROR));
+        try {
+        do {  
+            s = scanner.next_token();
+            if (s.sym != sym.EOF)
+                res += s.toString() + " " + s.value + "\n";
+        } while ((s.sym != sym.EOF));
+        } catch (IOException ex) {
+              Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
         res = res.substring(0, res.length()-1);
-        //if (s.sym == sym.EOF) res += "No errors.";
-        //else res = "Syntax error in line " + (s.left+1) + " column " + (s.right+1) + " value : " + (s.value);
         System.out.println(res);
     }
 
-    private static void Parse(CtdsParser pr) throws Exception{
+    private static void Parse(CtdsParser pr){
         try {
             pr.parse();
             System.out.println("Not errors");
         }
-        catch(Exception e){
-        }
+        catch(Exception e){}
         
     }
     
-    private static void semCheck(CtdsParser pr) throws Exception{
+    private static void semCheck(CtdsParser pr){
         try{
-        /* Start the parser */
-        Program program = (Program) pr.parse().value;
+            /* Start the parser */
+            Program program = (Program) pr.parse().value;
         
-        /* Initialize the visitors */
-        CheckMainVisitor mainVisitor = new CheckMainVisitor();
-        CheckSemVisitor semVisitor = new CheckSemVisitor();
-        CheckCycleSentencesVisitor cycleVisitor = new CheckCycleSentencesVisitor();
+            /* Initialize the visitors */
+            CheckMainVisitor mainVisitor = new CheckMainVisitor();
+            CheckSemVisitor semVisitor = new CheckSemVisitor();
+            CheckCycleSentencesVisitor cycleVisitor = new CheckCycleSentencesVisitor();
         
-        
-        System.out.println(mainVisitor.visit(program));
-        System.out.println(cycleVisitor.visit(program));
-        semVisitor.visit(program);
-        System.out.println(semVisitor.getErrors());
-        }
-        
-        catch(Exception e){
+            /*Initialize the list of errors */
+            List<Error> errors = new LinkedList();
+
+            /*Visit the ast*/
+            mainVisitor.visit(program);
+            cycleVisitor.visit(program);
+            semVisitor.visit(program);
             
+            /*append errors*/
+            errors.addAll(mainVisitor.getErrors());
+            errors.addAll(cycleVisitor.getErrors());
+            errors.addAll(semVisitor.getErrors());
+            
+            /*Informate*/
+            if (errors.isEmpty()){
+                System.out.println("Not errors");
+            }
+            else{
+                /*Print errors */
+                for(Error e : errors){
+                    System.out.println(e);
+                }
+            }
         }
-        
-
-
+        catch(Exception e){}
     }
 }

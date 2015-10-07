@@ -4,6 +4,7 @@ import lib.error.Error;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -327,9 +328,19 @@ public class CheckSemVisitor extends Visitor<Type> {
         for (FieldDecl f : block.getFields()){
             this.visit(f);
         }
-        for (Statement s : block.getStatements()){
+        ListIterator<Statement> statements = block.getStatements().listIterator();
+        
+        Statement s;
+        while (statements.hasNext()){
+            s = statements.next();
             this.visit(s);
+            /*Check unrachable statements*/
+            String className = s.getClass().getSimpleName();
+            if(className.equals("ReturnStmt") || className.equals("BreakStmt") || className.equals("ContinueStmt")){
+                if (statements.hasNext()) addError(statements.next(), "Error statement unrachable");
+            }
         }
+       
         return Type.UNDEFINED;
     }
 
@@ -365,7 +376,19 @@ public class CheckSemVisitor extends Visitor<Type> {
             }
             this.visit(p);
         }
-        if (!m.ifExtern()) this.visit(m.getBlock());
+        if (!m.ifExtern()){
+            this.visit(m.getBlock());
+            
+            //Check that the last statement is return
+            List<Statement> statements = m.getBlock().getStatements();
+            if (statements.isEmpty()) addError(m.getBlock(), "Error return statement not found"); 
+            else{ 
+                Statement lastStmt = statements.get(statements.size()-1);
+                if (!lastStmt.getClass().getSimpleName().equals("ReturnStmt")){
+                    addError(lastStmt, "Error return statement not found"); 
+                }
+            }
+        }
         table.pop();
         return m.getType();
     }
