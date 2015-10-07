@@ -1,0 +1,30 @@
+class main{
+
+int breaks(int g){
+      int  i;
+      i = 0;
+
+      while(i < 10){
+	i = i + 1;
+	if(g < 0){
+	     break;
+        }
+	else{
+	   continue;
+        }
+      }
+
+	return i;
+
+
+
+
+}
+
+int main(){ 
+   return 1;
+}
+
+
+
+}
