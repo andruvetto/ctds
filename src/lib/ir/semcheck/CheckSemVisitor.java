@@ -295,6 +295,7 @@ public class CheckSemVisitor extends Visitor<Type> {
 
     @Override
     public Type visit(VarLocation loc) {
+        
         if (loc.getType() == null){
             try {
                 loc.setType(table.typeDeclarated(loc));
@@ -308,6 +309,7 @@ public class CheckSemVisitor extends Visitor<Type> {
 
     @Override
     public Type visit(ArrayLocation loc) {
+        
         if (loc.getType() == null){
             try {
                 loc.setType(table.typeDeclarated(loc));
@@ -370,6 +372,7 @@ public class CheckSemVisitor extends Visitor<Type> {
         }        
         for(Parameter p : m.getParameters()){
             try {
+                
                 table.insert(p);
             } catch (Exception ex) {
                 addError(p, "Error variable duplicated '" + p.getId() + "'"); 
@@ -405,8 +408,10 @@ public class CheckSemVisitor extends Visitor<Type> {
                 this.visit(m);
             } catch (Exception ex) {
                 //Logger.getLogger(CheckSemVisitor.class.getName()).log(Level.SEVERE, null, ex);
-                addError(m, "Error method duplicated '" + m.getId() + "'"); 
+                addError(m, "Error in method '" + m.getId() + "'"); 
             }
+            
+            
         }
         table.pop();
         c.setType(Type.UNDEFINED);
