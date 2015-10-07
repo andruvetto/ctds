@@ -327,6 +327,8 @@ public class CheckSemVisitor extends Visitor<Type> {
 
     @Override
     public Type visit(Block block) {
+        table.newBlock();
+        
         for (FieldDecl f : block.getFields()){
             this.visit(f);
         }
@@ -342,7 +344,7 @@ public class CheckSemVisitor extends Visitor<Type> {
                 if (statements.hasNext()) addError(statements.next(), "Error statement unrachable");
             }
         }
-       
+        table.pop();
         return Type.UNDEFINED;
     }
 

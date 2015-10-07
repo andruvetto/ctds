@@ -21,7 +21,7 @@ import org.junit.runner.Description;
  * This class provides a set of tests for the CTdsParser 
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class CTdsParserTest {
+public class CtdsParserTest {
 
 	@BeforeClass
     public static void initTest() {

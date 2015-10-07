@@ -32,7 +32,7 @@ public class CtdsSemanticTest {
 
 	@BeforeClass
     public static void initTest() {
-        System.out.println("----------------------------------- Testing CTdsScanner ---------------------------------");;
+        System.out.println("----------------------------------- Testing CTdsSemantic ---------------------------------");;
     	System.out.println();
     }
 

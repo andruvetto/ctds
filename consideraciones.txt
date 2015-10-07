@@ -1,0 +1,2 @@
+ - Toda declaración de un método tiene que terminar con una sentencia return. (Se informa error statement not found)
+ - Si hay un return, no puede haber sentencias a continuacion (Se informa error unrachable statements)

@@ -22,7 +22,7 @@ import org.junit.runner.Description;
  * This class provides a set of tests for the CTds Scanner 
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class CTdsScannerTest {
+public class CtdsScannerTest {
 
 	@BeforeClass
     public static void initTest() {
