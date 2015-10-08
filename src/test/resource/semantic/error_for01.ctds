@@ -1,0 +1,30 @@
+class main{
+
+int A[5] ;
+float B [56];
+boolean C[10];
+
+int pruArreglos(int b, int c ){
+        int i;
+        A[0] = 2; 
+        
+
+        for (i = 5* A[0] , i < 10) { //ERROR for no lleva parentesis
+               A[i] = i % 2;
+        }
+        return --A[1];
+
+        
+}
+
+void printI(int i)extern;
+
+int main(){
+
+    printI(pruArreglos(4,8 ));
+    
+    return 1;
+    
+}
+
+}

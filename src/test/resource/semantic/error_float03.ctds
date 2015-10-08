@@ -17,38 +17,36 @@ float potencia(float x, int n){
         i = 1;
         prod = 1.0;
 
-	if (n < 0){
+	if  n < 0 { //ERROR if tiene q tener parentesis
 		n = -n;
 		neg = true;
 	}
 
 	while(i < n || i == n){
-		prod = prod * x * 2; //Error 2 es int, y se requiere q tengan todos el mismo tipo 
+		prod = prod * x * 2; 
 		i = i + 1;
 	}
-	if (!(!neg)){ //neg true
+	if (!(!x)){ 
 		return 1.0/prod;
         }
 	else{
 		return prod;
         }
-	return -100.1;
+	return -i + i + -i ;
 }
 
 float multiples(float x, float y){
 
-	float a,z;
-	int b;	
+	float z;
+	int b,a;	
 	float w;
 	float m;
 	float res;
 	int j,i,k,n;
 	
-        a = -2.0;
-        b = -2;
-        w = -3.0;
-        z = -3.0;
-        m = a * z - w;
+        a = b = -2;
+        w = z = -3.0;
+        m = a + b * z - w;
         j = 0;
         i = 0;
         k = 0;
@@ -56,8 +54,8 @@ float multiples(float x, float y){
 
 	if(x > y){
 		
-              
-              if (m < a) { 
+              //res = m < b ? x : y;
+              if (m < b) { //ERROR < tiene q tener el mismo tipo
                  res = x;
               }
               else{
@@ -70,17 +68,17 @@ float multiples(float x, float y){
 			while i <= n  {
 
 				while(((k < n || k == n))){
-					if( b == 3 ){ 
+					if( b = 3 ){ //ERROR b es de tipo int, la asig no retorna valor
 						res = res + 2.0;
                                         }
 					else{
 						res = res - (10.0 / 2.0);	
                                         }
 					
-					k += 1;
+					k = k + 1;
 				}
 
-				if( a < x && 0.0 < x){ 
+				if( a < x && 0.0 < x){ //ERROR < debe tener el mismo tipo
 					res = 35.0 + 4.0 * res - 498.0;
                                 }
 				else{
@@ -105,18 +103,18 @@ float multiples(float x, float y){
 
 }
 
-void printf(float f) extern;
+void printF(float f)extern;
 
 void main(){
      float f;
      float a;
-     a = 80.0;
      res = -15.0;
      w = 4.3;
      m= -7.6;
-     f = potencia(a, 2);
-     printf(multiples(a,f+2.0));
-     //return; //estaba bien.. no debería informar error..
+     a = 80.0;
+     f = potencia(2,a); // ERROR tipos invertidos, esperaba (float , int)
+     printF( multiples(f+2.0, a));
+     return;
 }
 
 }

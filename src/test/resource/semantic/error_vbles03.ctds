@@ -1,0 +1,23 @@
+class main{
+
+int factorial(int n){
+
+	int i = n;  // no permite inicializar en las declaraciones
+	int total = 1; // no permite inicializar en las declaraciones
+ 
+
+	while(i > 0){
+
+		total += total * i; 
+		i = i - 1;
+
+	}
+	return total;
+
+} /
+
+
+void main(){
+   return ;
+}
+} // end class 

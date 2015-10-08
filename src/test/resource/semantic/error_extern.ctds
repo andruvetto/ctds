@@ -1,0 +1,29 @@
+class main{
+
+int factorial(int n){
+
+        
+	int i;         
+        int total;
+
+        total = 1;
+        i = 4;
+	while(i > 0){
+
+		total += total * i;  
+		i = i - 1;
+
+	}
+	return total;
+
+} 
+void printI(int i)extern;
+
+void  main (){
+  printI(factorial(5.0)); //Error factorial recibe int como parametro.
+ 
+  return factorial(2); //Error el main es de tipi void
+
+}
+
+} // end class

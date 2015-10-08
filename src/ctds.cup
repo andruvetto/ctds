@@ -17,7 +17,9 @@ parser code {:
         }
 
         public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
+            System.err.println("Unrecovered syntax error"); 
             throw new java.lang.Exception("Syntax error");
+            
         }     
 :}
 

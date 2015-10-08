@@ -1,0 +1,29 @@
+class main{
+
+int A[5] ;
+float B [56];
+boolean C[10];
+
+int pruArreglos(int b, int c ){
+	
+        int res[8];
+        int i;   
+
+	if(b > c){
+		C[0] = 1 - c; //Error C es de tipo bool
+        }
+
+	return res[18]; //Error acceso fuera de rango, C tiene 10 lugares.
+}
+
+void printI(int i)extern;
+
+int main(){
+
+    printI(pruArreglos(4,8 ));
+    
+    return 1;
+    
+}
+
+}

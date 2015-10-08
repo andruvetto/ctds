@@ -1,0 +1,36 @@
+class main{
+   float c;
+
+   void alo(boolean b, int x){
+      if ( b ) {
+            x= x + 1;
+      }
+      else{
+          x = x - 1;
+      }  
+      return ; 
+   }
+
+   int alo2(int x){
+      alo(true, x); 
+      x=  x + 1; 
+      return x; 
+   }
+
+   boolean alo2(boolean x){ //error ya existe un metido con ese nombre
+       
+      x=  true && false; 
+      return x; 
+   }
+ 
+ 
+   void main(){
+        int y;
+        y = 7;
+        c = y *8;
+        y = alo2(y); 
+        alo(false, (c+3)*y); 
+        return;
+   }
+
+}

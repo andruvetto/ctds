@@ -5,8 +5,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Reader;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -33,7 +31,7 @@ public class CtdsScannerTest {
 	@Rule
 	public TestRule watcher = new TestWatcher() {
    		protected void starting(Description description) {
-    		System.out.println("Starting test: " + description.getMethodName());
+    		System.out.println("----------Starting test: " + description.getMethodName() + " ----------");
    		}
 	};
 

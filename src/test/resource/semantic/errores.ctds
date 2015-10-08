@@ -1,0 +1,18 @@
+class main{
+
+int factorial(int n){
+
+	int i;  
+	int total; 
+ 
+	while(i > 0){
+
+		total += total + i; 
+		i = i - 1;
+
+	}
+	return total;
+
+}extern // Error los methods externa no tienen body 
+
+} // end class 

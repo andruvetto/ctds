@@ -93,7 +93,8 @@ public class Main {
                 res += s.toString() + " " + s.value + "\n";
         } while ((s.sym != sym.EOF));
         } catch (IOException ex) {
-              Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+              //Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Unrecoverable syntax error");
         }
         res = res.substring(0, res.length()-1);
         System.out.println(res);
@@ -104,7 +105,10 @@ public class Main {
             pr.parse();
             System.out.println("Not errors");
         }
-        catch(Exception e){}
+        catch(Exception e){
+            //Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Unrecoverable syntax error");
+        }
         
     }
     
@@ -143,7 +147,9 @@ public class Main {
             }
         }
         catch(Exception ex){
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Unrecoverable syntax error");
+            //Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            
         }
     }
 }

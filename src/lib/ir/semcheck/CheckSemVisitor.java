@@ -352,6 +352,12 @@ public class CheckSemVisitor extends Visitor<Type> {
     public Type visit(FieldDecl fd) {
         for(Location l : fd.getLocations()){
             l.setType(this.visit(l));
+            /*Compruebo si es array entonces tienen que tener tamaño mayor que 0*/
+            if (l.getClass().getSimpleName().equals("ArrayLocation")){
+                ArrayLocation array = (ArrayLocation) l;
+                int size = ((IntLiteral)array.getExpression()).getValue();
+                if (size <= 0) addError(array, "Error size of array");
+            }
             try {
                 table.insert(l);
             } catch (Exception ex) {

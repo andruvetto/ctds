@@ -1,0 +1,9 @@
+class main{
+   int x;
+   void x(int x) { //error declaracion multiple
+    return;
+   }
+   void main(){
+    return ;
+   }
+} 

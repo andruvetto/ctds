@@ -1,0 +1,26 @@
+class main{
+
+int A[5] ;
+float B [56];
+boolean C[10];
+
+int pruChar(int b, int c ){
+        int i;
+        A[0] = 5; 
+        
+        if ( A[0] < 3){
+              return A[1];
+        } 
+}
+
+void printI(int i)extern;
+
+int main(){
+
+    printI(pruArreglos(4,8 )); //ERROR metodo no declarado
+    
+    return 1;
+    
+}
+
+}
