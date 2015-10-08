@@ -369,6 +369,7 @@ public class CheckSemVisitor extends Visitor<Type> {
 
     @Override
     public Type visit(Parameter p) {
+        this.visit(p.getVarLocation());
         return p.getType();
     }
 
@@ -381,7 +382,7 @@ public class CheckSemVisitor extends Visitor<Type> {
         for(Parameter p : m.getParameters()){
             try {
                 
-                table.insert(p);
+                table.insert(p.getVarLocation());
             } catch (Exception ex) {
                 addError(p, "Error variable duplicated '" + p.getId() + "'"); 
             }

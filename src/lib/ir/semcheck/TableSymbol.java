@@ -73,7 +73,7 @@ public class TableSymbol {
     public Type typeDeclarated(AST ast) throws Exception {
             for(LinkedList<AST> block : stack){
                 for (AST a : block){
-                    if (a.getId().equals(ast.getId())) {
+                    if (a.getId().equals(ast.getId()) && a.getClass().getSimpleName().equals(ast.getClass().getSimpleName()) ) {
                         return a.getType();
                     }
                 }
