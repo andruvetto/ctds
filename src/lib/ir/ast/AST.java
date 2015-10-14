@@ -7,6 +7,15 @@ public abstract class AST {
 	private int colNumber;
         protected Type type;
         protected String id;
+        protected Object value;
+        
+        public Object getValue(){
+            return this.value;
+        }
+        
+        public void setValue(Object value){
+            this.value = value;
+        }
 	
 	public int getLineNumber() {
 		return lineNumber;

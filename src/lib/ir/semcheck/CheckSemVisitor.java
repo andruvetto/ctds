@@ -1,5 +1,7 @@
 package lib.ir.semcheck;
 import lib.ir.ast.*;
+
+import lib.ir.Visitor;
 import lib.error.Error;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -59,6 +61,7 @@ public class CheckSemVisitor extends Visitor<Type> {
 
     @Override
     public Type visit(ReturnStmt stmt) {
+        stmt.setId("return");
         if (stmt.getExpression() == null){
             stmt.setType(Type.VOID);
         }
@@ -219,6 +222,13 @@ public class CheckSemVisitor extends Visitor<Type> {
     @Override
     public Type visit(BooleanLiteral lit) {
         lit.setType(Type.BOOLEAN);
+        if (lit.getRawValue().equals("true")){
+            lit.setValue(true);
+        }
+        else{
+            lit.setValue(false);
+        }
+        
         return lit.getType();                
     }
 
@@ -226,6 +236,7 @@ public class CheckSemVisitor extends Visitor<Type> {
     public Type visit(MethodCall m) {   
         if (table.declarated(m.getLocation())){
             MethodDecl methoddec = (MethodDecl) table.getDeclarated(m.getLocation());
+            m.setMethodDecl(methoddec);
              //Comprobation parameters
             List<Parameter> parameters = methoddec.getParameters();
             List<Expression> expressions = m.getExpressions();
@@ -263,6 +274,7 @@ public class CheckSemVisitor extends Visitor<Type> {
     public Type visit(MethodCallStmt m) {
          if (table.declarated(m.getMethod().getLocation())){
             MethodDecl methoddec = (MethodDecl) table.getDeclarated(m.getMethod().getLocation());
+            m.getMethod().setMethodDecl(methoddec);
              //Comprobation parameters
             List<Parameter> parameters = methoddec.getParameters();
             List<Expression> expressions = m.getMethod().getExpressions();
@@ -299,6 +311,8 @@ public class CheckSemVisitor extends Visitor<Type> {
         if (loc.getType() == null){
             try {
                 loc.setType(table.typeDeclarated(loc));
+                //loc = (VarLocation)table.getDeclarated(loc);
+                
             } catch (Exception ex) {
                 //Logger.getLogger(CheckSemVisitor.class.getName()).log(Level.SEVERE, null, ex);
                 addError(loc, "Error variable not declarated '" + loc.getId() + "'");
@@ -355,7 +369,7 @@ public class CheckSemVisitor extends Visitor<Type> {
             /*Compruebo si es array entonces tienen que tener tamaño mayor que 0*/
             if (l.getClass().getSimpleName().equals("ArrayLocation")){
                 ArrayLocation array = (ArrayLocation) l;
-                int size = ((IntLiteral)array.getExpression()).getValue();
+                int size = ((Integer)((IntLiteral)array.getExpression()).getValue());
                 if (size <= 0) addError(array, "Error size of array");
             }
             try {

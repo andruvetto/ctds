@@ -4,7 +4,7 @@ import lib.ir.ASTVisitor;
 
 public class FloatLiteral extends Literal {
 	private String rawValue;
-	private Float value;
+
 	
 	/*
 	 * Constructor for int literal that takes a string as an input
@@ -31,14 +31,6 @@ public class FloatLiteral extends Literal {
 
 	public void setStringValue(String stringValue) {
 		this.rawValue = stringValue;
-	}
-
-	public Float getValue() {
-		return value;
-	}
-
-	public void setValue(Float value) {
-		this.value = value;
 	}
 	
 	public String getRawValue() {

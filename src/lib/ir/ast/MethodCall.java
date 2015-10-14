@@ -7,6 +7,15 @@ import java.util.List;
 public class MethodCall extends Expression {
     private List<Expression> expressions;
     private VarLocation location;
+    private MethodDecl methodDecl;
+    
+    public MethodDecl getMethodDecl(){
+        return this.methodDecl;
+    }
+    
+    public void setMethodDecl(MethodDecl m){
+        this.methodDecl = m;
+    }
     
     public MethodCall(VarLocation l, List<Expression> e){
         expressions = e;

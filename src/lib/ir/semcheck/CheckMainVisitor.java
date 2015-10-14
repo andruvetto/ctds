@@ -1,5 +1,5 @@
 package lib.ir.semcheck;
-import lib.ir.ASTVisitor;
+import lib.ir.Visitor;
 import lib.ir.ast.*;
 import java.util.List;
 

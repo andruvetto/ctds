@@ -1,12 +1,11 @@
-package lib.ir.semcheck;
+package lib.ir;
 
-import lib.ir.ASTVisitor;
 import lib.ir.ast.*;
 import java.util.LinkedList;
 import java.util.List;
 import lib.error.Error;
 
-abstract class Visitor<T> implements ASTVisitor {
+public abstract class Visitor<T> implements ASTVisitor {
     
     private List<Error> errors;
     

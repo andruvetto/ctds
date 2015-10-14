@@ -4,7 +4,6 @@ import lib.ir.ASTVisitor;
 
 public class IntLiteral extends Literal {
 	private String rawValue;
-	private Integer value;
 	
 	/*
 	 * Constructor for int literal that takes a string as an input
@@ -15,7 +14,7 @@ public class IntLiteral extends Literal {
 		value = null;
 	}
         
-    public IntLiteral(int val){
+        public IntLiteral(int val){
 		rawValue = null; // Will convert to int value in semantic check
 		value = val;
 	}
@@ -33,13 +32,7 @@ public class IntLiteral extends Literal {
 		this.rawValue = stringValue;
 	}
 
-	public Integer getValue() {
-		return value;
-	}
 
-	public void setValue(int value) {
-		this.value = value;
-	}
 	
 	public String getRawValue() {
 		return rawValue;

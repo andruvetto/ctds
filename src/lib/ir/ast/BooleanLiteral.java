@@ -4,7 +4,6 @@ import lib.ir.ASTVisitor;
 
 public class BooleanLiteral extends Literal {
 	private String rawValue;
-	private Boolean value;
 	
 	/*
 	 * Constructor for int literal that takes a string as an input
@@ -33,13 +32,6 @@ public class BooleanLiteral extends Literal {
 		this.rawValue = stringValue;
 	}
 
-	public Boolean getValue() {
-		return value;
-	}
-
-	public void setValue(boolean value) {
-		this.value = value;
-	}
 	
 	public String getRawValue() {
 		return rawValue;

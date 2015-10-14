@@ -8,6 +8,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java_cup.runtime.Symbol;
 import lib.error.Error;
+import lib.ir.interpreter.InterpreterVisitor;
 
 
 
@@ -138,6 +139,10 @@ public class Main {
             /*Informate*/
             if (errors.isEmpty()){
                 System.out.println("Not errors");
+                System.out.println("Running Interpreter-------------------");
+                InterpreterVisitor interpreter = new InterpreterVisitor();
+                interpreter.visit(program);
+                
             }
             else{
                 /*Print errors */
@@ -147,8 +152,8 @@ public class Main {
             }
         }
         catch(Exception ex){
-            System.out.println("Unrecoverable syntax error");
-            //Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+           // System.out.println("Unrecoverable syntax error");
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             
         }
     }

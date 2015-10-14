@@ -20,7 +20,7 @@ echo "---------------------------------- Compiling java files ------------------
 mkdir -p classes
 export CLASSPATH=""
 for file in `ls lib/`; do export CLASSPATH=$CLASSPATH:lib/$file; done
-javac -cp $CLASSPATH src/*.java src/test/java/*.java src/lib/error/*.java src/lib/ir/*.java src/lib/ir/ast/*.java src/lib/ir/semcheck/*.java -d classes/
+javac -cp $CLASSPATH src/*.java src/test/java/*.java src/lib/error/*.java src/lib/ir/*.java src/lib/ir/ast/*.java src/lib/ir/semcheck/*.java src/lib/ir/interpreter/*.java -d classes/
 
 
 #javac -cp $CLASSPATH src/*.java src/test/java/*.java -d classes/
