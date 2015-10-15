@@ -13,20 +13,17 @@ import java.util.logging.Logger;
 
 public class InterpreterVisitor extends Visitor<Object> {
     
-    private LinkedList<VarLocation> variables;
-    
     public InterpreterVisitor(){
         super();
-        variables = new LinkedList();
     }
     
     @Override
     public Object visit(AssignStmt stmt) {
-        Object evalue = this.visit(stmt.getExpression());      
-        Object lvalue = getDeclaratedValue((VarLocation)stmt.getLocation());
+        Object evalue = this.visit(stmt.getExpression());
         
-        VarLocation location = getDeclarated((VarLocation)stmt.getLocation());
-        
+        VarLocation location = (VarLocation) stmt.getLocation().getDeclarated();
+        Object lvalue = location.getValue();
+
         switch (stmt.getOperator()){
             case ASSMNT:
                 location.setValue(evalue);
@@ -190,16 +187,13 @@ public class InterpreterVisitor extends Visitor<Object> {
         List<Expression> expressions = m.getExpressions();
         for (int i = 0; i<parameters.size(); i++){
             
-            Object evalue = this.visit(expressions.get(i));
+            System.out.println("-----------------------" + expressions.get(i));
+            System.out.println("-----------------------" + expressions.get(i).getValue());
+            System.out.println("-----------------------" + this.visit(expressions.get(i)));
             
-            VarLocation var = parameters.get(i).getVarLocation();
+            parameters.get(i).getVarLocation().setValue(this.visit(expressions.get(i)));
             
-            this.visit(var);
-            var.setValue(evalue);
-            
-            
-            //var.setValue(this.visit(expressions.get(i)));
-            //variables.push(var);
+            //System.out.println("-----------------------" + parameters.get(i).getVarLocation().getValue());
             
             
         }
@@ -222,7 +216,9 @@ public class InterpreterVisitor extends Visitor<Object> {
     @Override
     public Object visit(VarLocation loc) {
         
-        loc.setValue(getDeclaratedValue(loc));
+        if (loc.getDeclarated() != null){
+            loc.setValue(loc.getDeclarated().getValue());
+        }
         
         if (loc.getValue() == null){
             switch (loc.getType()){
@@ -239,34 +235,12 @@ public class InterpreterVisitor extends Visitor<Object> {
                     loc.setValue(null);
                     break;
             }
-            variables.push(loc);
         }
-        //variables.add(loc);
+        
         
         return loc.getValue();
     }
-    
-    private Object getDeclaratedValue(VarLocation loc){
-        for (VarLocation v : variables){
-            if (v.getId().equals(loc.getId())){
-               // System.out.println(v.getValue());
-                return v.getValue();
-            }
-        }
-        //System.out.println("Retorno null!!");
-        return null;
-    }
-    
-     private VarLocation getDeclarated(VarLocation loc){
-        for (VarLocation v : variables){
-            if (v.getId().equals(loc.getId())){
-               // System.out.println(v.getValue());
-                return v;
-            }
-        }
-        //System.out.println("Retorno null!!");
-        return null;
-    }
+
 
     @Override
     public Object visit(ArrayLocation loc) {

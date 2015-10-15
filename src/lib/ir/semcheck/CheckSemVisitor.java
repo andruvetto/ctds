@@ -245,6 +245,12 @@ public class CheckSemVisitor extends Visitor<Type> {
                     try {
                         //this.visit(parameters.get(i));
                         expressions.get(i).setType(table.typeDeclarated(expressions.get(i)));
+                        
+                        
+                        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+                        if (expressions.get(i).getClass().getSimpleName().equals("VarLocation"))
+                        ((VarLocation)expressions.get(i)).setDeclarated((Location)table.getDeclarated(expressions.get(i)));
+                        
                     } catch (Exception ex) {
                        // Logger.getLogger(CheckSemVisitor.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -282,6 +288,12 @@ public class CheckSemVisitor extends Visitor<Type> {
                 for (int i = 0; i<parameters.size(); i++){
                     try {
                         expressions.get(i).setType(table.typeDeclarated(expressions.get(i)));
+                        
+                        
+                         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+                        if (expressions.get(i).getClass().getSimpleName().equals("VarLocation"))
+                        ((VarLocation)expressions.get(i)).setDeclarated((Location)table.getDeclarated(expressions.get(i)));
+                        
                     } catch (Exception ex) {
                         //Logger.getLogger(CheckSemVisitor.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -311,7 +323,7 @@ public class CheckSemVisitor extends Visitor<Type> {
         if (loc.getType() == null){
             try {
                 loc.setType(table.typeDeclarated(loc));
-                //loc = (VarLocation)table.getDeclarated(loc);
+                loc.setDeclarated((Location)table.getDeclarated(loc));
                 
             } catch (Exception ex) {
                 //Logger.getLogger(CheckSemVisitor.class.getName()).log(Level.SEVERE, null, ex);
@@ -327,6 +339,7 @@ public class CheckSemVisitor extends Visitor<Type> {
         if (loc.getType() == null){
             try {
                 loc.setType(table.typeDeclarated(loc));
+                loc.setDeclarated((Location)table.getDeclarated(loc));
             } catch (Exception ex) {
                 //Logger.getLogger(CheckSemVisitor.class.getName()).log(Level.SEVERE, null, ex);
                 addError(loc, "Error variable not declarated '" + loc.getId() + "'");
@@ -397,6 +410,8 @@ public class CheckSemVisitor extends Visitor<Type> {
             try {
                 
                 table.insert(p.getVarLocation());
+                
+                
             } catch (Exception ex) {
                 addError(p, "Error variable duplicated '" + p.getId() + "'"); 
             }
