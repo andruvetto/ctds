@@ -1,5 +1,6 @@
 package lib.ir.interpreter;
 
+import java.util.ArrayList;
 import lib.ir.Visitor;
 import lib.ir.ast.*;
 import lib.error.Error;
@@ -20,13 +21,33 @@ public class InterpreterVisitor extends Visitor<Object> {
     @Override
     public Object visit(AssignStmt stmt) {
         Object evalue = this.visit(stmt.getExpression());
+        Object lvalue;
         
-        VarLocation location = (VarLocation) stmt.getLocation().getDeclarated();
-        Object lvalue = location.getValue();
+        Location location;
 
+        if (stmt.getLocation().isArray()){
+           location = stmt.getLocation();
+           Integer pos = (Integer) this.visit(((ArrayLocation)location).getExpression());
+           lvalue = ((ArrayLocation)location.getDeclarated()).getValueAt(pos);
+        }
+        else{
+           location = stmt.getLocation().getDeclarated();
+           lvalue = this.visit(location);
+        }
+        
         switch (stmt.getOperator()){
             case ASSMNT:
-                location.setValue(evalue);
+                if (location.isArray()){
+                    Integer pos = (Integer) this.visit(((ArrayLocation)location).getExpression());
+                    ((ArrayLocation)location.getDeclarated()).setValueAt(pos, evalue);
+                    stmt.setValue(((ArrayLocation)location.getDeclarated()).getValueAt(pos));
+
+                    
+                }else{
+                   location.setValue(evalue);
+                   stmt.setValue(location.getValue());
+                }
+                
                 break;
             case ASSMNT_INC:
                 if (stmt.getLocation().getType().equals(Type.INT)){
@@ -34,10 +55,13 @@ public class InterpreterVisitor extends Visitor<Object> {
                 }
                 else{
                     location.setValue((Float)lvalue + (Float)evalue);
+                    stmt.setValue(location.getValue());
                 }
                 break;                
         }
-        stmt.setValue(location.getValue());
+
+        System.out.println("Assignated: " + stmt + " -------- " + stmt.getValue());
+        
         return stmt.getValue();
     }
 
@@ -53,18 +77,35 @@ public class InterpreterVisitor extends Visitor<Object> {
     public Object visit(IfStmt stmt) {
         Boolean condition = (Boolean)(this.visit(stmt.getCondition()));
         if (condition) stmt.setValue(this.visit(stmt.getIfStatement()));
-        else stmt.setValue(this.visit(stmt.getElseStatement()));
+        else{
+            if (stmt.getElseStatement() != null) stmt.setValue(this.visit(stmt.getElseStatement()));
+        }
         return stmt.getValue();
     }
 
     @Override
     public Object visit(ForStmt stmt) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        System.out.println("Executing " + stmt);
+        Integer i = (Integer)this.visit(stmt.getAssign());
+        Integer n = (Integer)this.visit(stmt.getCondition());
+
+        while (i<n){
+            //System.out.println(this.visit(stmt.getForStatement()));
+            this.visit(stmt.getForStatement());
+            i++;
+        }
+        System.out.println("End " + stmt);
+        return null;
     }
 
     @Override
     public Object visit(WhileStmt stmt) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        System.out.println("Executing " + stmt);
+        while((Boolean)this.visit(stmt.getCondition())){
+            this.visit(stmt.getWhileStatement());
+        }
+        System.out.println("End " + stmt);
+        return null;
     }
 
     @Override
@@ -81,7 +122,6 @@ public class InterpreterVisitor extends Visitor<Object> {
     public Object visit(BinOpExpr expr) {
         Object vloperand = this.visit(expr.getLeftOperand());
         Object vroperand = this.visit(expr.getRightOperand());
-        
         switch(expr.getOperator()){
             case PLUS:
 		if (expr.getType().equals(Type.INT)){
@@ -182,44 +222,26 @@ public class InterpreterVisitor extends Visitor<Object> {
     }
 
     @Override
-    public Object visit(MethodCall m) {
+    public Object visit(MethodCallStmt m) {
         List<Parameter> parameters = m.getMethodDecl().getParameters();
         List<Expression> expressions = m.getExpressions();
         for (int i = 0; i<parameters.size(); i++){
-            
-            System.out.println("-----------------------" + expressions.get(i));
-            System.out.println("-----------------------" + expressions.get(i).getValue());
-            System.out.println("-----------------------" + this.visit(expressions.get(i)));
-            
             parameters.get(i).getVarLocation().setValue(this.visit(expressions.get(i)));
-            
-            //System.out.println("-----------------------" + parameters.get(i).getVarLocation().getValue());
-            
-            
         }
         m.setValue(this.visit(m.getMethodDecl()));
-        
         return m.getValue();
     }
     
     @Override
-    public Object visit(Parameter p) {
-        
-        return null;
-    }
-
-    @Override
-    public Object visit(MethodCallStmt m) {
+    public Object visit(MethodCall m) {
         return this.visit(m.getMethod());
     }
-
+    
     @Override
-    public Object visit(VarLocation loc) {
-        
+    public Object visit(VarLocation loc) {  
         if (loc.getDeclarated() != null){
             loc.setValue(loc.getDeclarated().getValue());
         }
-        
         if (loc.getValue() == null){
             switch (loc.getType()){
                 case INT:
@@ -236,15 +258,51 @@ public class InterpreterVisitor extends Visitor<Object> {
                     break;
             }
         }
-        
-        
         return loc.getValue();
     }
 
-
     @Override
     public Object visit(ArrayLocation loc) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //System.out.println("size loc -------- " + loc.getSize());
+        //System.out.println("size locDec -------- " + ((ArrayLocation)loc.getDeclarated()).getSize());
+        //System.out.println(loc.getValues());
+        //System.out.println(loc.getValues().size());
+        
+        
+        if (loc.getValues() != null){
+            ArrayList values = new ArrayList(loc.getSize());
+            for (int i = 0; i < loc.getSize(); i++ ){
+                switch (loc.getType()){
+                case INT:
+                    values.add(0);
+                    break;
+                case FLOAT:
+                    values.add(0.0);
+                    break;
+                case BOOLEAN:
+                    values.add(false);
+                    break;
+                default:
+                    values.add(null);
+                    break;
+                }
+            }
+            loc.setValues(values);
+            return null;
+        }
+        else{
+            ArrayLocation locDeclarated = (ArrayLocation)loc.getDeclarated();
+            Integer pos = (Integer) this.visit(loc.getExpression());
+            if (pos>=locDeclarated.getSize()){
+                System.out.println("ERROR ARREGLO FUERA DE RANGO");
+                return null;
+            }
+            else{
+                return locDeclarated.getValueAt(pos);
+            }
+            
+            
+        }
     }
 
     @Override
@@ -255,7 +313,6 @@ public class InterpreterVisitor extends Visitor<Object> {
         for (Statement s : block.getStatements()){
             if (s.getClass().getSimpleName().equals("ReturnStmt")) return this.visit(s);
             else this.visit(s);
-            System.out.println(s + " ------ " + s.getValue());
         }
         return null;
     }
@@ -264,7 +321,7 @@ public class InterpreterVisitor extends Visitor<Object> {
     public Object visit(FieldDecl fd) {
         for (Location l : fd.getLocations()){
             this.visit(l);
-            System.out.println(l + " ------ " + l.getValue());
+            System.out.println("Declarated " + l + " ----------- " + l.getValue());
         }
         return null;
     }
@@ -272,7 +329,9 @@ public class InterpreterVisitor extends Visitor<Object> {
 
     @Override
     public Object visit(MethodDecl m) {
+        System.out.println("Visiting " + m);
         m.setValue(this.visit(m.getBlock()));
+        System.out.println("End visiting " + m);
         return m.getValue();
     }
 

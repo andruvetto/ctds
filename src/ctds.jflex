@@ -1,15 +1,3 @@
-/*-***
- *
- * This file defines a stand-alone lexical analyzer for a subset of the Pascal
- * programming language.  This is the same lexer that will later be integrated
- * with a CUP-based parser.  Here the lexer is driven by the simple Java test
- * program in ./PascalLexerTest.java, q.v.  See 330 Lecture Notes 2 and the
- * Assignment 2 writeup for further discussion.
- *
- */
-
-
-
 import java_cup.runtime.*;
 import lib.ir.ast.*;
 

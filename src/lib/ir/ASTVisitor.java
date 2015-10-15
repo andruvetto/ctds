@@ -26,8 +26,8 @@ public interface ASTVisitor<T> {
         T visit(BooleanLiteral lit);
 
 // visit methodCall
-        T visit(MethodCall m);
         T visit(MethodCallStmt m);
+        T visit(MethodCall m);
         
 // visit locations	
         T visit(Location loc);

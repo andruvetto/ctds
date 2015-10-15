@@ -11,7 +11,10 @@ public class IntLiteral extends Literal {
 	 */
 	public IntLiteral(String val){
 		rawValue = val; // Will convert to int value in semantic check
-		value = null;
+		//value = null;
+                
+                Integer valu = Integer.valueOf(rawValue);
+               value = valu;
 	}
         
         public IntLiteral(int val){

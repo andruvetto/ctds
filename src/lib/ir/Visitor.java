@@ -174,12 +174,12 @@ public abstract class Visitor<T> implements ASTVisitor {
     }
 
     @Override
-    public T visit(MethodCall m) {
+    public T visit(MethodCallStmt m) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public T visit(MethodCallStmt m) {
+    public T visit(MethodCall m) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

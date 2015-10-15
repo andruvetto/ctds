@@ -79,12 +79,12 @@ public class CheckCycleSentencesVisitor extends Visitor <List<Error>> {
     }
 
     @Override
-    public List<Error> visit(MethodCall m) {
+    public List<Error> visit(MethodCallStmt m) {
         return this.getErrors();
     }
 
     @Override
-    public List<Error> visit(MethodCallStmt m) {
+    public List<Error> visit(MethodCall m) {
         return this.getErrors();
     }
 

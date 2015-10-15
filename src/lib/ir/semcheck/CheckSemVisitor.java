@@ -25,23 +25,7 @@ public class CheckSemVisitor extends Visitor<Type> {
         AssignOpType o = stmt.getOperator();
         this.visit(e);
         this.visit(l);
-        
-        
-      //  l.setType(table.typeDeclarated(l));
-      //  if (l.getType() == null){
-      //      addError(l, "Error variable '" + l + "' not declarated");
-      //      stmt.setType(Type.UNDEFINED);
-      //      return Type.UNDEFINED;
-      //  }
-        
-        
-       // e.setType(table.typeDeclarated(e));
-       // if (e.getType() == null) e.setType(this.visit(e));
-       // if (e.getType() == null){
-       //     addError(e, "Error in expression '" + e +"'");
-        //    stmt.setType(Type.UNDEFINED);
-        //    return Type.UNDEFINED;
-       // }
+
         if (e.getType() != null && l.getType() != null){
             if (l.getType().equals(e.getType())){
                 stmt.setType(l.getType());
@@ -93,13 +77,15 @@ public class CheckSemVisitor extends Visitor<Type> {
         table.newBlock();
         try {
             table.insert(stmt.getAssign().getLocation());
+           
+            stmt.getAssign().getLocation().setDeclarated(stmt.getAssign().getLocation());
+            
             this.visit(stmt.getAssign());
             this.visit(stmt.getCondition());
             if(!(stmt.getAssign().getType().equals(Type.INT) && stmt.getCondition().getType().equals(Type.INT))){
                 addError(stmt, "Error type of 'for' expression " );
             }
         } catch (Exception ex) {
-            //Logger.getLogger(CheckSemVisitor.class.getName()).log(Level.SEVERE, null, ex);
             addError(stmt.getAssign().getLocation(), "Error variable not declarated '" + stmt.getAssign().getLocation().getId() + "'");
         }
         this.visit(stmt.getForStatement());
@@ -137,16 +123,6 @@ public class CheckSemVisitor extends Visitor<Type> {
         this.visit(left);
         this.visit(right);
         
-        
-        //left.setType(table.typeDeclarated(left));
-        //if (left.getType() == null) left.setType(this.visit(left));
-        //if (left.getType() == null) System.out.println("ERROR EXPRESSION left");
-        
-       // right.setType(table.typeDeclarated(right));
-       // if (right.getType() == null) right.setType(this.visit(right));
-       // if (right.getType() == null) System.out.println("ERROR EXPRESSION right");
-        
-
         if (!(left.getType().equals(right.getType()))){
             addError(expr, "ERROR Types expressions of binOpexpr");
             return Type.UNDEFINED;
@@ -184,9 +160,6 @@ public class CheckSemVisitor extends Visitor<Type> {
         Expression e = expr.getExpression();
         this.visit(e);
 
-        //e.setType(table.typeDeclarated(e));
-        //if (e.getType() == null) e.setType(this.visit(e));
-        //if (e.getType() == null) System.out.println("ERROR EXPRESSION -----------------");
         if (e.getType() != null){
             if (expr.getOperator().equals(UnOpType.LOGIC_NEGATION) && e.getType().equals(Type.BOOLEAN)){
                 expr.setType(e.getType());
@@ -228,12 +201,11 @@ public class CheckSemVisitor extends Visitor<Type> {
         else{
             lit.setValue(false);
         }
-        
         return lit.getType();                
     }
 
     @Override
-    public Type visit(MethodCall m) {   
+    public Type visit(MethodCallStmt m) {   
         if (table.declarated(m.getLocation())){
             MethodDecl methoddec = (MethodDecl) table.getDeclarated(m.getLocation());
             m.setMethodDecl(methoddec);
@@ -265,9 +237,6 @@ public class CheckSemVisitor extends Visitor<Type> {
                 addError(m, "number of parameters is incorrect" );
             }
             m.setType(methoddec.getType());
-            if (m.getType().equals(Type.VOID)){
-                addError(m, "Error the method must return a result" );
-            }
             return m.getType();
         }
         else{
@@ -277,44 +246,12 @@ public class CheckSemVisitor extends Visitor<Type> {
     }
 
     @Override
-    public Type visit(MethodCallStmt m) {
-         if (table.declarated(m.getMethod().getLocation())){
-            MethodDecl methoddec = (MethodDecl) table.getDeclarated(m.getMethod().getLocation());
-            m.getMethod().setMethodDecl(methoddec);
-             //Comprobation parameters
-            List<Parameter> parameters = methoddec.getParameters();
-            List<Expression> expressions = m.getMethod().getExpressions();
-            if (parameters.size() == expressions.size()){
-                for (int i = 0; i<parameters.size(); i++){
-                    try {
-                        expressions.get(i).setType(table.typeDeclarated(expressions.get(i)));
-                        
-                        
-                         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-                        if (expressions.get(i).getClass().getSimpleName().equals("VarLocation"))
-                        ((VarLocation)expressions.get(i)).setDeclarated((Location)table.getDeclarated(expressions.get(i)));
-                        
-                    } catch (Exception ex) {
-                        //Logger.getLogger(CheckSemVisitor.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    if (expressions.get(i).getType() == null) expressions.get(i).setType(this.visit(expressions.get(i)));
-                    if (expressions.get(i).getType() == null) addError(expressions.get(i), "Error in expression");
-                    if (!parameters.get(i).getType().equals(expressions.get(i).getType())){
-                        addError(m, "parameter type incorrect" );
-                    }
-                }
-            }
-            else{
-                addError(m, "number of parameters is incorrect" );
-            }
-            m.setType(methoddec.getType());
-            return m.getType();
-        }
-        else{
-            addError(m, "Method not declarated '" + m.getId() + "'");
-            return Type.UNDEFINED;
-        }
-        
+    public Type visit(MethodCall m) {
+        m.setType(this.visit(m.getMethod()));
+        if (m.getType().equals(Type.VOID)){
+                addError(m, "Error the method must return a result" );
+         }
+        return m.getType();     
     }
 
     @Override
@@ -326,7 +263,6 @@ public class CheckSemVisitor extends Visitor<Type> {
                 loc.setDeclarated((Location)table.getDeclarated(loc));
                 
             } catch (Exception ex) {
-                //Logger.getLogger(CheckSemVisitor.class.getName()).log(Level.SEVERE, null, ex);
                 addError(loc, "Error variable not declarated '" + loc.getId() + "'");
             }
         }
@@ -341,7 +277,6 @@ public class CheckSemVisitor extends Visitor<Type> {
                 loc.setType(table.typeDeclarated(loc));
                 loc.setDeclarated((Location)table.getDeclarated(loc));
             } catch (Exception ex) {
-                //Logger.getLogger(CheckSemVisitor.class.getName()).log(Level.SEVERE, null, ex);
                 addError(loc, "Error variable not declarated '" + loc.getId() + "'");
             }
         }
@@ -408,10 +343,7 @@ public class CheckSemVisitor extends Visitor<Type> {
         }        
         for(Parameter p : m.getParameters()){
             try {
-                
                 table.insert(p.getVarLocation());
-                
-                
             } catch (Exception ex) {
                 addError(p, "Error variable duplicated '" + p.getId() + "'"); 
             }
@@ -445,7 +377,6 @@ public class CheckSemVisitor extends Visitor<Type> {
                 table.insert(m);
                 this.visit(m);
             } catch (Exception ex) {
-                //Logger.getLogger(CheckSemVisitor.class.getName()).log(Level.SEVERE, null, ex);
                 addError(m, "Error in method '" + m.getId() + "'"); 
             }
             
@@ -464,7 +395,6 @@ public class CheckSemVisitor extends Visitor<Type> {
             try {
                 table.insert(c);
             } catch (Exception ex) {
-                //Logger.getLogger(CheckSemVisitor.class.getName()).log(Level.SEVERE, null, ex);
                 addError(c, "Error Class duplicated '" + c.getId() + "'"); 
             }
             this.visit(c);

@@ -14,6 +14,10 @@ public abstract class Location extends Expression {
         this.declarated = l;
     }
     
+    public boolean isArray(){
+        return isArray;
+    }
+    
     @Override
     public String toString() {
        return id;

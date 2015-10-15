@@ -43,7 +43,7 @@ public class MethodDecl extends AST {
     
     @Override
     public String toString() {
-       
+       /*
        String params = "";
        for (Parameter p: parameters){
         params = params + p.toString() + ",";
@@ -54,7 +54,10 @@ public class MethodDecl extends AST {
        }
        else{
           return type.toString() + " " + id + "(" + params + ")" + block.toString();
-       }
+       }*/
+        
+        return id;
+        
     }
     
     @Override

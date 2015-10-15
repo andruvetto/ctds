@@ -30,7 +30,7 @@ public class WhileStmt extends Statement {
 	
 	@Override
 	public String toString() {
-		return "while " + condition + "\n" + whileStatement.toString();
+		return "while " + condition;
 	}
 
 	@Override
