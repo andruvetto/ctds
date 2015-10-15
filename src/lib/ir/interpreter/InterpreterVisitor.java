@@ -20,51 +20,74 @@ public class InterpreterVisitor extends Visitor<Object> {
     
     @Override
     public Object visit(AssignStmt stmt) {
-        Object evalue = this.visit(stmt.getExpression());
-        Object lvalue;
-        
-        Location location;
-
-        if (stmt.getLocation().isArray()){
-           location = stmt.getLocation();
-           Integer pos = (Integer) this.visit(((ArrayLocation)location).getExpression());
-           lvalue = ((ArrayLocation)location.getDeclarated()).getValueAt(pos);
-        }
-        else{
-           location = stmt.getLocation().getDeclarated();
-           lvalue = this.visit(location);
-        }
-        
+        Expression expression = stmt.getExpression();
+        Location location = stmt.getLocation();
+        Location locationDeclarated = stmt.getLocation().getDeclarated();
+        Object evalue = this.visit(expression);
+        Object lvalue = this.visit(location);
         switch (stmt.getOperator()){
             case ASSMNT:
                 if (location.isArray()){
-                    Integer pos = (Integer) this.visit(((ArrayLocation)location).getExpression());
-                    ((ArrayLocation)location.getDeclarated()).setValueAt(pos, evalue);
-                    stmt.setValue(((ArrayLocation)location.getDeclarated()).getValueAt(pos));
-
-                    
-                }else{
-                   location.setValue(evalue);
-                   stmt.setValue(location.getValue());
-                }
-                
-                break;
-            case ASSMNT_INC:
-                if (stmt.getLocation().getType().equals(Type.INT)){
-                    location.setValue((Integer)lvalue + (Integer)evalue);
+                    Integer pos = (Integer)this.visit(((ArrayLocation)location).getExpression());
+                    ((ArrayLocation)locationDeclarated).setValueAt(pos, evalue);
+                    stmt.setValue(((ArrayLocation)locationDeclarated).getValueAt(pos));
                 }
                 else{
-                    location.setValue((Float)lvalue + (Float)evalue);
-                    stmt.setValue(location.getValue());
+                    locationDeclarated.setValue(evalue);
+                    stmt.setValue(locationDeclarated.getValue());
                 }
-                break;                
+                break;
+            case ASSMNT_INC:
+                if (location.isArray()){
+                    Integer pos = (Integer)this.visit(((ArrayLocation)location).getExpression());
+                    if (stmt.getLocation().getType().equals(Type.INT)){
+                        ((ArrayLocation)locationDeclarated).setValueAt(pos, (Integer)lvalue + (Integer)evalue);
+                        stmt.setValue(((ArrayLocation)locationDeclarated).getValueAt(pos));
+                    }
+                    else{
+                        ((ArrayLocation)locationDeclarated).setValueAt(pos, (Float)lvalue + (Float)evalue);
+                        stmt.setValue(((ArrayLocation)locationDeclarated).getValueAt(pos));
+                    }
+                }
+                else{
+                    if (stmt.getLocation().getType().equals(Type.INT)){
+                        locationDeclarated.setValue((Integer)lvalue + (Integer)evalue);
+                        stmt.setValue(locationDeclarated.getValue());
+                    }
+                    else{
+                        locationDeclarated.setValue((Float)lvalue + (Float)evalue);
+                        stmt.setValue(locationDeclarated.getValue());
+                    }
+                }
+                break;
+            case ASSMNT_DEC:
+                if (location.isArray()){
+                    Integer pos = (Integer)this.visit(((ArrayLocation)location).getExpression());
+                    if (stmt.getLocation().getType().equals(Type.INT)){
+                        ((ArrayLocation)locationDeclarated).setValueAt(pos, (Integer)lvalue - (Integer)evalue);
+                        stmt.setValue(((ArrayLocation)locationDeclarated).getValueAt(pos));
+                    }
+                    else{
+                        ((ArrayLocation)locationDeclarated).setValueAt(pos, (Float)lvalue - (Float)evalue);
+                        stmt.setValue(((ArrayLocation)locationDeclarated).getValueAt(pos));
+                    }
+                }
+                else{
+                    if (stmt.getLocation().getType().equals(Type.INT)){
+                        locationDeclarated.setValue((Integer)lvalue - (Integer)evalue);
+                        stmt.setValue(locationDeclarated.getValue());
+                    }
+                    else{
+                        locationDeclarated.setValue((Float)lvalue - (Float)evalue);
+                        stmt.setValue(locationDeclarated.getValue());
+                    }
+                }
+                break;
         }
-
         System.out.println("Assignated: " + stmt + " -------- " + stmt.getValue());
-        
         return stmt.getValue();
-    }
-
+    }            
+ 
     @Override
     public Object visit(ReturnStmt stmt) {
         if (stmt.getExpression() != null) stmt.setValue(this.visit(stmt.getExpression()));
@@ -88,9 +111,7 @@ public class InterpreterVisitor extends Visitor<Object> {
         System.out.println("Executing " + stmt);
         Integer i = (Integer)this.visit(stmt.getAssign());
         Integer n = (Integer)this.visit(stmt.getCondition());
-
         while (i<n){
-            //System.out.println(this.visit(stmt.getForStatement()));
             this.visit(stmt.getForStatement());
             i++;
         }
@@ -186,8 +207,7 @@ public class InterpreterVisitor extends Visitor<Object> {
                 break;
             case OR:
 		expr.setValue((Boolean)vloperand || (Boolean)vroperand);
-                break;
-                    
+                break;       
         }
         return expr.getValue();
     }
@@ -262,13 +282,7 @@ public class InterpreterVisitor extends Visitor<Object> {
     }
 
     @Override
-    public Object visit(ArrayLocation loc) {
-        //System.out.println("size loc -------- " + loc.getSize());
-        //System.out.println("size locDec -------- " + ((ArrayLocation)loc.getDeclarated()).getSize());
-        //System.out.println(loc.getValues());
-        //System.out.println(loc.getValues().size());
-        
-        
+    public Object visit(ArrayLocation loc) { 
         if (loc.getValues() != null){
             ArrayList values = new ArrayList(loc.getSize());
             for (int i = 0; i < loc.getSize(); i++ ){
