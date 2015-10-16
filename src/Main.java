@@ -1,7 +1,6 @@
 import java.io.*;
 import java.util.LinkedList;
 import lib.ir.ast.*;
-import lib.ir.ASTVisitor;
 import lib.ir.semcheck.*;
 import java.util.List;
 import java.util.logging.Level;
@@ -14,9 +13,11 @@ import lib.ir.interpreter.InterpreterVisitor;
 
 public class Main {
 
-    private static String outputName = "nombreArchivo";
+    private static String outputName = "";
     private static String target = "parse";
     private static String inputName = "";
+    /*Initialize the list of errors */
+    private static List<Error> errors = new LinkedList();
 
 
     static public void main(String argv[]) {
@@ -36,7 +37,7 @@ public class Main {
                             break;
                         }
                     case "-target" :
-                        if ((i+1 < argv.length) && (argv[i+1].charAt(0) != '-') && (argv[i+1].equals("scan") || argv[i+1].equals("parse") || argv[i+1].equals("semantic"))){
+                        if ((i+1 < argv.length) && (argv[i+1].charAt(0) != '-') && (argv[i+1].equals("scan") || argv[i+1].equals("parse") || argv[i+1].equals("semantic") || argv[i+1].equals("interpreter"))){
                             target = argv[i+1];
                             i+=2;
                             break;
@@ -71,9 +72,17 @@ public class Main {
                     break;
                 case "parse":
                     Parse(pr);
+                    reports();
                     break;
                 case "semantic":
-                    semCheck(pr);
+                    semCheck(Parse(pr));
+                    reports();
+                    break;
+                case "interpreter":
+                    Program p = Parse(pr);
+                    semCheck(p);
+                    interpreter(p);
+                    reports();
                     break;
                 default :
                     System.err.println("Ilegal arguments");
@@ -101,30 +110,26 @@ public class Main {
         System.out.println(res);
     }
 
-    private static void Parse(CtdsParser pr){
+    private static Program Parse(CtdsParser pr){
         try {
-            pr.parse();
-            System.out.println("Not errors");
+            /* Start the parser */
+            Program program = (Program) pr.parse().value;
+            return program;
         }
         catch(Exception e){
             //Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println("Unrecoverable syntax error");
+            return null;
         }
         
     }
-    
-    private static void semCheck(CtdsParser pr){
-        try{
-            /* Start the parser */
-            Program program = (Program) pr.parse().value;
-        
+
+    private static void semCheck(Program program){
+        try{        
             /* Initialize the visitors */
             CheckMainVisitor mainVisitor = new CheckMainVisitor();
             CheckSemVisitor semVisitor = new CheckSemVisitor();
             CheckCycleSentencesVisitor cycleVisitor = new CheckCycleSentencesVisitor();
-        
-            /*Initialize the list of errors */
-            List<Error> errors = new LinkedList();
 
             /*Visit the ast*/
             mainVisitor.visit(program);
@@ -136,25 +141,32 @@ public class Main {
             errors.addAll(cycleVisitor.getErrors());
             errors.addAll(semVisitor.getErrors());
             
-            /*Informate*/
-            if (errors.isEmpty()){
-                System.out.println("Not errors");
-                System.out.println("Running Interpreter-------------------");
-                InterpreterVisitor interpreter = new InterpreterVisitor();
-                interpreter.visit(program);
-                
-            }
-            else{
-                /*Print errors */
-                for(Error e : errors){
-                    System.out.println(e);
-                }
-            }
         }
         catch(Exception ex){
-           // System.out.println("Unrecoverable syntax error");
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Unrecoverable syntax error");
+            //Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             
         }
     }
+    
+    private static void interpreter(Program program){
+        InterpreterVisitor interpreter = new InterpreterVisitor();
+        interpreter.visit(program);
+        errors.addAll(interpreter.getErrors());
+    }
+    
+    private static void reports(){
+            /*Informate*/
+        if (errors.isEmpty()){
+            System.out.println("Not errors");        
+        }    
+        else{
+            /*Print errors */
+            for(Error e : errors){
+                System.out.println(e);
+            }
+        }
+    }
 }
+
+

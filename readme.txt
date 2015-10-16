@@ -13,6 +13,7 @@ running:
             -target scan    (Lexical Analyzer)
                     parse   (syntax analyzer)
                     semantic  (Sematic analizer)
+                    interpreter (Run interpreter)
                     (Default is parse)
                     
     

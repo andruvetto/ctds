@@ -152,8 +152,6 @@ statement::= location:l ASSMNT:op expr:e SEMI {: Statement res = new AssignStmt(
            | method_call:m SEMI:semi {: Statement res = m; setColumnAndLine(res, semileft, semiright);  RESULT = res;  :} 
            | IF:i LEFT_PAREN expr:e RT_PAREN statement:s1 ELSE statement:s2 {: Statement res = new IfStmt(e,s1,s2); setColumnAndLine(res, ileft, iright); RESULT = res; :}
            | IF:i LEFT_PAREN expr:e RT_PAREN statement:s {: Statement res = new IfStmt(e,s); setColumnAndLine(res, ileft, iright); RESULT = res; :}
-           //| IF LEFT_PAREN expr RT_PAREN ifBlock ELSE elseBlock 
-           //| IF LEFT_PAREN expr RT_PAREN ifBlock
            | FOR:f ID:id ASSMNT expr:e1 COMMA expr:e2 statement:s {: VarLocation var = new VarLocation((String)id); var.setType(Type.INT); AssignStmt assign = new AssignStmt(var,AssignOpType.ASSMNT,e1); Statement res = new ForStmt (assign,e2,s); setColumnAndLine(res, fleft, fright); RESULT = res; :}
            | WHILE:w expr:e statement:s {: Statement res = new WhileStmt(e,s); setColumnAndLine(res, wleft, wright);  RESULT = res; :}
            | RETURN:r expr:e SEMI {: Statement res = new ReturnStmt(e); setColumnAndLine(res, rleft, rright);  RESULT = res; :}

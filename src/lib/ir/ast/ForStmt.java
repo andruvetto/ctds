@@ -40,7 +40,8 @@ public class ForStmt extends Statement {
 	
 	@Override
 	public String toString() {
-		return "for " + assign + "," + condition + '\n' + forStatement.toString();
+		//return "for " + assign + "," + condition + '\n' + forStatement.toString();
+            return "for " + assign + "," + condition;
 	}
 
 	@Override

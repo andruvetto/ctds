@@ -2,13 +2,8 @@ package lib.ir.semcheck;
 import lib.ir.ast.*;
 
 import lib.ir.Visitor;
-import lib.error.Error;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 public class CheckSemVisitor extends Visitor<Type> {

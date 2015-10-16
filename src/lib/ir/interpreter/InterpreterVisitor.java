@@ -3,13 +3,7 @@ package lib.ir.interpreter;
 import java.util.ArrayList;
 import lib.ir.Visitor;
 import lib.ir.ast.*;
-import lib.error.Error;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 public class InterpreterVisitor extends Visitor<Object> {
@@ -308,7 +302,7 @@ public class InterpreterVisitor extends Visitor<Object> {
             ArrayLocation locDeclarated = (ArrayLocation)loc.getDeclarated();
             Integer pos = (Integer) this.visit(loc.getExpression());
             if (pos>=locDeclarated.getSize()){
-                System.out.println("ERROR ARREGLO FUERA DE RANGO");
+                addError(loc , "Error array index out of bond");
                 return null;
             }
             else{
@@ -343,9 +337,14 @@ public class InterpreterVisitor extends Visitor<Object> {
 
     @Override
     public Object visit(MethodDecl m) {
-        System.out.println("Visiting " + m);
-        m.setValue(this.visit(m.getBlock()));
-        System.out.println("End visiting " + m);
+        if (!m.ifExtern()){
+            System.out.println("Visiting " + m);
+            m.setValue(this.visit(m.getBlock()));
+            System.out.println("End visiting " + m);
+        }
+        else{
+            System.out.println("Visited extern method: " + m);
+        }
         return m.getValue();
     }
 
