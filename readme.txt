@@ -14,7 +14,8 @@ running:
                     parse   (syntax analyzer)
                     semantic  (Sematic analizer)
                     interpreter (Run interpreter)
-                    (Default is parse)
+		    icode	(intermediate code)
+                    (Default is icode)
                     
     
 runing tests:

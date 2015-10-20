@@ -7,6 +7,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java_cup.runtime.Symbol;
 import lib.error.Error;
+import lib.ir.icode.ICodeVisitor;
+import lib.ir.icode.Instruction;
 import lib.ir.interpreter.InterpreterVisitor;
 
 
@@ -14,7 +16,7 @@ import lib.ir.interpreter.InterpreterVisitor;
 public class Main {
 
     private static String outputName = "";
-    private static String target = "parse";
+    private static String target = "icode";
     private static String inputName = "";
     /*Initialize the list of errors */
     private static List<Error> errors = new LinkedList();
@@ -37,7 +39,7 @@ public class Main {
                             break;
                         }
                     case "-target" :
-                        if ((i+1 < argv.length) && (argv[i+1].charAt(0) != '-') && (argv[i+1].equals("scan") || argv[i+1].equals("parse") || argv[i+1].equals("semantic") || argv[i+1].equals("interpreter"))){
+                        if ((i+1 < argv.length) && (argv[i+1].charAt(0) != '-') && (argv[i+1].equals("scan") || argv[i+1].equals("parse") || argv[i+1].equals("semantic") || argv[i+1].equals("interpreter") || argv[i+1].equals("icode"))){
                             target = argv[i+1];
                             i+=2;
                             break;
@@ -68,21 +70,36 @@ public class Main {
             
             switch (target){
                 case "scan":
-                    Scan(scanner);
+                    {
+                        Scan(scanner);
+                    }
                     break;
                 case "parse":
-                    Parse(pr);
-                    reports();
+                    {
+                        Program p = Parse(pr);
+                        reports(p);
+                    }
                     break;
                 case "semantic":
-                    semCheck(Parse(pr));
-                    reports();
+                    {
+                        Program p = Parse(pr);
+                        semCheck(p);
+                        reports(p);
+                    }
                     break;
                 case "interpreter":
-                    Program p = Parse(pr);
-                    semCheck(p);
-                    interpreter(p);
-                    reports();
+                    {
+                        Program p = Parse(pr);
+                        semCheck(p);
+                        interpreter(p);
+                    }
+                    break;
+                case "icode":
+                    {
+                        Program p = Parse(pr);
+                        semCheck(p);
+                        iCode(p);
+                    }
                     break;
                 default :
                     System.err.println("Ilegal arguments");
@@ -103,8 +120,7 @@ public class Main {
                 res += s.toString() + " " + s.value + "\n";
         } while ((s.sym != sym.EOF));
         } catch (IOException ex) {
-              //Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-            System.out.println("Unrecoverable syntax error");
+              Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex); 
         }
         res = res.substring(0, res.length()-1);
         System.out.println(res);
@@ -117,16 +133,14 @@ public class Main {
             return program;
         }
         catch(Exception e){
-            //Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-            System.out.println("Unrecoverable syntax error");
             return null;
         }
         
     }
 
     private static void semCheck(Program program){
-        try{        
-            /* Initialize the visitors */
+        if (program != null){
+           /* Initialize the visitors */
             CheckMainVisitor mainVisitor = new CheckMainVisitor();
             CheckSemVisitor semVisitor = new CheckSemVisitor();
             CheckCycleSentencesVisitor cycleVisitor = new CheckCycleSentencesVisitor();
@@ -140,23 +154,39 @@ public class Main {
             errors.addAll(mainVisitor.getErrors());
             errors.addAll(cycleVisitor.getErrors());
             errors.addAll(semVisitor.getErrors());
-            
-        }
-        catch(Exception ex){
-            System.out.println("Unrecoverable syntax error");
-            //Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-            
         }
     }
+
     
     private static void interpreter(Program program){
-        InterpreterVisitor interpreter = new InterpreterVisitor();
-        interpreter.visit(program);
-        errors.addAll(interpreter.getErrors());
+        if ((program != null) && errors.isEmpty()){
+            InterpreterVisitor interpreter = new InterpreterVisitor();
+            interpreter.visit(program);
+            errors.addAll(interpreter.getErrors());
+        }
+        if (!errors.isEmpty()){
+            reports(program);
+        }
     }
     
-    private static void reports(){
-            /*Informate*/
+    
+    private static void iCode(Program program){
+        if (program != null){
+            if (errors.isEmpty()){
+                ICodeVisitor icode = new ICodeVisitor();
+                for (Instruction i : icode.visit(program)){
+                    System.out.println(i);
+                }
+            }
+            else{
+                reports(program);
+            }
+        }
+    }
+    
+    private static void reports(Program program){
+        if (program != null){
+        /*Informate*/
         if (errors.isEmpty()){
             System.out.println("Not errors");        
         }    
@@ -165,6 +195,7 @@ public class Main {
             for(Error e : errors){
                 System.out.println(e);
             }
+        }
         }
     }
 }
