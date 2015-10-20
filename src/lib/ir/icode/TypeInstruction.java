@@ -39,9 +39,5 @@ public enum TypeInstruction {
     JUMPTRUE,
     JUMPFALSE,
     INC,
-    DEC;
-
-    
-    
-    
+    DEC;  
 }

@@ -6,14 +6,12 @@ public enum UnOpType {
 	
 	@Override
 	public String toString() {
-		switch(this) {
-			
-			case MINUS:
-				return "-";
-            case LOGIC_NEGATION:
-                return "!";
+            switch(this) {
+		case MINUS:
+                    return "-";
+                case LOGIC_NEGATION:
+                    return "!";
 		}
-		
 		return null;
 	}
 }

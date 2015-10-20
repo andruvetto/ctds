@@ -4,6 +4,12 @@ import lib.ir.ast.*;
 import java.util.List;
 import lib.error.Error;
 
+/**
+ * This class represents a visitor that check the statements break and continue are only in the cycle body .
+ * 
+ */
+
+
 public class CheckCycleSentencesVisitor extends Visitor <List<Error>> {
 
     public CheckCycleSentencesVisitor(){

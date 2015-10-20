@@ -5,6 +5,10 @@ import lib.ir.Visitor;
 import lib.ir.ast.*;
 import java.util.List;
 
+/**
+ * This class represents the interpreter visitor for evaluate the CTds program
+ * 
+ */
 
 public class InterpreterVisitor extends Visitor<Object> {
     

@@ -2,6 +2,10 @@ package lib.ir.icode;
 
 import lib.ir.ast.*;
 
+/**
+ * This class represents a 3-way instruction, useful for generate intermediate code with ICodeVisitor
+ * 
+ */
 
 public class Instruction {
     private TypeInstruction instruction;

@@ -5,6 +5,10 @@ import lib.ir.ast.*;
 import java.util.List;
 import java.util.LinkedList;
 
+/**
+ * This class represents the intermediate code visitor for generate 3-way code
+ * 
+ */
 
 public class ICodeVisitor extends Visitor<List<Instruction>> {
     private int numtemp;
@@ -21,6 +25,7 @@ public class ICodeVisitor extends Visitor<List<Instruction>> {
         lastExpression = null;
     }
 
+    /*Visit ForStmt*/
     @Override
     public List<Instruction> visit(ForStmt stmt) {
         LinkedList<Instruction> instructions = new LinkedList();
@@ -49,7 +54,7 @@ public class ICodeVisitor extends Visitor<List<Instruction>> {
         return instructions;
     }
     
-    
+    /*Visit WhileStmt*/
     @Override
     public List<Instruction> visit(WhileStmt stmt) {
         LinkedList<Instruction> instructions = new LinkedList();
@@ -67,7 +72,7 @@ public class ICodeVisitor extends Visitor<List<Instruction>> {
         return instructions;
     }
     
-    
+    /*Visit IFStmt*/
     @Override
     public List<Instruction> visit(IfStmt stmt) {
         LinkedList<Instruction> instructions = new LinkedList();
@@ -93,7 +98,7 @@ public class ICodeVisitor extends Visitor<List<Instruction>> {
         return instructions;      
     }
     
-    
+     /*Visit AssignStmt*/
     @Override
     public List<Instruction> visit(AssignStmt stmt) {
         LinkedList<Instruction> instructions = new LinkedList();
@@ -169,7 +174,7 @@ public class ICodeVisitor extends Visitor<List<Instruction>> {
         return  instructions;
     }
     
-    
+    /*Visit Expression*/
     @Override
     public List<Instruction> visit(Expression exp) {
         String c = exp.getClass().getSimpleName();
@@ -205,6 +210,7 @@ public class ICodeVisitor extends Visitor<List<Instruction>> {
         }
     }
     
+    /*Visit ReturnStmt*/
     @Override
     public List<Instruction> visit(MethodCallStmt m) {
         LinkedList<Instruction> instructions = new LinkedList();
@@ -222,11 +228,15 @@ public class ICodeVisitor extends Visitor<List<Instruction>> {
         return instructions;
     }
     
+    
+    /*Visit MethodCall*/
     @Override
     public List<Instruction> visit(MethodCall m) {
         return this.visit(m.getMethod());
     }
     
+    
+    /*Visit ReturnStmt*/
     @Override
     public List<Instruction> visit(ReturnStmt stmt) {
         LinkedList<Instruction> instructions = new LinkedList();
@@ -237,6 +247,7 @@ public class ICodeVisitor extends Visitor<List<Instruction>> {
         
     }
     
+    /*Visit BreakStmt*/
     @Override
     public List<Instruction> visit(BreakStmt stmt) {
         LinkedList<Instruction> instructions = new LinkedList();
@@ -244,6 +255,7 @@ public class ICodeVisitor extends Visitor<List<Instruction>> {
         //FALTA IMPLEMENTAR
     }
 
+    /*Visit ContinueStmt*/
     @Override
     public List<Instruction> visit(ContinueStmt stmt) {
         LinkedList<Instruction> instructions = new LinkedList();
@@ -252,7 +264,7 @@ public class ICodeVisitor extends Visitor<List<Instruction>> {
     }
     
     
-    
+    /*Visit BinOpExpr*/
     @Override
     public List<Instruction> visit(BinOpExpr expr) {
         LinkedList<Instruction> instructions = new LinkedList();
@@ -386,7 +398,7 @@ public class ICodeVisitor extends Visitor<List<Instruction>> {
     
     
     
-    
+    /*Visit UnopExpr*/
     @Override
     public List<Instruction> visit(UnOpExpr expr) {
         LinkedList<Instruction> instructions = new LinkedList();
@@ -416,55 +428,47 @@ public class ICodeVisitor extends Visitor<List<Instruction>> {
         return instructions;
     }
     
+    /*Visit ArrayLocation*/
     @Override
     public List<Instruction> visit(ArrayLocation loc) { 
         LinkedList<Instruction> instructions = new LinkedList();
         ArrayList values = new ArrayList(loc.getSize());
         switch (loc.getType()){
                 case INT:
-                    for (int i = 0; i < loc.getSize(); i++ ){
-                        values.add(0);
-                    }
                     instructions.add(new Instruction(TypeInstruction.DECLINTARRAY,loc));
                     break;
                 case FLOAT:
-                   for (int i = 0; i < loc.getSize(); i++ ){
-                        values.add(0.0);
-                    }
                     instructions.add(new Instruction(TypeInstruction.DECLFLOATARRAY,loc));
                     break;
                 case BOOLEAN:
-                    for (int i = 0; i < loc.getSize(); i++ ){
-                        values.add(false);
-                    }
                     instructions.add(new Instruction(TypeInstruction.DECLBOOLEANARRAY,loc));
                     break;
                 default:
-                    values.add(null);
                     break;
         }   
         loc.setValues(values);
         return instructions;
     }
-        
+    
+    /*Visit VarLocation*/
     @Override
     public List<Instruction> visit(VarLocation loc) {  
         LinkedList<Instruction> instructions = new LinkedList();
             switch (loc.getType()){
                 case INT:
-                    loc.setValue(0);
+                   // loc.setValue(0);
                     instructions.add(new Instruction(TypeInstruction.DECLINT, loc));
                     break;
                 case FLOAT:
-                    loc.setValue(0.0);
+                   // loc.setValue(0.0);
                     instructions.add(new Instruction(TypeInstruction.DECLFLOAT, loc));
                     break;
                 case BOOLEAN:
-                    loc.setValue(false);
+                   // loc.setValue(false);
                     instructions.add(new Instruction(TypeInstruction.DECLBOOLEAN, loc));
                     break;
                 default:
-                    loc.setValue(null);
+                   // loc.setValue(null);
                     break;
             }
             return instructions;
@@ -472,7 +476,7 @@ public class ICodeVisitor extends Visitor<List<Instruction>> {
     
     
     
-    
+    /*Visit FieldDecl*/
     @Override
     public List<Instruction> visit(FieldDecl fd) {
         LinkedList<Instruction> instructions = new LinkedList();
@@ -482,7 +486,7 @@ public class ICodeVisitor extends Visitor<List<Instruction>> {
         return instructions;
     }
     
-    
+    /*Visit Block*/
     @Override
     public List<Instruction> visit(Block block) {
         LinkedList<Instruction> instructions = new LinkedList();
@@ -495,6 +499,7 @@ public class ICodeVisitor extends Visitor<List<Instruction>> {
         return instructions;
     }
 
+    /*Visit MethodDecl*/
     @Override
     public List<Instruction> visit(MethodDecl m) {
         LinkedList<Instruction> instructions = new LinkedList();
@@ -507,15 +512,15 @@ public class ICodeVisitor extends Visitor<List<Instruction>> {
         else{
             instructions.add(new Instruction(TypeInstruction.METHODDECLEXTERN, label));
         }
-        instructions.add(new Instruction(TypeInstruction.LABEL, endlabel));
-            
+        instructions.add(new Instruction(TypeInstruction.LABEL, endlabel)); 
         return instructions;
     }
 
+    /*Visit ClassDecl*/
     @Override
     public List<Instruction> visit(ClassDecl c) {
         LinkedList<Instruction> instructions = new LinkedList();
-        if (c.getId().equals("main")){
+        if (c.getId().equals("main")){ //Only visit Class main
             for (FieldDecl f : c.getFields()){
                 instructions.addAll(this.visit(f));
             }
@@ -526,6 +531,7 @@ public class ICodeVisitor extends Visitor<List<Instruction>> {
         return instructions;
     }
 
+    /*Visit Program*/
     @Override
     public List<Instruction> visit(Program p) {
         LinkedList<Instruction> instructions = new LinkedList();

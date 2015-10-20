@@ -1,13 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package lib.error;
 
 /**
- *
- * @author daniel
+ * Error class
+ * 
  */
 public class Error {
     private final String desc;

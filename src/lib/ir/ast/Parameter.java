@@ -1,7 +1,6 @@
 package lib.ir.ast;
 
 import lib.ir.ASTVisitor;
-import lib.ir.ast.*;
 
 public class Parameter extends AST{
     private VarLocation var;

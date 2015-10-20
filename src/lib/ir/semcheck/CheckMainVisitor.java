@@ -3,6 +3,11 @@ import lib.ir.Visitor;
 import lib.ir.ast.*;
 import java.util.List;
 
+/**
+ * This class represents a visitor that check the amount of main methods.
+ * 
+ */
+
 public class CheckMainVisitor extends Visitor<Integer> {
 
     @Override

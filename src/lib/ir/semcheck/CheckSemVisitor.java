@@ -5,6 +5,10 @@ import lib.ir.Visitor;
 import java.util.List;
 import java.util.ListIterator;
 
+/**
+ * This class represents a visitor that check the semantic.
+ * 
+ */
 
 public class CheckSemVisitor extends Visitor<Type> {
     private TableSymbol table;

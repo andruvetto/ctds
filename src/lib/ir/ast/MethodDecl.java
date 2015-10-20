@@ -43,21 +43,7 @@ public class MethodDecl extends AST {
     
     @Override
     public String toString() {
-       /*
-       String params = "";
-       for (Parameter p: parameters){
-        params = params + p.toString() + ",";
-       }
-       if (params.length() > 0) params = params.substring(0, params.length() - 1); // remove last ,
-       if (extern){
-          return type.toString() + " " + id + "(" + params + ") extern";
-       }
-       else{
-          return type.toString() + " " + id + "(" + params + ")" + block.toString();
-       }*/
-        
         return id;
-        
     }
     
     @Override

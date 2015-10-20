@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import lib.error.Error;
 
+//This abstract class implements partially ASTVisitor 
 public abstract class Visitor<T> implements ASTVisitor {
     
     private List<Error> errors;

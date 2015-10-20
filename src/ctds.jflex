@@ -1,6 +1,10 @@
 import java_cup.runtime.*;
 import lib.ir.ast.*;
 
+/* 
+ * This file defines a lexical analyzer for the C-Tds programming language.
+*/
+
 %%
 /*-*
  * LEXICAL FUNCTIONS:

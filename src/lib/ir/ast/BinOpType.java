@@ -1,18 +1,18 @@
 package lib.ir.ast;
 
 public enum BinOpType {
-	PLUS, // Arithmetic
+	PLUS, 
 	MINUS,
 	TIMES,
 	DIVIDE,
 	MOD,
-	LESS, // Relational
+	LESS, 
 	LESS_EQ,
 	GTR,
 	GTR_EQ,
-	NOT_EQ, // Equal
+	NOT_EQ,
 	EQ, 
-	AND, // Conditional
+	AND, 
 	OR;
 	
 	@Override

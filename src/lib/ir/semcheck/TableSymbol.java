@@ -1,29 +1,17 @@
 package lib.ir.semcheck;
-import lib.error.Error;
 import lib.ir.ast.*;
 import java.util.LinkedList;
-import java.util.List;
 
-
+/**
+ * This class represents a table of symbols, useful for semantic check
+ * 
+ */
 public class TableSymbol {
-    private List<Error> errors;
+
     private LinkedList<LinkedList<AST>> stack;
-    
-    protected void addError(AST a, String desc) {
-	errors.add(new Error(a.getLineNumber(), a.getColumnNumber(), desc));
-    }
 
-    public List<Error> getErrors() {
-    	return errors;
-    }
-
-    public void setErrors(List<Error> errors) {
-    	this.errors = errors;
-    }
-    
     public TableSymbol(){
         stack = new LinkedList();
-        errors = new LinkedList();
     }
     
     public LinkedList<AST> pop(){

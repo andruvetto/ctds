@@ -5,17 +5,14 @@ import lib.ir.ASTVisitor;
 public class BooleanLiteral extends Literal {
 	private String rawValue;
 	
-	/*
-	 * Constructor for int literal that takes a string as an input
-	 * @param: String integer
-	 */
+
 	public BooleanLiteral(String val){
-		rawValue = val; // Will convert to int value in semantic check
-		value = null;
+		rawValue = val; 
+		value = Boolean.valueOf(val);
 	}
         
         public BooleanLiteral(boolean val){
-		rawValue = null; // Will convert to int value in semantic check
+		rawValue = String.valueOf(val); 
 		value = val;
 	}
 
