@@ -59,7 +59,7 @@ public class ArrayLocation extends Location {
 	
 	@Override
 	public String toString() {
-		return id+"["+expression+"]";
+		return id;//+"["+expression+"]";
 	}
         
 
