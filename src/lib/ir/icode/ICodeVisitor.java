@@ -13,6 +13,8 @@ import java.util.LinkedList;
 public class ICodeVisitor extends Visitor<List<Instruction>> {
     private int numtemp;
     private Expression lastExpression;
+    private Label lastStartLabel;
+    private Label lastEndLabel;
     
     private String getNextIdTemp(){
         numtemp++;
@@ -31,7 +33,9 @@ public class ICodeVisitor extends Visitor<List<Instruction>> {
         LinkedList<Instruction> instructions = new LinkedList();
         String id = getNextIdTemp();
         Label startLabel = new Label("startFor"+id);
+        lastStartLabel = startLabel;
         Label endLabel = new Label("endFor"+id);
+        lastEndLabel = endLabel;
         Label checkLabel = new Label("checkFor"+id);
         instructions.add(new Instruction(TypeInstruction.LABEL,startLabel));
         Location var = stmt.getAssign().getLocation();
@@ -60,7 +64,9 @@ public class ICodeVisitor extends Visitor<List<Instruction>> {
         LinkedList<Instruction> instructions = new LinkedList();
         String id = getNextIdTemp();
         Label startLabel = new Label("startWhile"+id);
+        lastStartLabel = startLabel;
         Label endLabel = new Label("endWhile"+id);
+        lastEndLabel = endLabel;
         instructions.add(new Instruction(TypeInstruction.LABEL,startLabel));
         instructions.addAll(this.visit(stmt.getCondition()));
         Expression condition = lastExpression;
@@ -329,16 +335,18 @@ public class ICodeVisitor extends Visitor<List<Instruction>> {
     @Override
     public List<Instruction> visit(BreakStmt stmt) {
         LinkedList<Instruction> instructions = new LinkedList();
+        Instruction jump = new Instruction(TypeInstruction.JUMP,lastEndLabel);
+        instructions.add(jump);
         return instructions;
-        //FALTA IMPLEMENTAR
     }
 
     /*Visit ContinueStmt*/
     @Override
     public List<Instruction> visit(ContinueStmt stmt) {
         LinkedList<Instruction> instructions = new LinkedList();
+        Instruction jump = new Instruction(TypeInstruction.JUMP,lastStartLabel);
+        instructions.add(jump);
         return instructions;
-         //FALTA IMPLEMENTAR
     }
     
     
