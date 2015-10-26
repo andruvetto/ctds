@@ -7,6 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java_cup.runtime.Symbol;
 import lib.error.Error;
+import lib.ir.asm.AssemblyGenerator;
 import lib.ir.icode.ICodeVisitor;
 import lib.ir.icode.Instruction;
 import lib.ir.interpreter.InterpreterVisitor;
@@ -174,9 +175,14 @@ public class Main {
         if (program != null){
             if (errors.isEmpty()){
                 ICodeVisitor icode = new ICodeVisitor();
-                for (Instruction i : icode.visit(program)){
+                LinkedList<Instruction> instructions = icode.visit(program);
+                for (Instruction i : instructions){
                     System.out.println(i);
                 }
+                System.out.println("-------------------- ASM CODE : ----------------------");
+                AssemblyGenerator asm = new AssemblyGenerator(instructions);
+                System.out.println(asm.result);
+                
             }
             else{
                 reports(program);

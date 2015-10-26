@@ -5,6 +5,15 @@ import lib.ir.ASTVisitor;
 public abstract class Location extends Expression {
     protected boolean isArray;
     protected Location declarated;
+    protected int offset;
+    
+    public int getOffset(){
+        return this.offset;
+    }
+    
+    public void setOffset(int offset){
+        this.offset = offset;
+    }
     
     public Location getDeclarated(){
         return declarated;
