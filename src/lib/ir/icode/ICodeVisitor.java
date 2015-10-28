@@ -15,7 +15,7 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
     private LinkedList<Label> lastStartLabel;
     private LinkedList<Label> lastEndLabel;
     private int offset;
-    private int bytes = 8; //Default decrement offset in this value
+    private int bytes = 4; //Default decrement offset in this value
     
     private String getNextIdTemp(){
         numtemp++;
@@ -310,7 +310,7 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
         }
     }
     
-    /*Visit ReturnStmt*/
+    /*Visit MethodCallStmt*/
     @Override
     public LinkedList<Instruction> visit(MethodCallStmt m) {
         LinkedList<Instruction> instructions = new LinkedList();
@@ -341,9 +341,17 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
     @Override
     public LinkedList<Instruction> visit(ReturnStmt stmt) {
         LinkedList<Instruction> instructions = new LinkedList();
-        instructions.addAll(this.visit(stmt.getExpression()));
-        Instruction instruction = new Instruction(TypeInstruction.RETURN, lastExpression);
-        instructions.add(instruction);
+        Expression expression = stmt.getExpression();
+        if (expression!=null){
+            instructions.addAll(this.visit(expression));
+            Instruction instruction = new Instruction(TypeInstruction.RETURN, lastExpression);
+            instructions.add(instruction);
+        }
+        else{
+            Instruction instruction = new Instruction(TypeInstruction.RETURN, null);
+            instructions.add(instruction);
+        }
+        
         return instructions;
         
     }
@@ -522,6 +530,7 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
     @Override
     public LinkedList<Instruction> visit(ArrayLocation loc) { 
         LinkedList<Instruction> instructions = new LinkedList();
+        offset -= bytes;
         loc.setOffset(offset);
         offset -= (((ArrayLocation)loc).getSize()-1) * bytes; //Reserved memory for array  
         return instructions;
@@ -531,7 +540,9 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
     @Override
     public LinkedList<Instruction> visit(VarLocation loc) {  
         LinkedList<Instruction> instructions = new LinkedList();
+        offset -= bytes;
         loc.setOffset(offset);
+        
         return instructions;
     }
     
@@ -542,7 +553,7 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
     public LinkedList<Instruction> visit(FieldDecl fd) {
         LinkedList<Instruction> instructions = new LinkedList();
         for (Location l : fd.getLocations()){
-            offset -= bytes;
+            
             instructions.addAll(this.visit(l));
         }
         return instructions;
@@ -564,20 +575,39 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
     /*Visit MethodDecl*/
     @Override
     public LinkedList<Instruction> visit(MethodDecl m) {
-        offset = 0;
+        //offset = 0;
         LinkedList<Instruction> instructions = new LinkedList();
         Label label = new Label(m.getId());
         Label endlabel = new Label("end" + m.getId());
         if (!m.ifExtern()){
-            instructions.add(new Instruction(TypeInstruction.METHODDECL, label));
-            instructions.addAll(this.visit(m.getBlock()));          
+            Instruction method = new Instruction(TypeInstruction.METHODDECL, label);
+            offset = 0;
+            LinkedList<Instruction> block = this.visit(m.getBlock());
+            if (offset != 0) method.SetOp1(new IntLiteral(-offset+bytes)); //Local bytes
+            else method.SetOp1(new IntLiteral(0));
+            instructions.add(method);
+            instructions.addAll(block);
+            
+            offset = bytes;
+            LinkedList<Parameter> parameters = new LinkedList();
+            parameters.addAll(m.getParameters());
+            while(!parameters.isEmpty()){
+                this.visit(parameters.pollLast());
+            }
         }
         else{
             instructions.add(new Instruction(TypeInstruction.METHODDECLEXTERN, label));
         }
         instructions.add(new Instruction(TypeInstruction.LABEL, endlabel));
-        //System.out.println("OFFSET -------  " + offset);
-        offset = 0;
+        //offset = 0;
+        return instructions;
+    }
+    
+    @Override
+    public LinkedList<Instruction> visit(Parameter p) {
+        LinkedList<Instruction> instructions = new LinkedList();
+        offset += bytes;
+        p.getVarLocation().setOffset(offset);
         return instructions;
     }
 
@@ -623,6 +653,10 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
             }
             
             for (MethodDecl m : c.getMethods()){
+                if (m.getId().equals("main")){
+                    Label label = new Label("globl main");
+                    instructions.add(new Instruction(TypeInstruction.LABEL, label));
+                }
                 instructions.addAll(this.visit(m)); 
             }
         }

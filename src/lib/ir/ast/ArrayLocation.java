@@ -59,7 +59,8 @@ public class ArrayLocation extends Location {
 	
 	@Override
 	public String toString() {
-		return "(" + id + " "+this.getOffset() + ")";
+            return id;
+            //return "(" + id + " "+this.getOffset() + ")";
 	}
         
 
