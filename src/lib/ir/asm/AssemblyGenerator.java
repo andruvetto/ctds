@@ -2,6 +2,7 @@ package lib.ir.asm;
 
 import java.util.LinkedList;
 import lib.ir.ast.Expression;
+import lib.ir.ast.IntLiteral;
 import lib.ir.ast.Literal;
 import lib.ir.ast.Location;
 import lib.ir.icode.Instruction;
@@ -9,6 +10,7 @@ import lib.ir.icode.Instruction;
 public class AssemblyGenerator {
 
     public String result;
+    private int bytes = 4; //Default number of bytes
     
     public AssemblyGenerator(LinkedList<Instruction> instructions){
         result = "";
@@ -56,12 +58,36 @@ public class AssemblyGenerator {
     
     private String valueOrOffset(Expression e){
         String type = e.getClass().getSimpleName();
-        String res;
-        if (type.equals("VarLocation")){
+        String res = "";
+        if (type.equals("VarLocation")){ 
            int offsetOp = ((Location)e).getOffset();
-           res = offsetOp + "(%rbp)"; 
+           if (offsetOp >= 1 && offsetOp <= 7 ){ // Is register!
+               switch(offsetOp){
+               case 1:
+                   res = "%edi";
+                   break;
+                case 2:
+                   res = "%esi";
+                   break;
+                case 3:
+                   res = "%edx";
+                   break;
+                case 4:
+                   res = "%ecx";
+                   break;
+                case 5:
+                   res = "%r8d";
+                   break;
+                case 6:
+                   res = "%r9d";
+                   break;    
+                }
+           }
+           else{ //Is memory
+                res = offsetOp + "(%rbp)";
+           }
         }
-        else{
+        else{ //Is literal
             String value = e.getValue().toString();
             if (value.equals("true")) value = "1";
             if (value.equals("false")) value = "0";    
@@ -74,7 +100,7 @@ public class AssemblyGenerator {
     private String genMethodDecl(Instruction instruction){
         String res;
         res = instruction.getRes() + ":\n";
-        res += "enter " + instruction.getOp1() + ",0";
+        res += "enter $" + instruction.getOp1() + ",$0";
         return res;
     }
     
@@ -83,46 +109,77 @@ public class AssemblyGenerator {
     }
     
     private String genAssmnt(Instruction instruction){
-        return "mov " + valueOrOffset(instruction.getOp1()) + ", " + valueOrOffset(instruction.getRes());
+        String res;
+        res = "movl " + valueOrOffset(instruction.getOp1()) + ", %r10d\n"; 
+        res += "movl %r10d, " + valueOrOffset(instruction.getRes()); 
+        return res;
     }
     
     private String genReturn(Instruction instruction){
         String res = "";
         if (instruction.getRes()!=null){
-            res = "mov " + valueOrOffset(instruction.getRes()) + ", " + "%eax";
+            res = "movl " + valueOrOffset(instruction.getRes()) + ", " + "%eax";
         }
         else{
-            res = "mov $1, %eax";
+            res = "nop";
         }
-        res += "\nleave\nreturn";
+        res += "\nleave\nret";
         return res;
     }
     
     private String genMinusInt(Instruction instruction){
         String res;
-        res = "mov $0, " + valueOrOffset(instruction.getRes()) + "\n";
+        res = "movl $0, " + valueOrOffset(instruction.getRes()) + "\n";
         res += "sub " + valueOrOffset(instruction.getOp1()) + ", " + valueOrOffset(instruction.getRes());
         return res;
     }
     
     private String genNegation(Instruction instruction){
         String res;
-        res = "mov " + valueOrOffset(instruction.getOp1())  + ", " + valueOrOffset(instruction.getRes()) + "\n"; 
-        res += "neg " + valueOrOffset(instruction.getRes());
+        res = "movl " + valueOrOffset(instruction.getOp1())  + ", " + valueOrOffset(instruction.getRes()) + "\n"; 
+        res += "not " + valueOrOffset(instruction.getRes());
         return res;
         
     }
     
     private String genPush(Instruction instruction){
         String res;
-        res = "push " + valueOrOffset(instruction.getRes());
+        int parameterNum = (Integer)((IntLiteral)instruction.getOp1()).getValue();
+        if (parameterNum>0 && parameterNum<7){
+           String register = "";
+           switch(parameterNum){
+               case 1:
+                   register = "%edi";
+                   break;
+                case 2:
+                   register = "%esi";
+                   break;
+                case 3:
+                   register = "%edx";
+                   break;
+                case 4:
+                   register = "%ecx";
+                   break;
+                case 5:
+                   register = "%r8d";
+                   break;
+                case 6:
+                   register = "%r9d";
+                   break;    
+           }
+           res = "movl " + valueOrOffset(instruction.getRes()) + ", " + register;
+        }
+        else{
+           res = "push " + valueOrOffset(instruction.getRes()); 
+        }
+        
         return res;
     }
     
     private String genCall(Instruction instruction){
         String res;
         res = "call " + instruction.getOp1() + "\n";
-        res += "mov %eax," + valueOrOffset(instruction.getRes());
+        res += "movl %eax," + valueOrOffset(instruction.getRes());
         return res;
     }
     

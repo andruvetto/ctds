@@ -36,11 +36,11 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
     public LinkedList<Instruction> visit(ForStmt stmt) {
         LinkedList<Instruction> instructions = new LinkedList();
         String id = getNextIdTemp();
-        Label startLabel = new Label("startFor"+id);
+        Label startLabel = new Label("startFor"+id+":");
         lastStartLabel.push(startLabel);
-        Label endLabel = new Label("endFor"+id);
+        Label endLabel = new Label("endFor"+id+":");
         lastEndLabel.push(endLabel);
-        Label checkLabel = new Label("checkFor"+id);
+        Label checkLabel = new Label("checkFor"+id+":");
         instructions.add(new Instruction(TypeInstruction.LABEL,startLabel));
         Location var = stmt.getAssign().getLocation();
         instructions.addAll(this.visit(var));
@@ -71,9 +71,9 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
     public LinkedList<Instruction> visit(WhileStmt stmt) {
         LinkedList<Instruction> instructions = new LinkedList();
         String id = getNextIdTemp();
-        Label startLabel = new Label("startWhile"+id);
+        Label startLabel = new Label("startWhile"+id+":");
         lastStartLabel.push(startLabel);
-        Label endLabel = new Label("endWhile"+id);
+        Label endLabel = new Label("endWhile"+id+":");
         lastEndLabel.push(endLabel);
         instructions.add(new Instruction(TypeInstruction.LABEL,startLabel));
         instructions.addAll(this.visit(stmt.getCondition()));
@@ -94,8 +94,8 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
         LinkedList<Instruction> instructions = new LinkedList();
         instructions.addAll(this.visit(stmt.getCondition()));
         Expression condition = lastExpression;
-        Label elseLabel = new Label("else"+getNextIdTemp());
-        Label endLabel = new Label("endif"+getNextIdTemp());
+        Label elseLabel = new Label("else"+getNextIdTemp()+":");
+        Label endLabel = new Label("endif"+getNextIdTemp()+":");
         Instruction jumpfalse;
         if (stmt.getElseStatement() != null){
             jumpfalse = new Instruction(TypeInstruction.JUMPFALSE,condition,elseLabel);
@@ -315,11 +315,15 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
     public LinkedList<Instruction> visit(MethodCallStmt m) {
         LinkedList<Instruction> instructions = new LinkedList();
         List<Expression> expressions = m.getExpressions();
+        int i = expressions.size();
         for (Expression e : expressions){
             instructions.addAll(this.visit(e));
-            Instruction instruction = new Instruction(TypeInstruction.PUSH, lastExpression);
+            IntLiteral parameterNum = new IntLiteral(i);
+            Instruction instruction = new Instruction(TypeInstruction.PUSH, parameterNum, lastExpression);
             instructions.add(instruction);
+            i--;
         }
+       
         VarLocation res = new VarLocation("temp"+getNextIdTemp());
         offset -= bytes;
         res.setOffset(offset);
@@ -578,7 +582,7 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
         //offset = 0;
         LinkedList<Instruction> instructions = new LinkedList();
         Label label = new Label(m.getId());
-        Label endlabel = new Label("end" + m.getId());
+        Label endlabel = new Label("end" + m.getId()+":");
         if (!m.ifExtern()){
             Instruction method = new Instruction(TypeInstruction.METHODDECL, label);
             offset = 0;
@@ -588,12 +592,26 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
             instructions.add(method);
             instructions.addAll(block);
             
-            offset = bytes;
-            LinkedList<Parameter> parameters = new LinkedList();
+            offset = bytes*4;
+            /*LinkedList<Parameter> parameters = new LinkedList();
             parameters.addAll(m.getParameters());
             while(!parameters.isEmpty()){
                 this.visit(parameters.pollLast());
+            }*/
+            int j = 1;
+            for (int i = m.getParameters().size()-1; i>=0; i--){
+                VarLocation var = m.getParameters().get(i).getVarLocation();
+                if(j<7){
+                    var.setOffset(j);
+                }else{
+                    offset += bytes;
+                    var.setOffset(offset);
+                   
+                }
+                // System.out.println(var + " ---- " + var.getOffset() + " --------- " + j);
+                j++;
             }
+            
         }
         else{
             instructions.add(new Instruction(TypeInstruction.METHODDECLEXTERN, label));
