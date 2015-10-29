@@ -3,7 +3,6 @@ package lib.ir.asm;
 import java.util.LinkedList;
 import lib.ir.ast.Expression;
 import lib.ir.ast.IntLiteral;
-import lib.ir.ast.Literal;
 import lib.ir.ast.Location;
 import lib.ir.icode.Instruction;
 
@@ -50,13 +49,40 @@ public class AssemblyGenerator {
                 case INC:
                     result += genInc(instruction);
                     break;
+                case SUMINT:
+                    result += genSumInt(instruction);
+                    break;
+                case SUBINT:
+                    result += genSubInt(instruction);
+                    break;
+                case MULTINT:
+                    result += genMultInt(instruction);
+                    break;
+                case DIVIDEINT:
+                    result += genDivideInt(instruction);
+                    break;
+                case MOD:
+                    result += genMod(instruction);
+                    break;
+                case AND:
+                    result += genAnd(instruction);
+                    break;
+                case OR:
+                    result += genOr(instruction);
+                    break;
+                case ARRAYASSMNT:
+                    result += genArrayAssmnt(instruction);
+                    break;
+                case ARRAYACCESS:
+                    result += genArrayAccess(instruction);
+                    break;
             }
             result += "\n";
         }
         
     }
     
-    private String valueOrOffset(Expression e){
+    private String operand(Expression e){
         String type = e.getClass().getSimpleName();
         String res = "";
         if (type.equals("VarLocation")){ 
@@ -110,15 +136,15 @@ public class AssemblyGenerator {
     
     private String genAssmnt(Instruction instruction){
         String res;
-        res = "movl " + valueOrOffset(instruction.getOp1()) + ", %r10d\n"; 
-        res += "movl %r10d, " + valueOrOffset(instruction.getRes()); 
+        res = "movl " + operand(instruction.getOp1()) + ", %r10d\n"; 
+        res += "movl %r10d, " + operand(instruction.getRes()); 
         return res;
     }
     
     private String genReturn(Instruction instruction){
         String res = "";
         if (instruction.getRes()!=null){
-            res = "movl " + valueOrOffset(instruction.getRes()) + ", " + "%eax";
+            res = "movl " + operand(instruction.getRes()) + ", " + "%eax";
         }
         else{
             res = "nop";
@@ -129,15 +155,18 @@ public class AssemblyGenerator {
     
     private String genMinusInt(Instruction instruction){
         String res;
-        res = "movl $0, " + valueOrOffset(instruction.getRes()) + "\n";
-        res += "sub " + valueOrOffset(instruction.getOp1()) + ", " + valueOrOffset(instruction.getRes());
+        res = "movl " + operand(instruction.getOp1()) + ", %r10d\n";
+        res += "negl %r10d\n";
+        res += "movl %r10d, " + operand(instruction.getRes());
         return res;
     }
     
     private String genNegation(Instruction instruction){
         String res;
-        res = "movl " + valueOrOffset(instruction.getOp1())  + ", " + valueOrOffset(instruction.getRes()) + "\n"; 
-        res += "not " + valueOrOffset(instruction.getRes());
+        res = "movl " + operand(instruction.getOp1())  + ", %r10d\n";
+        res += "notl %r10d\n";
+        res += "add $2, %r10d\n";
+        res += "movl %r10d, " + operand(instruction.getRes());
         return res;
         
     }
@@ -167,10 +196,10 @@ public class AssemblyGenerator {
                    register = "%r9d";
                    break;    
            }
-           res = "movl " + valueOrOffset(instruction.getRes()) + ", " + register;
+           res = "movl " + operand(instruction.getRes()) + ", " + register;
         }
         else{
-           res = "push " + valueOrOffset(instruction.getRes()); 
+           res = "push " + operand(instruction.getRes()); 
         }
         
         return res;
@@ -179,28 +208,119 @@ public class AssemblyGenerator {
     private String genCall(Instruction instruction){
         String res;
         res = "call " + instruction.getOp1() + "\n";
-        res += "movl %eax," + valueOrOffset(instruction.getRes());
+        res += "movl %eax," + operand(instruction.getRes());
         return res;
     }
     
     private String genJump(Instruction instruction){
         String res;
         res = "jmp ." + instruction.getRes();
+        res = res.substring(0, res.length()-1);//Elim character ":"
         return res;
     }
     
     private String genJumpFalse(Instruction instruction){
         String res;
-        res = "cmp $0, " + valueOrOffset(instruction.getOp1()) + "\n";
+        res = "movl " + operand(instruction.getOp1()) + ", %r10d\n";
+        res += "cmpl $0, %r10d\n";
         res += "je ." + instruction.getRes();
+        res = res.substring(0, res.length()-1);//Elim character ":"
         return res;
     }
     
     private String genInc(Instruction instruction){
         String res;
-        res = "inc " + valueOrOffset(instruction.getRes());
+        res = "incl " + operand(instruction.getRes());
         return res;
     }
+    
+    private String genSumInt(Instruction instruction){
+        String res;
+        res = "movl " + operand(instruction.getOp1()) + ", %r10d\n";
+        res += "addl " + operand(instruction.getOp2()) + ", %r10d\n";
+        res += "movl %r10d, " + operand(instruction.getRes());
+        return res;
+    }
+    
+    private String genSubInt(Instruction instruction){
+        String res;
+        res = "movl " + operand(instruction.getOp1()) + ", %r10d\n";
+        res += "subl " + operand(instruction.getOp2()) + ", %r10d\n";
+        res += "movl %r10d, " + operand(instruction.getRes());
+        return res;
+    }
+    
+    private String genMultInt(Instruction instruction){
+        String res;
+        res = "movl " + operand(instruction.getOp1()) + ", %r10d\n";
+        res += "imull " + operand(instruction.getOp2()) + ", %r10d\n";
+        res += "movl %r10d, " + operand(instruction.getRes());
+        return res;
+    }
+    
+    private String genDivideInt(Instruction instruction){
+        String res;
+        res = "movl " + operand(instruction.getOp1()) + ", %eax\n";
+        res += "movl " + operand(instruction.getOp2()) + ", %r10d\n";
+        res += "movl %edx, %r11d\n"; //Backup edx value
+        res += "movl $0, %edx\n"; 
+        res += "idivl %r10d\n";//Remainder in edx, cocient in eax
+        res += "movl %r11d, %edx\n"; //Restore edx value
+        res += "movl %eax, " + operand(instruction.getRes());
+        return res;
+    }
+    
+    private String genMod(Instruction instruction){
+        String res;
+        res = "movl " + operand(instruction.getOp1()) + ", %eax\n";
+        res += "movl " + operand(instruction.getOp2()) + ", %r10d\n";
+        res += "movl %edx, %r11d\n"; //Backup edx value
+        res += "movl $0, %edx\n"; 
+        res += "idivl %r10d\n";//Remainder in edx, cocient in eax
+        res += "movl %edx, %r10d\n";
+        res += "movl %r11d, %edx\n"; //Restore edx value
+        res += "movl %r10d, " + operand(instruction.getRes());
+        return res;
+    }
+    
+    private String genAnd(Instruction instruction){
+        String res;
+        res = "movl " + operand(instruction.getOp1()) + ", %r10d\n";
+        res += "andl " + operand(instruction.getOp2()) + ", %r10d\n";
+        res += "movl %r10d, " + operand(instruction.getRes());
+        return res;
+    }
+    
+    private String genOr(Instruction instruction){
+        String res;
+        res = "movl " + operand(instruction.getOp1()) + ", %r10d\n";
+        res += "orl " + operand(instruction.getOp2()) + ", %r10d\n";
+        res += "movl %r10d, " + operand(instruction.getRes());
+        return res;
+    }
+    
+    private String genArrayAssmnt(Instruction instruction){
+        String res;
+        res = "movl " + operand(instruction.getOp1()) + ", %r10d\n";
+        res += "mov " + operand(instruction.getOp2()) + ", %r11\n";
+        res += "neg %r11\n";
+        int offset = ((Location)instruction.getRes()).getOffset();
+        res += "movl %r10d, " + offset + "(%rbp,%r11," + bytes + ")";
+        return res;
+        //TODO IMPLEMENTS EXCEPTION OUT OF RANGE
+    }
+    
+    private String genArrayAccess(Instruction instruction){
+        String res;
+        res = "mov " + operand(instruction.getOp2()) + ", %r10\n";
+        res += "neg %r10\n";
+        int offset = ((Location)instruction.getOp1()).getOffset();
+        res += "movl " + offset + "(%rbp,%r10," + bytes + "), %r11d\n";
+        res += "movl %r11d, " + operand(instruction.getRes());
+        return res;
+        //TODO IMPLEMENTS EXCEPTION OUT OF RANGE
+    }
+    
 
 
 }

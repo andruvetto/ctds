@@ -129,22 +129,8 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
                     instructions.addAll(this.visit(array.getExpression()));
                     Expression pos = lastExpression;
                     Instruction assmnt;
-                    switch (location.getType()){
-                    case INT:
-                        assmnt = new Instruction(TypeInstruction.INTARRAYASSMNT,operand,pos,array.getDeclarated());
-                        instructions.add(assmnt);
-                        break;
-                    case FLOAT:
-                        assmnt = new Instruction(TypeInstruction.FLOATARRAYASSMNT,operand,pos,array.getDeclarated());
-                        instructions.add(assmnt);
-                        break;
-                    case BOOLEAN:
-                        assmnt = new Instruction(TypeInstruction.BOOLARRAYASSMNT,operand,pos,array.getDeclarated());
-                        instructions.add(assmnt);
-                        break;
-                    default:
-                        break;
-                    }
+                    assmnt = new Instruction(TypeInstruction.ARRAYASSMNT,operand,pos,array.getDeclarated());
+                    instructions.add(assmnt);
                 }
                 else{
                     Instruction instruction = new Instruction(TypeInstruction.ASSMNT,operand,location.getDeclarated());
@@ -157,35 +143,22 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
                     instructions.addAll(this.visit(array.getExpression()));
                     Expression pos = lastExpression;
                     Instruction assmnt;
-                    switch (location.getType()){
-                    case INT:
-                    {
-                        VarLocation res = new VarLocation("temp"+getNextIdTemp());
-                        offset -= bytes;
-                        res.setOffset(offset);
-                        Instruction access = new Instruction(TypeInstruction.INTARRAYACCESS,array.getDeclarated(),pos,res);
-                        instructions.add(access);
-                        Instruction sum = new Instruction(TypeInstruction.SUMINT,res,operand,res);
-                        instructions.add(sum);
-                        assmnt = new Instruction(TypeInstruction.INTARRAYASSMNT,res,pos,array.getDeclarated());
-                        instructions.add(assmnt);
+                    VarLocation res = new VarLocation("temp"+getNextIdTemp());
+                    offset -= bytes;
+                    res.setOffset(offset);
+                    Instruction access = new Instruction(TypeInstruction.ARRAYACCESS,array.getDeclarated(),pos,res);
+                    instructions.add(access);
+                    //Instruction sum = new Instruction(TypeInstruction.SUMINT,res,operand,res);
+                    Instruction sum;
+                    if (stmt.getLocation().getType().equals(Type.INT)){
+                        sum = new Instruction(TypeInstruction.SUMINT,res,operand,res);
                     }
-                        break;
-                    
-                    case FLOAT:
-                    {
-                        VarLocation res = new VarLocation("temp"+getNextIdTemp());
-                        offset -= bytes;
-                        res.setOffset(offset);
-                        Instruction access = new Instruction(TypeInstruction.FLOATARRAYACCESS,array.getDeclarated(),pos,res);
-                        instructions.add(access);
-                        Instruction sum = new Instruction(TypeInstruction.SUMFLOAT,res,operand,res);
-                        instructions.add(sum);
-                        assmnt = new Instruction(TypeInstruction.FLOATARRAYASSMNT,res,pos,array.getDeclarated());
-                        instructions.add(assmnt);
+                    else{
+                        sum = new Instruction(TypeInstruction.SUMFLOAT,res,operand,res);    
                     }
-                        break;
-                    }
+                    instructions.add(sum);
+                    assmnt = new Instruction(TypeInstruction.ARRAYASSMNT,res,pos,array.getDeclarated());
+                    instructions.add(assmnt);
                 }
                 else{
                     if (stmt.getLocation().getType().equals(Type.INT)){
@@ -206,31 +179,22 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
                     instructions.addAll(this.visit(array.getExpression()));
                     Expression pos = lastExpression;
                     Instruction assmnt;
-                    Instruction access;
-                    Instruction sub;
                     VarLocation res = new VarLocation("temp"+getNextIdTemp());
                     offset -= bytes;
                     res.setOffset(offset);
-                    
-                    switch (location.getType()){
-                    case INT:
-                        access = new Instruction(TypeInstruction.INTARRAYACCESS,array.getDeclarated(),pos,res);
-                        instructions.add(access);
-                        sub = new Instruction(TypeInstruction.SUBINT,res,operand,res);
-                        instructions.add(sub);
-                        assmnt = new Instruction(TypeInstruction.INTARRAYASSMNT,res,pos,array.getDeclarated());
-                        instructions.add(assmnt);
-                        break;
-                    
-                    case FLOAT:
-                        access = new Instruction(TypeInstruction.FLOATARRAYACCESS,array.getDeclarated(),pos,res);
-                        instructions.add(access);
-                        sub = new Instruction(TypeInstruction.SUBFLOAT,res,operand,res);
-                        instructions.add(sub);
-                        assmnt = new Instruction(TypeInstruction.FLOATARRAYASSMNT,res,pos,array.getDeclarated());
-                        instructions.add(assmnt);
-                        break;
+                    Instruction access = new Instruction(TypeInstruction.ARRAYACCESS,array.getDeclarated(),pos,res);
+                    instructions.add(access);
+                    //Instruction sum = new Instruction(TypeInstruction.SUMINT,res,operand,res);
+                    Instruction sum;
+                    if (stmt.getLocation().getType().equals(Type.INT)){
+                        sum = new Instruction(TypeInstruction.SUBINT,res,operand,res);
                     }
+                    else{
+                        sum = new Instruction(TypeInstruction.SUBFLOAT,res,operand,res);    
+                    }
+                    instructions.add(sum);
+                    assmnt = new Instruction(TypeInstruction.ARRAYASSMNT,res,pos,array.getDeclarated());
+                    instructions.add(assmnt);
                 }
                 else{
                     Instruction instruction;
@@ -287,22 +251,8 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
                 VarLocation res = new VarLocation("temp"+getNextIdTemp());
                 offset -= bytes;
                 res.setOffset(offset);
-                switch (exp.getType()){
-                    case INT:
-                        access = new Instruction(TypeInstruction.INTARRAYACCESS,array.getDeclarated(),pos,res);
-                        instructions.add(access);
-                        break;
-                    case FLOAT:
-                        access = new Instruction(TypeInstruction.FLOATARRAYACCESS,array.getDeclarated(),pos,res);
-                        instructions.add(access);
-                        break;
-                    case BOOLEAN:
-                        access = new Instruction(TypeInstruction.BOOLARRAYACCESS,array.getDeclarated(),pos,res);
-                        instructions.add(access);
-                        break;
-                    default:
-                        break;
-                }
+                access = new Instruction(TypeInstruction.ARRAYACCESS,array.getDeclarated(),pos,res);
+                instructions.add(access);
                 lastExpression = res;
                 return instructions;
             default:
@@ -536,7 +486,12 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
         LinkedList<Instruction> instructions = new LinkedList();
         offset -= bytes;
         loc.setOffset(offset);
-        offset -= (((ArrayLocation)loc).getSize()-1) * bytes; //Reserved memory for array  
+        int arraySize = ((ArrayLocation)loc).getSize();
+        offset -= (arraySize -1) * bytes; //Reserved memory for array
+        for (int i=0; i<arraySize; i++){
+            IntLiteral pos = new IntLiteral(i);
+            instructions.add(new Instruction(TypeInstruction.ARRAYASSMNT, new IntLiteral("0"),pos,loc));
+        }
         return instructions;
     }
     
@@ -546,7 +501,19 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
         LinkedList<Instruction> instructions = new LinkedList();
         offset -= bytes;
         loc.setOffset(offset);
-        
+        switch (loc.getType()){
+                case INT:
+                    instructions.add(new Instruction(TypeInstruction.ASSMNT, new IntLiteral("0"), loc));
+                    break;
+                case FLOAT:
+                    instructions.add(new Instruction(TypeInstruction.ASSMNT, new FloatLiteral("0.0"), loc));
+                    break;
+                case BOOLEAN:
+                    instructions.add(new Instruction(TypeInstruction.ASSMNT, new BooleanLiteral("false"), loc));
+                    break;
+                default:
+                    break;
+            }
         return instructions;
     }
     

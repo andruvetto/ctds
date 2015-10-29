@@ -29,21 +29,23 @@ public enum TypeInstruction {
     //BinOperations
     SUMINT,
     SUMFLOAT,
+    SUBINT,
+    SUBFLOAT,
+    MULTINT,
     MULTFLOAT,
     DIVIDEINT,
     DIVIDEFLOAT,
     MOD,
+    EQ,
+    NOT_EQ,
     LESS,
     LESS_EQ,
     GTR,
     GTR_EQ,
-    EQ,
-    NOT_EQ,
     AND,
     OR,
-    MULTINT,
-    SUBINT,
-    SUBFLOAT,
+    
+
     
     //Return
     RETURN,
@@ -56,20 +58,21 @@ public enum TypeInstruction {
     
     //Jumps
     JUMP,
-    JUMPTRUE,
+    //JUMPTRUE,
     JUMPFALSE,
     
     //Increment and decrement
     INC,
-    DEC,
+    //DEC,
     
     //Array Access
-    INTARRAYACCESS,
-    FLOATARRAYACCESS,
-    BOOLARRAYACCESS,
+    ARRAYACCESS,
+    //FLOATARRAYACCESS,
+    //BOOLARRAYACCESS,
     
     //Array Assignement
-    INTARRAYASSMNT,
-    FLOATARRAYASSMNT,
-    BOOLARRAYASSMNT;
+    ARRAYASSMNT;
+    //INTARRAYASSMNT,
+    //FLOATARRAYASSMNT,
+    //BOOLARRAYASSMNT;
 }
