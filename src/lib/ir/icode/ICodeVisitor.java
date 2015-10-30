@@ -43,7 +43,7 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
         Label checkLabel = new Label("checkFor"+id+":");
         instructions.add(new Instruction(TypeInstruction.LABEL,startLabel));
         Location var = stmt.getAssign().getLocation();
-        instructions.addAll(this.visit(var));
+        instructions.addAll(this.visit(var)); 
         instructions.addAll(this.visit(stmt.getAssign()));
         instructions.addAll(this.visit(stmt.getCondition()));
         Expression max = lastExpression;
@@ -120,7 +120,6 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
         LinkedList<Instruction> instructions = new LinkedList();
         instructions.addAll(this.visit(stmt.getExpression()));
         Expression operand = lastExpression;
-        //Location location = stmt.getLocation().getDeclarated();
         Location location = stmt.getLocation();
         switch (stmt.getOperator()){
             case ASSMNT:
@@ -184,15 +183,14 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
                     res.setOffset(offset);
                     Instruction access = new Instruction(TypeInstruction.ARRAYACCESS,array.getDeclarated(),pos,res);
                     instructions.add(access);
-                    //Instruction sum = new Instruction(TypeInstruction.SUMINT,res,operand,res);
-                    Instruction sum;
+                    Instruction sub;
                     if (stmt.getLocation().getType().equals(Type.INT)){
-                        sum = new Instruction(TypeInstruction.SUBINT,res,operand,res);
+                        sub = new Instruction(TypeInstruction.SUBINT,res,operand,res);
                     }
                     else{
-                        sum = new Instruction(TypeInstruction.SUBFLOAT,res,operand,res);    
+                        sub = new Instruction(TypeInstruction.SUBFLOAT,res,operand,res);    
                     }
-                    instructions.add(sum);
+                    instructions.add(sub);
                     assmnt = new Instruction(TypeInstruction.ARRAYASSMNT,res,pos,array.getDeclarated());
                     instructions.add(assmnt);
                 }
@@ -243,7 +241,6 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
                 lastExpression = ((VarLocation)exp).getDeclarated();
                 return instructions;
             case "ArrayLocation" :
-                //ArrayLocation array = (ArrayLocation)((ArrayLocation)exp).getDeclarated();
                 ArrayLocation array = (ArrayLocation)exp;
                 instructions.addAll(this.visit(array.getExpression()));
                 Expression pos = lastExpression;
@@ -560,11 +557,6 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
             instructions.addAll(block);
             
             offset = bytes*4;
-            /*LinkedList<Parameter> parameters = new LinkedList();
-            parameters.addAll(m.getParameters());
-            while(!parameters.isEmpty()){
-                this.visit(parameters.pollLast());
-            }*/
             int j = 1;
             for (int i = m.getParameters().size()-1; i>=0; i--){
                 VarLocation var = m.getParameters().get(i).getVarLocation();
@@ -575,16 +567,14 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
                     var.setOffset(offset);
                    
                 }
-                // System.out.println(var + " ---- " + var.getOffset() + " --------- " + j);
                 j++;
             }
+            instructions.add(new Instruction(TypeInstruction.LABEL, endlabel));
             
         }
         else{
             instructions.add(new Instruction(TypeInstruction.METHODDECLEXTERN, label));
         }
-        instructions.add(new Instruction(TypeInstruction.LABEL, endlabel));
-        //offset = 0;
         return instructions;
     }
     

@@ -76,8 +76,10 @@ public class CheckSemVisitor extends Visitor<Type> {
         table.newBlock();
         try {
             table.insert(stmt.getAssign().getLocation());
-           
+            
             stmt.getAssign().getLocation().setDeclarated(stmt.getAssign().getLocation());
+
+
             
             this.visit(stmt.getAssign());
             this.visit(stmt.getCondition());
@@ -219,8 +221,14 @@ public class CheckSemVisitor extends Visitor<Type> {
                         
                         
                         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-                        if (expressions.get(i).getClass().getSimpleName().equals("VarLocation"))
+                        if (expressions.get(i).getClass().getSimpleName().equals("VarLocation")){
                         ((VarLocation)expressions.get(i)).setDeclarated((Location)table.getDeclarated(expressions.get(i)));
+                        this.visit(expressions.get(i));
+                        }
+                        if (expressions.get(i).getClass().getSimpleName().equals("ArrayLocation")){
+                            ((ArrayLocation)expressions.get(i)).setDeclarated((Location)table.getDeclarated(expressions.get(i)));
+                            this.visit(expressions.get(i));
+                        }
                         
                     } catch (Exception ex) {
                        // Logger.getLogger(CheckSemVisitor.class.getName()).log(Level.SEVERE, null, ex);
@@ -255,7 +263,6 @@ public class CheckSemVisitor extends Visitor<Type> {
 
     @Override
     public Type visit(VarLocation loc) {
-        
         if (loc.getType() == null){
             try {
                 loc.setType(table.typeDeclarated(loc));
@@ -270,7 +277,6 @@ public class CheckSemVisitor extends Visitor<Type> {
 
     @Override
     public Type visit(ArrayLocation loc) {
-        
         if (loc.getType() == null){
             try {
                 loc.setType(table.typeDeclarated(loc));

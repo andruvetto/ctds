@@ -7,12 +7,18 @@ import lib.ir.ast.Location;
 import lib.ir.icode.Instruction;
 
 public class AssemblyGenerator {
-
+    private int numtemp;
     public String result;
     private int bytes = 4; //Default number of bytes
     
+    private String getNextIdTemp(){
+        numtemp++;
+        return "" + numtemp;
+    }
+    
     public AssemblyGenerator(LinkedList<Instruction> instructions){
         result = "";
+        numtemp = 0;
         while(!instructions.isEmpty()){
             Instruction instruction = instructions.pop();
             switch (instruction.getInstruction()){
@@ -75,6 +81,24 @@ public class AssemblyGenerator {
                     break;
                 case ARRAYACCESS:
                     result += genArrayAccess(instruction);
+                    break;
+                case EQ:
+                    result += genEq(instruction);
+                    break;
+                case NOT_EQ:
+                    result += genNotEq(instruction);
+                    break;
+                case LESS:
+                    result += genLess(instruction);
+                    break;
+                case LESS_EQ:
+                    result += genLessEq(instruction);
+                    break;
+                case GTR:
+                    result += genGtr(instruction);
+                    break;
+                case GTR_EQ:
+                    result += genGtr(instruction);
                     break;
             }
             result += "\n";
@@ -321,6 +345,95 @@ public class AssemblyGenerator {
         //TODO IMPLEMENTS EXCEPTION OUT OF RANGE
     }
     
+    private String genEq(Instruction instruction){
+        String res;
+        String idTemp = getNextIdTemp();
+        res = ".Eq" + idTemp + ":\n";
+        res += "movl " + operand(instruction.getOp1()) + ", %r10d\n";
+        res += "cmpl " + operand(instruction.getOp2()) + ", %r10d\n";
+        res += "je .equals" + idTemp + "\n";
+        res += "movl $0, " + operand(instruction.getRes()) + "\n";
+        res += "jmp .endEq" + idTemp + "\n"; 
+        res += ".equals" + idTemp + ":\n";
+        res += "movl $1, " + operand(instruction.getRes()) + "\n";
+        res += ".endEq" + idTemp + ":";
+        return res;
+    }
+    
+    private String genNotEq(Instruction instruction){
+        String res;
+        String idTemp = getNextIdTemp();
+        res = ".notEq" + idTemp + ":\n";
+        res += "movl " + operand(instruction.getOp1()) + ", %r10d\n";
+        res += "cmpl " + operand(instruction.getOp2()) + ", %r10d\n";
+        res += "jne .notEquals" + idTemp + "\n";
+        res += "movl $0, " + operand(instruction.getRes()) + "\n";
+        res += "jmp .endNotEq" + idTemp + "\n"; 
+        res += ".notEquals" + idTemp + ":\n";
+        res += "movl $1, " + operand(instruction.getRes()) + "\n";
+        res += ".endNotEq" + idTemp + ":";
+        return res;
+    }
+    
+    private String genLess(Instruction instruction){
+        String res;
+        String idTemp = getNextIdTemp();
+        res = ".less" + idTemp + ":\n";
+        res += "movl " + operand(instruction.getOp1()) + ", %r10d\n";
+        res += "cmpl " + operand(instruction.getOp2()) + ", %r10d\n";
+        res += "jl .isLess" + idTemp + "\n";
+        res += "movl $0, " + operand(instruction.getRes()) + "\n";
+        res += "jmp .endLess" + idTemp + "\n"; 
+        res += ".isLess" + idTemp + ":\n";
+        res += "movl $1, " + operand(instruction.getRes()) + "\n";
+        res += ".endLess" + idTemp + ":";
+        return res;
+    }
+    
+    private String genLessEq(Instruction instruction){
+        String res;
+        String idTemp = getNextIdTemp();
+        res = ".lessEq" + idTemp + ":\n";
+        res += "movl " + operand(instruction.getOp1()) + ", %r10d\n";
+        res += "cmpl " + operand(instruction.getOp2()) + ", %r10d\n";
+        res += "jle .isLessEq" + idTemp + "\n";
+        res += "movl $0, " + operand(instruction.getRes()) + "\n";
+        res += "jmp .endLessEq" + idTemp + "\n"; 
+        res += ".isLessEq" + idTemp + ":\n";
+        res += "movl $1, " + operand(instruction.getRes()) + "\n";
+        res += ".endLessEq" + idTemp + ":";
+        return res;
+    }
+    
+    private String genGtr(Instruction instruction){
+        String res;
+        String idTemp = getNextIdTemp();
+        res = ".gtr" + idTemp + ":\n";
+        res += "movl " + operand(instruction.getOp1()) + ", %r10d\n";
+        res += "cmpl " + operand(instruction.getOp2()) + ", %r10d\n";
+        res += "jg .isGtr" + idTemp + "\n";
+        res += "movl $0, " + operand(instruction.getRes()) + "\n";
+        res += "jmp .endGtr" + idTemp + "\n"; 
+        res += ".isGtr" + idTemp + ":\n";
+        res += "movl $1, " + operand(instruction.getRes()) + "\n";
+        res += ".endGtr" + idTemp + ":";
+        return res;
+    }
+    
+    private String genGtrEq(Instruction instruction){
+        String res;
+        String idTemp = getNextIdTemp();
+        res = ".gtrEq" + idTemp + ":\n";
+        res += "movl " + operand(instruction.getOp1()) + ", %r10d\n";
+        res += "cmpl " + operand(instruction.getOp2()) + ", %r10d\n";
+        res += "jge .isGtrEq" + idTemp + "\n";
+        res += "movl $0, " + operand(instruction.getRes()) + "\n";
+        res += "jmp .endGtrEq" + idTemp + "\n"; 
+        res += ".isGtrEq" + idTemp + ":\n";
+        res += "movl $1, " + operand(instruction.getRes()) + "\n";
+        res += ".endGtrEq" + idTemp + ":";
+        return res;
+    }
 
 
 }
