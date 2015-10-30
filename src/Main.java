@@ -16,8 +16,8 @@ import lib.ir.interpreter.InterpreterVisitor;
 
 public class Main {
 
-    private static String outputName = "";
-    private static String target = "icode";
+    private static String outputName = "a";
+    private static String target = "asm";
     private static String inputName = "";
     /*Initialize the list of errors */
     private static List<Error> errors = new LinkedList();
@@ -40,7 +40,7 @@ public class Main {
                             break;
                         }
                     case "-target" :
-                        if ((i+1 < argv.length) && (argv[i+1].charAt(0) != '-') && (argv[i+1].equals("scan") || argv[i+1].equals("parse") || argv[i+1].equals("semantic") || argv[i+1].equals("interpreter") || argv[i+1].equals("icode"))){
+                        if ((i+1 < argv.length) && (argv[i+1].charAt(0) != '-') && (argv[i+1].equals("scan") || argv[i+1].equals("parse") || argv[i+1].equals("semantic") || argv[i+1].equals("interpreter") || argv[i+1].equals("asm") || argv[i+1].equals("icode") )){
                             target = argv[i+1];
                             i+=2;
                             break;
@@ -100,6 +100,13 @@ public class Main {
                         Program p = Parse(pr);
                         semCheck(p);
                         iCode(p);
+                    }
+                    break;
+                case "asm":
+                    {
+                        Program p = Parse(pr);
+                        semCheck(p);
+                        asm(p);
                     }
                     break;
                 default :
@@ -182,6 +189,33 @@ public class Main {
                 System.out.println("-------------------- ASM CODE : ----------------------");
                 AssemblyGenerator asm = new AssemblyGenerator(instructions);
                 System.out.println(asm.result);
+                
+            }
+            else{
+                reports(program);
+            }
+        }
+        
+    }
+    
+    private static void asm(Program program){
+        if (program != null){
+            if (errors.isEmpty()){
+                ICodeVisitor icode = new ICodeVisitor();
+                LinkedList<Instruction> instructions = icode.visit(program);
+                AssemblyGenerator asm = new AssemblyGenerator(instructions);
+                try {
+                    PrintStream original = System.out;
+                    FileOutputStream fileOut = new FileOutputStream(outputName+".s");
+                    System.setOut(new PrintStream(fileOut));
+                    System.out.println(asm.result);
+                    fileOut.close();
+                    System.setOut(original);
+                } catch (Exception ex) {
+                    Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                
+                }
+                
                 
             }
             else{

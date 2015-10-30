@@ -8,7 +8,7 @@ for compile source:
     ./compile.sh
     
 running:
-    ./runCompiler.sh [options] inputfile
+    ./ctds.sh [options] inputfile
         options:
             -target scan    (Lexical Analyzer)
                     parse   (syntax analyzer)

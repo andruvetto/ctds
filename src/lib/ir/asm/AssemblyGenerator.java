@@ -98,7 +98,7 @@ public class AssemblyGenerator {
                     result += genGtr(instruction);
                     break;
                 case GTR_EQ:
-                    result += genGtr(instruction);
+                    result += genGtrEq(instruction);
                     break;
             }
             result += "\n";
