@@ -14,8 +14,9 @@ running:
                     parse   (syntax analyzer)
                     semantic  (Sematic analizer)
                     interpreter (Run interpreter)
-		    icode	(intermediate code)
-                    (Default is icode)
+		    		icode	(intermediate code)
+		    		asm 	(Generate Assembly)
+                    (Default is asm)
                     
     
 runing tests:

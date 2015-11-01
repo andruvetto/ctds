@@ -247,7 +247,7 @@ public class CheckSemVisitor extends Visitor<Type> {
             return m.getType();
         }
         else{
-            addError(m, "Method not declarated '" + m.getId() + "'");
+            addError(m, "Method not declarated '" + m + "'");
             return Type.UNDEFINED;
         }
     }
