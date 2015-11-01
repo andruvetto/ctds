@@ -10,12 +10,13 @@ for compile source:
 running:
     ./ctds.sh [options] inputfile
         options:
+            -o outputName
             -target scan    (Lexical Analyzer)
                     parse   (syntax analyzer)
                     semantic  (Sematic analizer)
                     interpreter (Run interpreter)
-		    		icode	(intermediate code)
-		    		asm 	(Generate Assembly)
+		    icode	(intermediate code)
+		    asm 	(Generate Assembly)
                     (Default is asm)
                     
     
