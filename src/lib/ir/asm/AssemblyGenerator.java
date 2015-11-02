@@ -326,7 +326,7 @@ public class AssemblyGenerator {
     private String genArrayAssmnt(Instruction instruction){
         String res;
         res = "movl " + operand(instruction.getOp1()) + ", %r10d\n";
-        res += "mov " + operand(instruction.getOp2()) + ", %r11\n";
+        res += "movl " + operand(instruction.getOp2()) + ", %r11d\n";
         res += "neg %r11\n";
         int offset = ((Location)instruction.getRes()).getOffset();
         res += "movl %r10d, " + offset + "(%rbp,%r11," + bytes + ")";
@@ -336,7 +336,7 @@ public class AssemblyGenerator {
     
     private String genArrayAccess(Instruction instruction){
         String res;
-        res = "mov " + operand(instruction.getOp2()) + ", %r10\n";
+        res = "movl " + operand(instruction.getOp2()) + ", %r10d\n";
         res += "neg %r10\n";
         int offset = ((Location)instruction.getOp1()).getOffset();
         res += "movl " + offset + "(%rbp,%r10," + bytes + "), %r11d\n";
