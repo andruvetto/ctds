@@ -15,7 +15,7 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
     private LinkedList<Label> lastStartLabel;
     private LinkedList<Label> lastEndLabel;
     private int offset;
-    private int bytes = 4; //Default decrement offset in this value
+    private int bytes = 8; //Default decrement offset in this value
     
     private String getNextIdTemp(){
         numtemp++;
@@ -159,6 +159,7 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
                     res = new VarLocation("temp"+getNextIdTemp());
                     offset -= bytes;
                     res.setOffset(offset);
+                    res.setType(stmt.getLocation().getType());
                     access = new Instruction(TypeInstruction.ARRAYACCESS,array.getDeclarated(),pos,res);
                     instructions.add(access);
                     Instruction sum;
@@ -176,6 +177,7 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
                     res = new VarLocation("temp"+getNextIdTemp());
                     offset -= bytes;
                     res.setOffset(offset);
+                    res.setType(stmt.getLocation().getType());
                     access = new Instruction(TypeInstruction.ARRAYACCESS,array.getDeclarated(),pos,res);
                     instructions.add(access);
                     Instruction sub;
@@ -285,6 +287,7 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
                 VarLocation res = new VarLocation("temp"+getNextIdTemp());
                 offset -= bytes;
                 res.setOffset(offset);
+                res.setType(array.getType());
                 access = new Instruction(TypeInstruction.ARRAYACCESS,array.getDeclarated(),pos,res);
                 instructions.add(access);
                 lastExpression = res;
@@ -299,16 +302,29 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
     public LinkedList<Instruction> visit(MethodCallStmt m) {
         LinkedList<Instruction> instructions = new LinkedList();
         List<Expression> expressions = m.getExpressions();
-        int i = expressions.size();
+        int integers = expressions.size();
+        int floats = expressions.size()-1;
         for (Expression e : expressions){
             instructions.addAll(this.visit(e));
-            IntLiteral parameterNum = new IntLiteral(i);
-            Instruction instruction = new Instruction(TypeInstruction.PUSH, parameterNum, lastExpression);
+            Literal parameterNum;
+            if (e.getType().equals(Type.FLOAT)){
+                parameterNum = new IntLiteral(floats);
+                floats--;
+            }
+            else{
+                parameterNum = new IntLiteral(integers);
+                integers--;
+            }
+            
+            Expression expr = lastExpression;
+            
+            Instruction instruction = new Instruction(TypeInstruction.PUSH, parameterNum, expr);
             instructions.add(instruction);
-            i--;
+            
         }
        
         VarLocation res = new VarLocation("temp"+getNextIdTemp());
+        res.setType(m.getMethodDecl().getType());
         offset -= bytes;
         res.setOffset(offset);
         Instruction instruction = new Instruction(TypeInstruction.CALL, m.getLocation(),res);
@@ -378,13 +394,17 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
         switch(expr.getOperator()){
             case PLUS:
 		if (expr.getType().equals(Type.INT)){
+                    result.setType(Type.INT);
+                    lastExpression = result;
                     instruction = new Instruction(TypeInstruction.SUMINT,op1,op2,result);
                     instructions.add(instruction);
-                    lastExpression = result;
+                    
+                    
                 }
                 else{
                     instruction = new Instruction(TypeInstruction.SUMFLOAT,op1,op2,result);
                     instructions.add(instruction);
+                    result.setType(Type.FLOAT);
                     lastExpression = result;
                 }
                 break;
@@ -392,11 +412,13 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
 		if (expr.getType().equals(Type.INT)){
                     instruction = new Instruction(TypeInstruction.SUBINT,op1,op2,result);
                     instructions.add(instruction);
+                    result.setType(Type.INT);
                     lastExpression = result;
                 }
                 else{
                     instruction = new Instruction(TypeInstruction.SUBFLOAT,op1,op2,result);
                     instructions.add(instruction);
+                    result.setType(Type.FLOAT);
                     lastExpression = result;
                 }
                 break;
@@ -404,11 +426,13 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
 		if (expr.getType().equals(Type.INT)){
                     instruction = new Instruction(TypeInstruction.MULTINT,op1,op2,result);
                     instructions.add(instruction);
+                    result.setType(Type.INT);
                     lastExpression = result;
                 }
                 else{
                     instruction = new Instruction(TypeInstruction.MULTFLOAT,op1,op2,result);
                     instructions.add(instruction);
+                    result.setType(Type.FLOAT);
                     lastExpression = result;
                 }
                 break;
@@ -416,11 +440,13 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
 		if (expr.getType().equals(Type.INT)){
                     instruction = new Instruction(TypeInstruction.DIVIDEINT,op1,op2,result);
                     instructions.add(instruction);
+                    result.setType(Type.INT);
                     lastExpression = result;
                 }
                 else{
                     instruction = new Instruction(TypeInstruction.DIVIDEFLOAT,op1,op2,result);
                     instructions.add(instruction);
+                    result.setType(Type.FLOAT);
                     lastExpression = result;
                 }
                 break;
@@ -428,53 +454,63 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
                 if (expr.getType().equals(Type.INT)){
                     instruction = new Instruction(TypeInstruction.MOD,op1,op2,result);
                     instructions.add(instruction);
+                    result.setType(Type.INT);
                     lastExpression = result;
                 }
                 else{
                     instruction = new Instruction(TypeInstruction.MOD,op1,op2,result);
                     instructions.add(instruction);
+                    result.setType(Type.FLOAT);
                     lastExpression = result;
                 }
                 break;
             case LESS:
                 instruction = new Instruction(TypeInstruction.LESS,op1,op2,result);
                 instructions.add(instruction);
+                result.setType(Type.BOOLEAN);
                 lastExpression = result;
                 break;
             case LESS_EQ:
                 instruction = new Instruction(TypeInstruction.LESS_EQ,op1,op2,result);
                 instructions.add(instruction);
+                result.setType(Type.BOOLEAN);
                 lastExpression = result;
                 break;
             case GTR:
 		
                 instruction = new Instruction(TypeInstruction.GTR,op1,op2,result);
                 instructions.add(instruction);
+                result.setType(Type.BOOLEAN);
                 lastExpression = result;
                 break;
             case GTR_EQ:
 		instruction = new Instruction(TypeInstruction.GTR_EQ,op1,op2,result);
                 instructions.add(instruction);
+                result.setType(Type.BOOLEAN);
                 lastExpression = result;
                 break;
             case EQ:
 		instruction = new Instruction(TypeInstruction.EQ,op1,op2,result);
                 instructions.add(instruction);
+                result.setType(Type.BOOLEAN);
                 lastExpression = result;
                 break;
             case NOT_EQ:
 		instruction = new Instruction(TypeInstruction.NOT_EQ,op1,op2,result);
                 instructions.add(instruction);
+                result.setType(Type.BOOLEAN);
                 lastExpression = result;
                 break;
             case AND:
 		instruction = new Instruction(TypeInstruction.AND,op1,op2,result);
                 instructions.add(instruction);
+                result.setType(Type.BOOLEAN);
                 lastExpression = result;
                 break;
             case OR:
 		instruction = new Instruction(TypeInstruction.OR,op1,op2,result);
                 instructions.add(instruction);
+                result.setType(Type.BOOLEAN);
                 lastExpression = result;
                 break;       
         }
@@ -497,17 +533,21 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
                 if (expr.getType().equals(Type.INT)){
                     instruction = new Instruction(TypeInstruction.MINUSINT,lastExpression,result);
                     instructions.add(instruction);
+                    result.setType(Type.INT);
                     lastExpression = result;
+                    
                 }
                 else{
                     instruction = new Instruction(TypeInstruction.MINUSFLOAT,lastExpression,result);
                     instructions.add(instruction);
+                    result.setType(Type.FLOAT);
                     lastExpression = result;
                 }
                 break;
             case LOGIC_NEGATION:
                     instruction = new Instruction(TypeInstruction.NEGATION,lastExpression,result);
                     instructions.add(instruction);
+                    result.setType(Type.BOOLEAN);
                     lastExpression = result;
                 break;
         }
@@ -522,10 +562,10 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
         loc.setOffset(offset);
         int arraySize = ((ArrayLocation)loc).getSize();
         offset -= (arraySize -1) * bytes; //Reserved memory for array
-        for (int i=0; i<arraySize; i++){
+       /* for (int i=0; i<arraySize; i++){
             IntLiteral pos = new IntLiteral(i);
             instructions.add(new Instruction(TypeInstruction.ARRAYASSMNT, new IntLiteral("0"),pos,loc));
-        }
+        }*/
         return instructions;
     }
     
@@ -588,13 +628,13 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
             Instruction method = new Instruction(TypeInstruction.METHODDECL, label);
             offset = 0;
             LinkedList<Instruction> block = this.visit(m.getBlock());
-            if (offset != 0) method.SetOp1(new IntLiteral(-offset+bytes)); //Local bytes
+            if (offset != 0) method.SetOp1(new IntLiteral(-offset)); //Local bytes
             else method.SetOp1(new IntLiteral(0));
             instructions.add(method);
             instructions.addAll(block);
             
-            offset = bytes*4;
-            int j = 1;
+            offset = bytes;
+            /*int j = 1;
             for (int i = m.getParameters().size()-1; i>=0; i--){
                 VarLocation var = m.getParameters().get(i).getVarLocation();
                 if(j<7){
@@ -605,7 +645,34 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
                    
                 }
                 j++;
+            }*/
+            int integers = 1;
+            int floats = 0;
+            for (int i = m.getParameters().size()-1; i>=0; i--){
+                VarLocation var = m.getParameters().get(i).getVarLocation();
+                if (var.getType().equals(Type.FLOAT)){
+                    if(floats<8){
+                        var.setOffset(floats);
+                        floats++;
+                    }
+                    else{
+                        offset += bytes;
+                        var.setOffset(offset);
+                    }      
+                }
+                else{
+                    if(integers<7){
+                        var.setOffset(integers);
+                        integers++;
+                    }
+                    else{
+                        offset += bytes;
+                        var.setOffset(offset); 
+                    }
+                }
+                    
             }
+
             instructions.add(new Instruction(TypeInstruction.LABEL, endlabel));
             
         }
@@ -665,18 +732,30 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
             }
             
             for (MethodDecl m : c.getMethods()){
-                if (m.getId().equals("main")){
-                    Label label = new Label("globl main");
-                    instructions.add(new Instruction(TypeInstruction.LABEL, label));
+                //if (m.getId().equals("main")){
+                    //Label label = new Label("globl main");
+                    //instructions.add(new Instruction(TypeInstruction.LABEL, label));
                     
+                //}
+                if (!m.ifExtern()){
+                    Label label = new Label("globl " + m.getId());
+                    instructions.add(new Instruction(TypeInstruction.LABEL, label));
+                    label = new Label("type " + m.getId() + ", @function");
+                    instructions.add(new Instruction(TypeInstruction.LABEL, label));
+                
+                    instructions.addAll(this.visit(m));
+                
+                    label = new Label("size " + m.getId() + ", .-" + m.getId());
+                    instructions.add(new Instruction(TypeInstruction.LABEL, label));
+                    label = new Label("align " + bytes );
+                    instructions.add(new Instruction(TypeInstruction.LABEL, label));
                 }
-                instructions.addAll(this.visit(m));
             }
             
             
             //Used for detecte access out of bond in arrays
-            instructions.add(new Instruction(TypeInstruction.LABEL,new Label("errorArray:")));
-            instructions.add(new Instruction(TypeInstruction.RETURN)); 
+            //instructions.add(new Instruction(TypeInstruction.LABEL,new Label("errorArray:")));
+            instructions.add(new Instruction(TypeInstruction.ARRAYEXCEPTION)); 
                     
             
         }

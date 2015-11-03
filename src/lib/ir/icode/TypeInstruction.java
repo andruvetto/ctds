@@ -58,6 +58,7 @@ public enum TypeInstruction {
     
     //Jumps
     JUMP,
+    
     //JUMPTRUE,
     JUMPFALSE,
     
@@ -67,12 +68,11 @@ public enum TypeInstruction {
     
     //Array Access
     ARRAYACCESS,
-    //FLOATARRAYACCESS,
-    //BOOLARRAYACCESS,
+
     
     //Array Assignement
-    ARRAYASSMNT;
-    //INTARRAYASSMNT,
-    //FLOATARRAYASSMNT,
-    //BOOLARRAYASSMNT;
+    ARRAYASSMNT,
+
+    //Array Exception
+    ARRAYEXCEPTION;
 }
