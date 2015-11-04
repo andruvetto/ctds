@@ -4,12 +4,8 @@ package lib.ir.icode;
 public enum TypeInstruction {
     
     //Global Declarations
-    DECLINTARRAY,
-    DECLFLOATARRAY,
-    DECLBOOLEANARRAY,
-    DECLINT,
-    DECLFLOAT,
-    DECLBOOLEAN,
+    GLOBALVAR,
+    GLOBALARRAY,
     
     //Unoperations
     MINUSINT,

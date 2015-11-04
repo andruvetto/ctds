@@ -5,7 +5,16 @@ import lib.ir.ASTVisitor;
 public abstract class Location extends Expression {
     protected boolean isArray;
     protected Location declarated;
+    protected boolean isGlobal;
     protected int offset;
+    
+    public void setIsGlobal(boolean g){
+        isGlobal = g;
+    }
+    
+    public boolean isGlobal(){
+        return this.isGlobal;
+    }
     
     public int getOffset(){
         return this.offset;

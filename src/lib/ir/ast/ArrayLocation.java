@@ -15,6 +15,7 @@ public class ArrayLocation extends Location {
 		this.size = 0;
                 this.values = null;
                 this.isArray = true;
+                this.isGlobal = false;
 	}
         
         public ArrayLocation(String id, Expression e, int n){

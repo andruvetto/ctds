@@ -1,6 +1,7 @@
 package lib.ir.asm;
 
 import java.util.LinkedList;
+import lib.ir.ast.ArrayLocation;
 import lib.ir.ast.Expression;
 import lib.ir.ast.IntLiteral;
 import lib.ir.ast.Location;
@@ -119,17 +120,32 @@ public class AssemblyGenerator {
                 case ARRAYEXCEPTION:
                     result += genArrayException(instruction);
                     break;
+                case GLOBALVAR:
+                    result += genGlobalVar(instruction);
+                    break;
+                case GLOBALARRAY:
+                    result += genGlobalArray(instruction);
+                    break;
             }
             result += "\n";
         }
         
     }
-    
+
     private String operand(Expression e){
         String typeClass = e.getClass().getSimpleName();
         String res = "";
-        if (typeClass.equals("VarLocation")){ 
+
+        if (typeClass.equals("VarLocation") || typeClass.equals("ArrayLocation")){ 
            Location var = (Location)e; 
+           
+           if (var.isGlobal()){
+               res = var.getId() + ("(%rip)");
+               return res;
+           }
+           
+           
+           
            int offsetOp = var.getOffset();
            if (offsetOp >= 0 && offsetOp <= 7 ){ // Is register!
                if(var.getType().equals(Type.FLOAT)){
@@ -175,18 +191,34 @@ public class AssemblyGenerator {
         }
         return res;
     }
+    
+    private String genGlobalVar(Instruction instruction){
+        String res = "";
+        String id = instruction.getRes().getId();
+        res += ".comm " + id + "," + bytes + "," + bytes;
+        return res;
+    }
+    
+    private String genGlobalArray(Instruction instruction){
+        String res = "";
+        ArrayLocation array = (ArrayLocation)instruction.getRes();
+        String id = array.getId();
+        int size = array.getSize();
+        res += ".comm " + id + "," + bytes*size + ",32";
+        return res;
+    }
 
 
     private String genMethodDecl(Instruction instruction){
         String res;
         res = instruction.getRes() + ":\n";
-        //res += "enter $" + instruction.getOp1() + ",$0";
-        res += ".cfi_startproc\n";
+        res += "enter $" + instruction.getOp1() + ",$0";
+        /*res += ".cfi_startproc\n";
         res += "pushq	%rbp\n";
         res += ".cfi_def_cfa_offset 16\n";
         res += ".cfi_offset 6, -16\n";
         res += "movq	%rsp, %rbp\n";
-        res += ".cfi_def_cfa_register 6";
+        res += ".cfi_def_cfa_register 6";*/
         return res;
     }
     
@@ -214,10 +246,11 @@ public class AssemblyGenerator {
         else{
             res = "nop\n";
         }
-        res += "popq	%rbp\n";
-        res += ".cfi_def_cfa 7, 8\n";
+        res += "leave\n";
+        //res += "popq	%rbp\n";
+        //res += ".cfi_def_cfa 7, 8\n";
         res += "ret\n";
-        res += ".cfi_endproc";
+        //res += ".cfi_endproc";
         return res;
     }
     
@@ -445,20 +478,32 @@ public class AssemblyGenerator {
     
     private String genArrayAssmnt(Instruction instruction){
         String res;
-        res = "movq " + operand(instruction.getOp1()) + ", %r10\n";
-        res += "movq " + operand(instruction.getOp2()) + ", %r11\n";
-        res += "negq %r11\n";
-        int offset = ((Location)instruction.getRes()).getOffset();
-        res += "movq %r10, " + offset + "(%rbp,%r11," + bytes + ")";
+        Location array = (Location)instruction.getRes();
+        res = "movq " + operand(instruction.getOp1()) + ", %r10\n";//operand in r10
+        res += "movq " + operand(instruction.getOp2()) + ", %r11\n";//pos in r11
+        if (array.isGlobal()){
+            res += "movq %r10, " + array.getId() + "(,%r11," + bytes + ")";  
+        }
+        else{
+            res += "negq %r11\n";
+            int offset = ((Location)instruction.getRes()).getOffset();
+            res += "movq %r10, " + offset + "(%rbp,%r11," + bytes + ")";
+        }
         return res;
     }
     
     private String genArrayAccess(Instruction instruction){
         String res;
         res = "movq " + operand(instruction.getOp2()) + ", %r10\n";
-        res += "negq %r10\n";
-        int offset = ((Location)instruction.getOp1()).getOffset();
-        res += "movq " + offset + "(%rbp,%r10," + bytes + "), %r11\n";
+        Location array = (Location)instruction.getOp1();
+        if (array.isGlobal()){
+            res += "movq " + array.getId() + "(,%r10," + bytes + "), %r11\n";
+        }
+        else{
+            res += "negq %r10\n";
+            int offset = ((Location)instruction.getOp1()).getOffset();
+            res += "movq " + offset + "(%rbp,%r10," + bytes + "), %r11\n";
+        }
         res += "movq %r11, " + operand(instruction.getRes());
         return res;
     }

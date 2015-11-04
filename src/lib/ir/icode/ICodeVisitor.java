@@ -628,7 +628,7 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
             Instruction method = new Instruction(TypeInstruction.METHODDECL, label);
             offset = 0;
             LinkedList<Instruction> block = this.visit(m.getBlock());
-            if (offset != 0) method.SetOp1(new IntLiteral(-offset)); //Local bytes
+            if (offset != 0) method.SetOp1(new IntLiteral(-offset + ((offset/bytes)%2) * bytes  )); //Local bytes
             else method.SetOp1(new IntLiteral(0));
             instructions.add(method);
             instructions.addAll(block);
@@ -698,66 +698,31 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
             //Add global declarations
             for (FieldDecl f : c.getFields()){
                 for(Location loc : f.getLocations()){
+                    loc.setIsGlobal(true);
                     if (loc.isArray()){
-                        switch (loc.getType()){
-                            case INT:
-                                instructions.add(new Instruction(TypeInstruction.DECLINTARRAY,loc));
-                                break;
-                            case FLOAT:
-                                instructions.add(new Instruction(TypeInstruction.DECLFLOATARRAY,loc));
-                                break;
-                            case BOOLEAN:
-                                instructions.add(new Instruction(TypeInstruction.DECLBOOLEANARRAY,loc));
-                                break;
-                            default:
-                                break;
-                        }  
+                        instructions.add(new Instruction(TypeInstruction.GLOBALARRAY,loc));
                     }
                     else{
-                        switch (loc.getType()){
-                            case INT:
-                                instructions.add(new Instruction(TypeInstruction.DECLINT, loc));
-                                break;
-                            case FLOAT:
-                                instructions.add(new Instruction(TypeInstruction.DECLFLOAT, loc));
-                                break;
-                            case BOOLEAN:
-                                instructions.add(new Instruction(TypeInstruction.DECLBOOLEAN, loc));
-                                break;
-                            default:
-                                break;
-                        }
+                        instructions.add(new Instruction(TypeInstruction.GLOBALVAR, loc));
                     }
                 }
             }
-            
             for (MethodDecl m : c.getMethods()){
-                //if (m.getId().equals("main")){
-                    //Label label = new Label("globl main");
-                    //instructions.add(new Instruction(TypeInstruction.LABEL, label));
-                    
-                //}
                 if (!m.ifExtern()){
                     Label label = new Label("globl " + m.getId());
                     instructions.add(new Instruction(TypeInstruction.LABEL, label));
                     label = new Label("type " + m.getId() + ", @function");
                     instructions.add(new Instruction(TypeInstruction.LABEL, label));
-                
                     instructions.addAll(this.visit(m));
-                
                     label = new Label("size " + m.getId() + ", .-" + m.getId());
                     instructions.add(new Instruction(TypeInstruction.LABEL, label));
                     label = new Label("align " + bytes );
                     instructions.add(new Instruction(TypeInstruction.LABEL, label));
                 }
             }
-            
-            
             //Used for detecte access out of bond in arrays
             //instructions.add(new Instruction(TypeInstruction.LABEL,new Label("errorArray:")));
             instructions.add(new Instruction(TypeInstruction.ARRAYEXCEPTION)); 
-                    
-            
         }
         return instructions;
     }

@@ -9,6 +9,7 @@ public class VarLocation extends Location {
 		this.id = id;
 		this.blockId = -1;
                 this.isArray = false;
+                this.isGlobal = false;
 	}
 	
 	public int getBlockId() {
