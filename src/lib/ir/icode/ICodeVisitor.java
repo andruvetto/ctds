@@ -302,22 +302,28 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
     public LinkedList<Instruction> visit(MethodCallStmt m) {
         LinkedList<Instruction> instructions = new LinkedList();
         List<Expression> expressions = m.getExpressions();
-        int integers = expressions.size();
-        int floats = expressions.size()-1;
+        int integers = 0;
+        int floats = 0;
+        for (Expression e : expressions){
+            if (e.getType().equals(Type.FLOAT)){
+                floats++;
+            }
+            else{
+                integers++;
+            }
+        }
         for (Expression e : expressions){
             instructions.addAll(this.visit(e));
             Literal parameterNum;
             if (e.getType().equals(Type.FLOAT)){
-                parameterNum = new IntLiteral(floats);
+                parameterNum = new IntLiteral(floats-1);
                 floats--;
             }
             else{
                 parameterNum = new IntLiteral(integers);
                 integers--;
             }
-            
             Expression expr = lastExpression;
-            
             Instruction instruction = new Instruction(TypeInstruction.PUSH, parameterNum, expr);
             instructions.add(instruction);
             
@@ -562,10 +568,6 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
         loc.setOffset(offset);
         int arraySize = ((ArrayLocation)loc).getSize();
         offset -= (arraySize -1) * bytes; //Reserved memory for array
-       /* for (int i=0; i<arraySize; i++){
-            IntLiteral pos = new IntLiteral(i);
-            instructions.add(new Instruction(TypeInstruction.ARRAYASSMNT, new IntLiteral("0"),pos,loc));
-        }*/
         return instructions;
     }
     
@@ -627,51 +629,48 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
         if (!m.ifExtern()){
             Instruction method = new Instruction(TypeInstruction.METHODDECL, label);
             offset = 0;
-            LinkedList<Instruction> block = this.visit(m.getBlock());
-            if (offset != 0) method.SetOp1(new IntLiteral(-offset + ((offset/bytes)%2) * bytes  )); //Local bytes
-            else method.SetOp1(new IntLiteral(0));
-            instructions.add(method);
-            instructions.addAll(block);
-            
-            offset = bytes;
-            /*int j = 1;
-            for (int i = m.getParameters().size()-1; i>=0; i--){
-                VarLocation var = m.getParameters().get(i).getVarLocation();
-                if(j<7){
-                    var.setOffset(j);
-                }else{
-                    offset += bytes;
-                    var.setOffset(offset);
-                   
-                }
-                j++;
-            }*/
+            int offsetp = bytes;
             int integers = 1;
             int floats = 0;
+            LinkedList<Instruction> parameters = new LinkedList();
             for (int i = m.getParameters().size()-1; i>=0; i--){
                 VarLocation var = m.getParameters().get(i).getVarLocation();
                 if (var.getType().equals(Type.FLOAT)){
                     if(floats<8){
                         var.setOffset(floats);
+                        parameters.addAll(this.visit(m.getParameters().get(i)));
+                        var.setOffset(offset);
                         floats++;
                     }
                     else{
-                        offset += bytes;
-                        var.setOffset(offset);
+                        offsetp += bytes;
+                        var.setOffset(offsetp);
                     }      
                 }
                 else{
                     if(integers<7){
                         var.setOffset(integers);
+                        parameters.addAll(this.visit(m.getParameters().get(i)));
+                        var.setOffset(offset);
                         integers++;
                     }
                     else{
-                        offset += bytes;
-                        var.setOffset(offset); 
+                        offsetp += bytes;
+                        var.setOffset(offsetp); 
                     }
                 }
                     
             }
+            
+            
+            LinkedList<Instruction> block = this.visit(m.getBlock());
+            if (offset != 0) method.SetOp1(new IntLiteral(-offset + ((-offset/bytes)%2) * bytes  )); //Local bytes
+            else method.SetOp1(new IntLiteral(0));
+            instructions.add(method);
+            instructions.addAll(parameters);
+            instructions.addAll(block);
+            
+            
 
             instructions.add(new Instruction(TypeInstruction.LABEL, endlabel));
             
@@ -685,8 +684,15 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
     @Override
     public LinkedList<Instruction> visit(Parameter p) {
         LinkedList<Instruction> instructions = new LinkedList();
-        offset += bytes;
-        p.getVarLocation().setOffset(offset);
+        offset -= bytes;
+        VarLocation res = new VarLocation("temp"+getNextIdTemp());
+        VarLocation var = new VarLocation(p.getVarLocation().getId());
+        var.setType(p.getVarLocation().getType());
+        var.setOffset(p.getVarLocation().getOffset());
+        res.setOffset(offset);
+        res.setType(var.getType());
+        Instruction assign = new Instruction(TypeInstruction.ASSMNT,var,res);
+        instructions.add(assign);
         return instructions;
     }
 
@@ -721,7 +727,6 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
                 }
             }
             //Used for detecte access out of bond in arrays
-            //instructions.add(new Instruction(TypeInstruction.LABEL,new Label("errorArray:")));
             instructions.add(new Instruction(TypeInstruction.ARRAYEXCEPTION)); 
         }
         return instructions;

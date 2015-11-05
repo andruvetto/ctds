@@ -12,6 +12,7 @@ public class AssemblyGenerator {
     private int numtemp;
     public String result;
     private int bytes = 8; //Default number of bytes
+    private int parPushed = 0;//Parameters pushed in stack
     
     private String getNextIdTemp(){
         numtemp++;
@@ -177,10 +178,10 @@ public class AssemblyGenerator {
            else{ //Is memory
                 res = offsetOp + "(%rbp)";
            }
+        
         }
         else{ //Is literal
             String value = e.getValue().toString();
-            
             if (e.getType().equals(Type.FLOAT)){
                 Float val = Float.valueOf(value);
                 value = "" + Float.floatToIntBits(val);
@@ -213,12 +214,6 @@ public class AssemblyGenerator {
         String res;
         res = instruction.getRes() + ":\n";
         res += "enter $" + instruction.getOp1() + ",$0";
-        /*res += ".cfi_startproc\n";
-        res += "pushq	%rbp\n";
-        res += ".cfi_def_cfa_offset 16\n";
-        res += ".cfi_offset 6, -16\n";
-        res += "movq	%rsp, %rbp\n";
-        res += ".cfi_def_cfa_register 6";*/
         return res;
     }
     
@@ -237,7 +232,8 @@ public class AssemblyGenerator {
         String res = "";
         if (instruction.getRes()!=null){
             if (instruction.getRes().getType().equals(Type.FLOAT)){
-                res = "movq " + operand(instruction.getRes()) + ", " + "%xmm0\n";
+                res = "movq " + operand(instruction.getRes()) + ", " + "%r10\n";
+                res += "movq %r10, %xmm0\n";
             }
             else{
                 res = "movq " + operand(instruction.getRes()) + ", " + "%rax\n";
@@ -249,7 +245,7 @@ public class AssemblyGenerator {
         res += "leave\n";
         //res += "popq	%rbp\n";
         //res += ".cfi_def_cfa 7, 8\n";
-        res += "ret\n";
+        res += "ret";
         //res += ".cfi_endproc";
         return res;
     }
@@ -284,6 +280,7 @@ public class AssemblyGenerator {
     }
     
     private String genPush(Instruction instruction){
+        
         String res;
         int parameterNum = (Integer)((IntLiteral)instruction.getOp1()).getValue();
         Expression expr = instruction.getRes();
@@ -296,6 +293,7 @@ public class AssemblyGenerator {
             }
             else{
                 res = "push " + operand(instruction.getRes());
+                parPushed++;
             }
             
 
@@ -325,7 +323,8 @@ public class AssemblyGenerator {
             res = "movq " + operand(instruction.getRes()) + ", " + register;
             }
             else{
-                res = "push " + operand(instruction.getRes()); 
+                res = "push " + operand(instruction.getRes());
+                parPushed++;
             }
         }
         return res;
@@ -340,6 +339,10 @@ public class AssemblyGenerator {
         else{
             res += "movq %rax," + operand(instruction.getRes());
         }
+        if (parPushed%2 != 0){
+            res += "\naddq $8, %rsp";
+        }
+        
         
         return res;
     }
@@ -543,8 +546,17 @@ public class AssemblyGenerator {
         String idTemp = getNextIdTemp();
         res = ".less" + idTemp + ":\n";
         res += "movq " + operand(instruction.getOp1()) + ", %r10\n";
-        res += "cmpq " + operand(instruction.getOp2()) + ", %r10\n";
-        res += "jl .isLess" + idTemp + "\n";
+        if (instruction.getOp1().getType().equals(Type.FLOAT)){
+            res += "movq %r10, %xmm0\n";
+            res += "movq " + operand(instruction.getOp2()) + ", %r10\n";
+            res += "movq %r10, %xmm1\n";
+            res += "ucomiss %xmm0, %xmm1\n";
+            res += "ja .isLess" + idTemp + "\n"; 
+        }
+        else{
+            res += "cmpq " + operand(instruction.getOp2()) + ", %r10\n";
+            res += "jl .isLess" + idTemp + "\n";
+        }
         res += "movq $0, " + operand(instruction.getRes()) + "\n";
         res += "jmp .endLess" + idTemp + "\n"; 
         res += ".isLess" + idTemp + ":\n";
@@ -558,8 +570,17 @@ public class AssemblyGenerator {
         String idTemp = getNextIdTemp();
         res = ".lessEq" + idTemp + ":\n";
         res += "movq " + operand(instruction.getOp1()) + ", %r10\n";
-        res += "cmpq " + operand(instruction.getOp2()) + ", %r10\n";
-        res += "jle .isLessEq" + idTemp + "\n";
+        if (instruction.getOp1().getType().equals(Type.FLOAT)){
+            res += "movq %r10, %xmm0\n";
+            res += "movq " + operand(instruction.getOp2()) + ", %r10\n";
+            res += "movq %r10, %xmm1\n";
+            res += "ucomiss %xmm0, %xmm1\n";
+            res += "jae .isLessEq" + idTemp + "\n"; 
+        }
+        else{
+            res += "cmpq " + operand(instruction.getOp2()) + ", %r10\n";
+            res += "jle .isLessEq" + idTemp + "\n";
+        }
         res += "movq $0, " + operand(instruction.getRes()) + "\n";
         res += "jmp .endLessEq" + idTemp + "\n"; 
         res += ".isLessEq" + idTemp + ":\n";
@@ -573,8 +594,17 @@ public class AssemblyGenerator {
         String idTemp = getNextIdTemp();
         res = ".gtr" + idTemp + ":\n";
         res += "movq " + operand(instruction.getOp1()) + ", %r10\n";
-        res += "cmpq " + operand(instruction.getOp2()) + ", %r10\n";
-        res += "jg .isGtr" + idTemp + "\n";
+        if (instruction.getOp1().getType().equals(Type.FLOAT)){
+            res += "movq %r10, %xmm0\n";
+            res += "movq " + operand(instruction.getOp2()) + ", %r10\n";
+            res += "movq %r10, %xmm1\n";
+            res += "ucomiss %xmm0, %xmm1\n";
+            res += "jb .isGtr" + idTemp + "\n"; 
+        }
+        else{
+            res += "cmpq " + operand(instruction.getOp2()) + ", %r10\n";
+            res += "jg .isGtr" + idTemp + "\n";
+        }
         res += "movq $0, " + operand(instruction.getRes()) + "\n";
         res += "jmp .endGtr" + idTemp + "\n"; 
         res += ".isGtr" + idTemp + ":\n";
@@ -588,8 +618,17 @@ public class AssemblyGenerator {
         String idTemp = getNextIdTemp();
         res = ".gtrEq" + idTemp + ":\n";
         res += "movq " + operand(instruction.getOp1()) + ", %r10\n";
-        res += "cmpq " + operand(instruction.getOp2()) + ", %r10\n";
-        res += "jge .isGtrEq" + idTemp + "\n";
+        if (instruction.getOp1().getType().equals(Type.FLOAT)){
+            res += "movq %r10, %xmm0\n";
+            res += "movq " + operand(instruction.getOp2()) + ", %r10\n";
+            res += "movq %r10, %xmm1\n";
+            res += "ucomiss %xmm0, %xmm1\n";
+            res += "jbe .isGtrEq" + idTemp + "\n"; 
+        }
+        else{
+            res += "cmpq " + operand(instruction.getOp2()) + ", %r10\n";
+            res += "jge .isGtrEq" + idTemp + "\n";
+        }
         res += "movq $0, " + operand(instruction.getRes()) + "\n";
         res += "jmp .endGtrEq" + idTemp + "\n"; 
         res += ".isGtrEq" + idTemp + ":\n";
@@ -609,7 +648,7 @@ public class AssemblyGenerator {
         res += "call	printf\n";
         res += "nop\n";
         res += "popq	%rbp\n";
-        res += "ret\n";
+        res += "ret";
         return res;
     }
 }

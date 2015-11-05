@@ -133,9 +133,14 @@ public class CheckSemVisitor extends Visitor<Type> {
                 addError(expr, "ERROR Type operator of binOpexpr");
                 return Type.UNDEFINED;
             }
-            if (operator.equals(BinOpType.EQ) || operator.equals(BinOpType.GTR) || operator.equals(BinOpType.GTR_EQ) || operator.equals(BinOpType.LESS) || operator.equals(BinOpType.LESS_EQ)){
+            if (operator.equals(BinOpType.EQ) || operator.equals(BinOpType.NOT_EQ) || operator.equals(BinOpType.GTR) || operator.equals(BinOpType.GTR_EQ) || operator.equals(BinOpType.LESS) || operator.equals(BinOpType.LESS_EQ)){
                 expr.setType(Type.BOOLEAN);
                 return expr.getType();
+            }
+            
+            if(operator.equals(BinOpType.MOD) && left.getType().equals(Type.FLOAT)){
+                addError(expr, "ERROR mod operation is not applicable to floats");
+                return Type.UNDEFINED;
             }
         }
       

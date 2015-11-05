@@ -15,6 +15,10 @@ public class Parameter extends AST{
         return this.var;
     }
     
+    public void setVarLocation(VarLocation var){
+        this.var = var;
+    }
+    
 
     @Override
     public String toString() {
