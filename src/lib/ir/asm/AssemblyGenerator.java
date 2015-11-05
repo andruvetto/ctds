@@ -340,9 +340,9 @@ public class AssemblyGenerator {
             res += "movq %rax," + operand(instruction.getRes());
         }
         if (parPushed%2 != 0){
-            res += "\naddq $8, %rsp";
-            parPushed = 0;
+            res += "\naddq $8, %rsp";  
         }
+        parPushed = 0;
         
         
         return res;
