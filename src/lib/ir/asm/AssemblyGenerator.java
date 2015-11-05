@@ -332,7 +332,8 @@ public class AssemblyGenerator {
     
     private String genCall(Instruction instruction){
         String res;
-        res = "call " + instruction.getOp1() + "\n";
+        res = "movq $0, %rax\n";
+        res += "call " + instruction.getOp1() + "\n";
         if (instruction.getRes().getType().equals(Type.FLOAT)){
             res += "movq %xmm0," + operand(instruction.getRes());
         }

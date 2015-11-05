@@ -301,6 +301,7 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
     @Override
     public LinkedList<Instruction> visit(MethodCallStmt m) {
         LinkedList<Instruction> instructions = new LinkedList();
+        LinkedList<Instruction> pushes = new LinkedList();
         List<Expression> expressions = m.getExpressions();
         int integers = 0;
         int floats = 0;
@@ -324,18 +325,18 @@ public class ICodeVisitor extends Visitor<LinkedList<Instruction>> {
                 integers--;
             }
             Expression expr = lastExpression;
-            Instruction instruction = new Instruction(TypeInstruction.PUSH, parameterNum, expr);
-            instructions.add(instruction);
+            Instruction push = new Instruction(TypeInstruction.PUSH, parameterNum, expr);
+            pushes.add(push);
             
         }
-       
+        instructions.addAll(pushes);
         VarLocation res = new VarLocation("temp"+getNextIdTemp());
         res.setType(m.getMethodDecl().getType());
         offset -= bytes;
         res.setOffset(offset);
-        Instruction instruction = new Instruction(TypeInstruction.CALL, m.getLocation(),res);
+        Instruction call = new Instruction(TypeInstruction.CALL, m.getLocation(),res);
         lastExpression = res;
-        instructions.add(instruction);
+        instructions.add(call);
         return instructions;
     }
     
