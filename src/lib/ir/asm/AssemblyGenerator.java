@@ -341,6 +341,7 @@ public class AssemblyGenerator {
         }
         if (parPushed%2 != 0){
             res += "\naddq $8, %rsp";
+            parPushed = 0;
         }
         
         
