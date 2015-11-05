@@ -332,12 +332,13 @@ public class AssemblyGenerator {
     
     private String genCall(Instruction instruction){
         String res;
-        res = "movq $0, %rax\n";
-        res += "call " + instruction.getOp1() + "\n";
         if (instruction.getRes().getType().equals(Type.FLOAT)){
+            res = "call " + instruction.getOp1() + "\n";
             res += "movq %xmm0," + operand(instruction.getRes());
         }
         else{
+            res = "movq $0, %rax\n";
+            res += "call " + instruction.getOp1() + "\n";
             res += "movq %rax," + operand(instruction.getRes());
         }
         if (parPushed%2 != 0){
