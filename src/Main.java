@@ -17,8 +17,9 @@ import lib.ir.interpreter.InterpreterVisitor;
 public class Main {
 
     private static String outputName = "a";
-    private static String target = "asm";
+    private static String target = "exe";
     private static String inputName = "";
+    private static String externalArchives = "";
     /*Initialize the list of errors */
     private static List<Error> errors = new LinkedList();
 
@@ -51,16 +52,13 @@ public class Main {
                             break;
                         }
                     default:
-                        if ((i+1 < argv.length) || (argv[i].charAt(0) == '-')){
-                            System.err.println("Ilegal arguments");
-                            i=argv.length;
-                            break;
-                        }
-                        else{
                             inputName = argv[i];
                             i++;
+                            while (i<argv.length){
+                                externalArchives += argv[i] + " ";
+                                i++;
+                            }
                             break;
-                        }
                     }
                 }   
             
@@ -107,6 +105,14 @@ public class Main {
                         Program p = Parse(pr);
                         semCheck(p);
                         asm(p);
+                    }
+                    break;
+                case "exe":
+                    {
+                        Program p = Parse(pr);
+                        semCheck(p);
+                        asm(p);
+                        runGCC();
                     }
                     break;
                 default :
@@ -185,11 +191,7 @@ public class Main {
                 LinkedList<Instruction> instructions = icode.visit(program);
                 for (Instruction i : instructions){
                     System.out.println(i);
-                }
-                System.out.println("-------------------- ASM CODE : ----------------------");
-                AssemblyGenerator asm = new AssemblyGenerator(instructions);
-                System.out.println(asm.result);
-                
+                }                
             }
             else{
                 reports(program);
@@ -206,7 +208,7 @@ public class Main {
                 AssemblyGenerator asm = new AssemblyGenerator(instructions);
                 try {
                     PrintStream original = System.out;
-                    FileOutputStream fileOut = new FileOutputStream(outputName+".s");
+                    FileOutputStream fileOut = new FileOutputStream(outputName + ".s");
                     System.setOut(new PrintStream(fileOut));
                     System.out.println(asm.result);
                     fileOut.close();
@@ -215,14 +217,30 @@ public class Main {
                     Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
                 
                 }
-                
-                
             }
             else{
                 reports(program);
             }
         }
     }
+    
+    private static void runGCC(){
+            String command = "gcc " + outputName + ".s " + externalArchives + "-o " + outputName + ".out";
+            try {
+                ProcessBuilder pb = new ProcessBuilder(command.split(" "));
+                pb.redirectErrorStream(true);
+                Process proc = pb.start();
+                BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));             
+                String line;             
+                while ((line = in.readLine()) != null) {
+                    System.out.println(line);
+                }
+                proc.destroy();
+            } catch (Exception x) {
+                x.printStackTrace();
+            }
+    }
+    
     
     private static void reports(Program program){
         if (program != null){
